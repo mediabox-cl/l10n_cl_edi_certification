@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View -->
+        <record id="view_l10n_cl_certification_process_form" model="ir.ui.view">
+            <field name="name">l10n_cl.certification.process.form</field>
+            <field name="model">l10n_cl.certification.process</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="false">
+                    <header>
+                        <button name="action_prepare_certification" string="Preparar Certificación" 
+                                type="object" class="oe_highlight" 
+                                invisible="state != 'draft'"/>
+                        <button name="action_create_demo_cafs" string="Crear CAFs Demo" 
+                                type="object" class="oe_highlight" 
+                                invisible="state == 'draft'"/>
+                        <button name="action_process_set_prueba" string="Procesar Set de Pruebas" 
+                                type="object" class="oe_highlight" 
+                                invisible="state != 'setup' or set_prueba_file == False"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,setup,basic_test,simulation,exchange,printing,finished"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_cafs" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                                <field name="caf_count" widget="statinfo" string="CAFs"/>
+                            </button>
+                            <button name="action_view_test_documents" type="object" class="oe_stat_button" icon="fa-file-o">
+                                <field name="document_count" widget="statinfo" string="Documentos"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="company_id" options="{'no_create': True, 'no_open': True}"/>
+                            </h1>
+                        </div>
+                        <notebook>
+                            <page name="company_setup" string="Configuración Empresa">
+                                <group>
+                                    <group string="Configuración SII">
+                                        <field name="dte_service_provider" required="1"/>
+                                        <field name="dte_email" required="1"/>
+                                        <field name="resolution_number" required="1"/>
+                                        <field name="resolution_date" required="1"/>
+                                        <field name="sii_regional_office" required="1"/>
+                                    </group>
+                                    <group string="Checklist">
+                                        <field name="has_digital_signature" widget="boolean_toggle"/>
+                                        <field name="has_company_activities" widget="boolean_toggle"/>
+                                        <field name="has_required_cafs" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                                <group string="Actividades Económicas">
+                                    <field name="company_activity_ids" widget="many2many_tags" options="{'no_create': True}" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page name="test_set" string="Set de Pruebas">
+                                <group>
+                                    <field name="set_prueba_file" filename="set_prueba_filename"/>
+                                    <field name="set_prueba_filename" invisible="1"/>
+                                </group>
+                                <group string="Documentos Generados">
+                                    <field name="test_invoice_ids" nolabel="1">
+                                        <list>
+                                            <field name="name"/>
+                                            <field name="l10n_latam_document_type_id"/>
+                                            <field name="partner_id"/>
+                                            <field name="invoice_date"/>
+                                            <field name="amount_total"/>
+                                            <field name="l10n_cl_dte_status"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <!-- List View (changed from Tree View) -->
+        <record id="view_l10n_cl_certification_process_tree" model="ir.ui.view">
+            <field name="name">l10n_cl.certification.process.list</field>
+            <field name="model">l10n_cl.certification.process</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="company_id"/>
+                    <field name="state"/>
+                    <field name="document_count"/>
+                    <field name="caf_count"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_l10n_cl_certification_process" model="ir.actions.act_window">
+            <field name="name">Certificación SII</field>
+            <field name="res_model">l10n_cl.certification.process</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_l10n_cl_certification_process_form"/>
+            <field name="context">{'create_if_not_exist': True}</field>
+            <field name="create">false</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Inicie su proceso de certificación SII
+                </p>
+                <p>
+                    Este asistente le guiará a través de todo el proceso de certificación
+                    con el SII para la facturación electrónica.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="menu_l10n_cl_certification"
+                  name="Certificación SII"
+                  parent="l10n_cl_edi.menu_sii_chile"
+                  sequence="25"
+                  action="action_l10n_cl_certification_process"/>
+    </data>
+</odoo>

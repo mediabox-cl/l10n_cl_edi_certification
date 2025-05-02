@@ -12,17 +12,18 @@
 
     Funcionalidades:
     ---------------
-    * Preparación automática de la base de datos para certificación
-    * Creación correcta del tipo de documento SET para referencias
-    * Validación de documentos para el set de pruebas
+    * Panel de control para el proceso de certificación
+    * Preparación automática de la base de datos
+    * Creación de CAFs de demostración
+    * Procesamiento de set de pruebas
+    * Seguimiento de documentos de prueba
     """,
     'author': 'Tomás Díaz',
     'website': 'https://www.withinplaygames.com',
     'depends': ['account', 'l10n_cl', 'l10n_cl_edi'],
     'data': [
         'security/ir.model.access.csv',
-        'views/certification_menu.xml',
-        'data/document_type_data.xml',
+        'views/certification_process_view.xml',
     ],
     'installable': True,
     'application': False,
