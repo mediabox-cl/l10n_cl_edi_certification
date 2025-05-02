@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Acción para el botón de preparación -->
+        <record id="action_prepare_for_certification" model="ir.actions.server">
+            <field name="name">Preparar para Certificación SII</field>
+            <field name="model_id" ref="model_l10n_cl_certification_tools"/>
+            <field name="binding_model_id" ref="model_l10n_cl_certification_tools"/>
+            <field name="state">code</field>
+            <field name="code">
+                # Crear registro temporal si no existe ninguno
+                tools = env['l10n_cl.certification.tools'].search([], limit=1)
+                if not tools:
+                    tools = env['l10n_cl.certification.tools'].create({'name': 'Herramientas de Certificación'})
+                
+                # Ejecutar la preparación
+                action = tools.prepare_database_for_certification()
+            </field>
+        </record>
+        
+        <!-- Menú de certificación -->
+        <record id="certification_tools_menu_action" model="ir.actions.act_window">
+            <field name="name">Certificación SII</field>
+            <field name="res_model">l10n_cl.certification.tools</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+        
+        <!-- Agregar a menú de contabilidad -->
+        <menuitem id="menu_l10n_cl_certification"
+                  name="Certificación SII"
+                  parent="account.menu_finance_reports"
+                  sequence="99"
+                  action="action_prepare_for_certification"/>
+    </data>
+</odoo>
