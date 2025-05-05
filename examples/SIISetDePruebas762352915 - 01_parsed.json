@@ -1,0 +1,473 @@
+{
+  "sets": [
+    {
+      "set_type": "basic",
+      "attention_number": "4244618",
+      "cases": [
+        {
+          "case_number": "4244618-1",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "electronic_invoice",
+          "reference_document": null,
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [
+            {
+              "name": "Caj�n AFECTO",
+              "is_exempt": false,
+              "price_unit": 1812.0,
+              "quantity": 139.0
+            },
+            {
+              "name": "Relleno AFECTO",
+              "is_exempt": false,
+              "price_unit": 2976.0,
+              "quantity": 59.0
+            }
+          ],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-2",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "electronic_invoice",
+          "reference_document": null,
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [
+            {
+              "name": "Pa�uelo AFECTO",
+              "is_exempt": false,
+              "discount_percent": 6.0,
+              "price_unit": 3293.0,
+              "quantity": 416.0
+            },
+            {
+              "name": "ITEM 2 AFECTO",
+              "is_exempt": false,
+              "discount_percent": 11.0,
+              "price_unit": 2352.0,
+              "quantity": 349.0
+            }
+          ],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-3",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "electronic_invoice",
+          "reference_document": null,
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [
+            {
+              "name": "Pintura B&W AFECTO",
+              "is_exempt": false,
+              "price_unit": 3767.0,
+              "quantity": 32.0
+            },
+            {
+              "name": "ITEM 2 AFECTO",
+              "is_exempt": false,
+              "price_unit": 3251.0,
+              "quantity": 179.0
+            },
+            {
+              "name": "ITEM 3 SERVICIO EXENTO",
+              "is_exempt": true,
+              "price_unit": 34908.0,
+              "quantity": 1.0
+            }
+          ],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-4",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "electronic_invoice",
+          "reference_document": null,
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [
+            {
+              "name": "ITEM 1 AFECTO",
+              "is_exempt": false,
+              "price_unit": 3142.0,
+              "quantity": 196.0
+            },
+            {
+              "name": "ITEM 2 AFECTO",
+              "is_exempt": false,
+              "price_unit": 3412.0,
+              "quantity": 84.0
+            },
+            {
+              "name": "ITEM 3 SERVICIO EXENTO",
+              "is_exempt": true,
+              "price_unit": 6790.0,
+              "quantity": 2.0
+            }
+          ],
+          "additional_info": {},
+          "global_discount": 12.0
+        },
+        {
+          "case_number": "4244618-5",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "credit_note",
+          "reference_document": "FACTURA ELECTRONICA CORRESPONDIENTE A",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-1",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": null,
+          "reference_document": "CORRIGE GIRO DEL RECEPTOR",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-6",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "credit_note",
+          "reference_document": "FACTURA  ELECTRONICA CORRESPONDIENTE A",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-2",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": null,
+          "reference_document": "DEVOLUCION DE MERCADERIAS",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [
+            {
+              "name": "Pa�uelo AFECTO",
+              "is_exempt": false,
+              "price_unit": 153.0
+            },
+            {
+              "name": "ITEM 2 AFECTO",
+              "is_exempt": false,
+              "price_unit": 236.0,
+              "quantity": 2.0
+            }
+          ],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-7",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "credit_note",
+          "reference_document": "FACTURA ELECTRONICA CORRESPONDIENTE A",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-3",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": null,
+          "reference_document": "ANULA FACTURA",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-8",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": "debit_note",
+          "reference_document": "NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        },
+        {
+          "case_number": "4244618-5",
+          "set_type": "basic",
+          "set_attention_number": "4244618",
+          "document_type": null,
+          "reference_document": "ANULA NOTA DE CREDITO ELECTRONICA",
+          "reference_reason": null,
+          "motivo": null,
+          "traslado_por": null,
+          "items": [],
+          "additional_info": {}
+        }
+      ]
+    },
+    {
+      "set_type": "sales_book",
+      "attention_number": "4244619",
+      "cases": []
+    },
+    {
+      "set_type": "purchase_book",
+      "attention_number": "4244620",
+      "cases": []
+    },
+    {
+      "set_type": "guides_book",
+      "attention_number": "4244622",
+      "cases": []
+    }
+  ],
+  "cases": [
+    {
+      "case_number": "4244618-1",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "electronic_invoice",
+      "reference_document": null,
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [
+        {
+          "name": "Caj�n AFECTO",
+          "is_exempt": false,
+          "price_unit": 1812.0,
+          "quantity": 139.0
+        },
+        {
+          "name": "Relleno AFECTO",
+          "is_exempt": false,
+          "price_unit": 2976.0,
+          "quantity": 59.0
+        }
+      ],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-2",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "electronic_invoice",
+      "reference_document": null,
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [
+        {
+          "name": "Pa�uelo AFECTO",
+          "is_exempt": false,
+          "discount_percent": 6.0,
+          "price_unit": 3293.0,
+          "quantity": 416.0
+        },
+        {
+          "name": "ITEM 2 AFECTO",
+          "is_exempt": false,
+          "discount_percent": 11.0,
+          "price_unit": 2352.0,
+          "quantity": 349.0
+        }
+      ],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-3",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "electronic_invoice",
+      "reference_document": null,
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [
+        {
+          "name": "Pintura B&W AFECTO",
+          "is_exempt": false,
+          "price_unit": 3767.0,
+          "quantity": 32.0
+        },
+        {
+          "name": "ITEM 2 AFECTO",
+          "is_exempt": false,
+          "price_unit": 3251.0,
+          "quantity": 179.0
+        },
+        {
+          "name": "ITEM 3 SERVICIO EXENTO",
+          "is_exempt": true,
+          "price_unit": 34908.0,
+          "quantity": 1.0
+        }
+      ],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-4",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "electronic_invoice",
+      "reference_document": null,
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [
+        {
+          "name": "ITEM 1 AFECTO",
+          "is_exempt": false,
+          "price_unit": 3142.0,
+          "quantity": 196.0
+        },
+        {
+          "name": "ITEM 2 AFECTO",
+          "is_exempt": false,
+          "price_unit": 3412.0,
+          "quantity": 84.0
+        },
+        {
+          "name": "ITEM 3 SERVICIO EXENTO",
+          "is_exempt": true,
+          "price_unit": 6790.0,
+          "quantity": 2.0
+        }
+      ],
+      "additional_info": {},
+      "global_discount": 12.0
+    },
+    {
+      "case_number": "4244618-5",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "credit_note",
+      "reference_document": "FACTURA ELECTRONICA CORRESPONDIENTE A",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-1",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": null,
+      "reference_document": "CORRIGE GIRO DEL RECEPTOR",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-6",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "credit_note",
+      "reference_document": "FACTURA  ELECTRONICA CORRESPONDIENTE A",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-2",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": null,
+      "reference_document": "DEVOLUCION DE MERCADERIAS",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [
+        {
+          "name": "Pa�uelo AFECTO",
+          "is_exempt": false,
+          "price_unit": 153.0
+        },
+        {
+          "name": "ITEM 2 AFECTO",
+          "is_exempt": false,
+          "price_unit": 236.0,
+          "quantity": 2.0
+        }
+      ],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-7",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "credit_note",
+      "reference_document": "FACTURA ELECTRONICA CORRESPONDIENTE A",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-3",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": null,
+      "reference_document": "ANULA FACTURA",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-8",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": "debit_note",
+      "reference_document": "NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    },
+    {
+      "case_number": "4244618-5",
+      "set_type": "basic",
+      "set_attention_number": "4244618",
+      "document_type": null,
+      "reference_document": "ANULA NOTA DE CREDITO ELECTRONICA",
+      "reference_reason": null,
+      "motivo": null,
+      "traslado_por": null,
+      "items": [],
+      "additional_info": {}
+    }
+  ]
+}

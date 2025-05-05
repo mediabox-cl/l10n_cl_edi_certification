@@ -1,0 +1,430 @@
+=========================================
+RESULTADO DEL ANÁLISIS DEL SET DE PRUEBAS
+=========================================
+
+Archivo procesado: examples/SIISetDePruebas762352915 - 02.txt
+Sets encontrados: 6
+Casos totales: 21
+
+DETALLE DE SETS DE PRUEBA
+========================
+
+SET 1: BASIC
+Número de atención: 4267217
+Casos en este set: 12
+--------------------------------------------------
+
+SET 2: SALES_BOOK
+Número de atención: 4267218
+Casos en este set: 0
+--------------------------------------------------
+
+SET 3: PURCHASE_BOOK
+Número de atención: 4267219
+Casos en este set: 0
+--------------------------------------------------
+
+SET 4: GUIDES_BOOK
+Número de atención: 4267221
+Casos en este set: 0
+--------------------------------------------------
+
+SET 5: BASIC
+Número de atención: 4267225
+Casos en este set: 4
+--------------------------------------------------
+
+SET 6: BASIC
+Número de atención: 4267226
+Casos en este set: 5
+--------------------------------------------------
+
+DETALLE DE CASOS
+===============
+
+CASO 1: 4267217-1
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: electronic_invoice
+
+Ítems (2):
+  Ítem 1: Caj�n AFECTO
+    Cantidad: 186.0
+    Precio unitario: 4531.0
+    Exento: No
+  Ítem 2: Relleno AFECTO
+    Cantidad: 78.0
+    Precio unitario: 7573.0
+    Exento: No
+
+======================================================================
+
+CASO 2: 4267217-2
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: electronic_invoice
+
+Ítems (2):
+  Ítem 1: Pa�uelo AFECTO
+    Cantidad: 971.0
+    Precio unitario: 7475.0
+    Descuento: 12.0%
+    Exento: No
+  Ítem 2: ITEM 2 AFECTO
+    Cantidad: 923.0
+    Precio unitario: 6521.0
+    Descuento: 30.0%
+    Exento: No
+
+======================================================================
+
+CASO 3: 4267217-3
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: electronic_invoice
+
+Ítems (3):
+  Ítem 1: Pintura B&W AFECTO
+    Cantidad: 94.0
+    Precio unitario: 8590.0
+    Exento: No
+  Ítem 2: ITEM 2 AFECTO
+    Cantidad: 272.0
+    Precio unitario: 4590.0
+    Exento: No
+  Ítem 3: ITEM 3 SERVICIO EXENTO
+    Cantidad: 1.0
+    Precio unitario: 35530.0
+    Exento: Sí
+
+======================================================================
+
+CASO 4: 4267217-4
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: electronic_invoice
+Descuento global: 29.0%
+
+Ítems (3):
+  Ítem 1: ITEM 1 AFECTO
+    Cantidad: 549.0
+    Precio unitario: 7640.0
+    Exento: No
+  Ítem 2: ITEM 2 AFECTO
+    Cantidad: 232.0
+    Precio unitario: 9555.0
+    Exento: No
+  Ítem 3: ITEM 3 SERVICIO EXENTO
+    Cantidad: 2.0
+    Precio unitario: 6859.0
+    Exento: Sí
+
+======================================================================
+
+CASO 5: 4267217-5
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: credit_note
+Referencia a: FACTURA ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 6: 4267217-1
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: No especificado
+Referencia a: CORRIGE GIRO DEL RECEPTOR
+
+Ítems (0):
+
+======================================================================
+
+CASO 7: 4267217-6
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: credit_note
+Referencia a: FACTURA  ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 8: 4267217-2
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: No especificado
+Referencia a: DEVOLUCION DE MERCADERIAS
+
+Ítems (2):
+  Ítem 1: Pa�uelo AFECTO
+    Precio unitario: 356.0
+    Exento: No
+  Ítem 2: ITEM 2 AFECTO		    6
+    Cantidad: 2.0
+    Precio unitario: 626.0
+    Exento: No
+
+======================================================================
+
+CASO 9: 4267217-7
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: credit_note
+Referencia a: FACTURA ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 10: 4267217-3
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: No especificado
+Referencia a: ANULA FACTURA
+
+Ítems (0):
+
+======================================================================
+
+CASO 11: 4267217-8
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: debit_note
+Referencia a: NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 12: 4267217-5
+Tipo de Set: basic
+Número de atención: 4267217
+Tipo de documento: No especificado
+Referencia a: ANULA NOTA DE CREDITO ELECTRONICA
+
+Ítems (0):
+
+======================================================================
+
+CASO 13: 4267225-1
+Tipo de Set: basic
+Número de atención: 4267225
+Tipo de documento: electronic_invoice
+
+Ítems (4):
+  Ítem 1: NETO FACTURAS
+    Cantidad: 13.0
+    Precio unitario: 807984.0
+    Exento: No
+  Ítem 2: EXENTO FACTURAS
+    Cantidad: 9.0
+    Precio unitario: 201516.0
+    Exento: Sí
+  Ítem 3: NETO FACTURAS ELECTRONICAS
+    Cantidad: 61.0
+    Precio unitario: 129698.0
+    Exento: No
+  Ítem 4: EXENTO FACTURAS ELECTRONICAS
+    Cantidad: 45.0
+    Precio unitario: 121718.0
+    Exento: Sí
+
+======================================================================
+
+CASO 14: 4267225-2
+Tipo de Set: basic
+Número de atención: 4267225
+Tipo de documento: electronic_invoice
+
+Ítems (7):
+  Ítem 1: NETO FACTURA ELECTR�NICA 4254
+    Cantidad: 1.0
+    Precio unitario: 56736.0
+    Exento: No
+  Ítem 2: EXENTO FACTURA ELECTR�NICA 4254		      1		  267
+    Cantidad: 1.0
+    Precio unitario: 26718.0
+    Exento: Sí
+  Ítem 3: NETO FACTURA ELECTR�NICA 4768		      1		 75
+    Cantidad: 1.0
+    Precio unitario: 751958.0
+    Exento: No
+  Ítem 4: EXENTO FACTURA ELECTR�NICA 4768
+    Cantidad: 1.0
+    Precio unitario: 439220.0
+    Exento: Sí
+  Ítem 5: NETO NOTA DE CR�DITO 328
+    Cantidad: 1.0
+    Precio unitario: 59379.0
+    Exento: No
+  Ítem 6: EXENTO NOTA DE CR�DITO 328		      1		 -
+    Cantidad: 1.0
+    Precio unitario: 19668.0
+    Exento: Sí
+  Ítem 7: BOLETAS
+    Cantidad: 9976.0
+    Precio unitario: 7521087.0
+    Exento: No
+
+======================================================================
+
+CASO 15: 4267225-3
+Tipo de Set: basic
+Número de atención: 4267225
+Tipo de documento: electronic_invoice
+
+Ítems (6):
+  Ítem 1: NETO FACTURA ELECTR�NICA 1515			      1		 44889
+    Cantidad: 1.0
+    Precio unitario: 448891.0
+    Exento: No
+  Ítem 2: NETO FACTURAS ELECTR�NICAS
+    Cantidad: 361.0
+    Precio unitario: 176739.0
+    Exento: No
+  Ítem 3: EXENTO FACTURAS ELECTR�NICAS
+    Cantidad: 61.0
+    Precio unitario: 136978.0
+    Exento: Sí
+  Ítem 4: COMISIONES Y OTROS CARGOS	TOTAL LINEA
+    Exento: No
+  Ítem 5: NETO COMISI�N FIJA
+    Precio unitario: 3691.0
+    Exento: No
+  Ítem 6: NETO COMISI�N VARIABLE
+    Precio unitario: 8837.0
+    Exento: No
+
+======================================================================
+
+CASO 16: 4267225-4
+Tipo de Set: basic
+Número de atención: 4267225
+Tipo de documento: electronic_invoice
+
+Ítems (11):
+  Ítem 1: NETO ANTICIPO FACTURACI�N
+    Cantidad: 361.0
+    Precio unitario: 550000.0
+    Exento: No
+  Ítem 2: NETO FACTURAS
+    Cantidad: 61.0
+    Precio unitario: 425352.0
+    Exento: No
+  Ítem 3: EXENTO FACTURAS
+    Cantidad: 69.0
+    Precio unitario: 208950.0
+    Exento: Sí
+  Ítem 4: NETO FACTURAS ELECTR�NICAS
+    Cantidad: 53.0
+    Precio unitario: 126357.0
+    Exento: No
+  Ítem 5: EXENTO FACTURAS ELECTR�NICAS
+    Cantidad: 10.0
+    Precio unitario: 1847283.0
+    Exento: Sí
+  Ítem 6: NETO NOTA DE CR�DITO 1981			      1		-
+    Cantidad: 1.0
+    Precio unitario: 109758.0
+    Exento: No
+  Ítem 7: NETO LIQUIDACI�N FACTURA ELECTR�NICA 4554	      1		-
+    Cantidad: 1.0
+    Precio unitario: 169039.0
+    Exento: No
+  Ítem 8: EXENTO LIQUIDACI�N FACTURA ELECTR�NICA 4554	      1		-
+    Cantidad: 1.0
+    Precio unitario: 170403.0
+    Exento: Sí
+  Ítem 9: COMISIONES Y OTROS CARGOS				TOTAL LINEA
+    Exento: No
+  Ítem 10: NETO COMISI�N CONSIGNACION
+    Precio unitario: 2583.0
+    Exento: No
+  Ítem 11: NETO COMISIONES LIQUIDACI�N FACTURA ELECTR�NICA
+    Cantidad: 4554.0
+    Precio unitario: 8452.0
+    Exento: No
+
+======================================================================
+
+CASO 17: 4267226-1
+Tipo de Set: basic
+Número de atención: 4267226
+Tipo de documento: purchase_invoice
+
+Ítems (2):
+  Ítem 1: Producto 1
+    Cantidad: 705.0
+    Precio unitario: 5582.0
+    Exento: No
+  Ítem 2: Producto 2
+    Cantidad: 31.0
+    Precio unitario: 3029.0
+    Exento: No
+
+======================================================================
+
+CASO 18: 4267226-2
+Tipo de Set: basic
+Número de atención: 4267226
+Tipo de documento: credit_note
+Referencia a: FACTURA DE COMPRA ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 19: 4267226-1
+Tipo de Set: basic
+Número de atención: 4267226
+Tipo de documento: No especificado
+Referencia a: DEVOLUCION DE MERCADERIA ITEMS 1 Y 2
+
+Ítems (3):
+  Ítem 1: Producto
+    Cantidad: 1.0
+    Precio unitario: 235.0
+    Exento: No
+  Ítem 2: Producto
+    Cantidad: 2.0
+    Precio unitario: 10.0
+    Exento: No
+  Ítem 3: LOS PRECIOS UNITARIOS DE LOS ITEMS DEBEN SER LOS MISMOS DE LA FACTURA
+    Exento: No
+
+======================================================================
+
+CASO 20: 4267226-3
+Tipo de Set: basic
+Número de atención: 4267226
+Tipo de documento: debit_note
+Referencia a: NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A
+
+Ítems (0):
+
+======================================================================
+
+CASO 21: 4267226-2
+Tipo de Set: basic
+Número de atención: 4267226
+Tipo de documento: No especificado
+Referencia a: ANULA NOTA DE CREDITO ELECTRONICA
+
+Ítems (0):
+
+======================================================================
+
+ANÁLISIS DE RELACIONES ENTRE DOCUMENTOS
+======================================
+
+No se encontraron referencias entre documentos.
+
+RESUMEN POR TIPO DE DOCUMENTO
+============================
+
+electronic_invoice: 8 documento(s)
+credit_note: 4 documento(s)
+debit_note: 2 documento(s)
+purchase_invoice: 1 documento(s)
