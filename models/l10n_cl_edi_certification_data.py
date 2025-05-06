@@ -2,12 +2,12 @@
 from odoo import models, fields, api
 
 class CertificationParsedSet(models.Model):
-    _name = 'l10n_cl.certification.parsed_set'
+    _name = 'l10n_cl_edi.certification.parsed_set'
     _description = 'Representa un Set parseado del archivo de Pruebas SII'
     _order = 'certification_process_id, sequence'
 
     certification_process_id = fields.Many2one(
-        'l10n_cl.certification.process', string='Proceso de Certificación',
+        'l10n_cl_edi.certification.process', string='Proceso de Certificación',
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
 
@@ -27,13 +27,13 @@ class CertificationParsedSet(models.Model):
 
     # Contenido específico del Set
     instructional_content_ids = fields.One2many(
-        'l10n_cl.certification.instructional_set', 'parsed_set_id',
+        'l10n_cl_edi.certification.instructional_set', 'parsed_set_id',
         string='Contenido Instruccional')
     dte_case_ids = fields.One2many(
-        'l10n_cl.certification.case.dte', 'parsed_set_id',
+        'l10n_cl_edi.certification.case.dte', 'parsed_set_id',
         string='Casos DTE a Generar')
     purchase_book_entry_ids = fields.One2many(
-        'l10n_cl.certification.purchase_book.entry', 'parsed_set_id',
+        'l10n_cl_edi.certification.purchase_book.entry', 'parsed_set_id',
         string='Entradas Libro de Compras')
 
     raw_header_text = fields.Text(string='Texto Cabecera Original del Set')
@@ -48,24 +48,24 @@ class CertificationParsedSet(models.Model):
             record.name = name
 
 class CertificationInstructionalSet(models.Model):
-    _name = 'l10n_cl.certification.instructional_set'
+    _name = 'l10n_cl_edi.certification.instructional_set'
     _description = 'Contenido para Sets Instruccionales (Libro Ventas/Guías)'
     _order = 'parsed_set_id, sequence'
 
     parsed_set_id = fields.Many2one(
-        'l10n_cl.certification.parsed_set', string='Set Parseado',
+        'l10n_cl_edi.certification.parsed_set', string='Set Parseado',
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
     instructions_text = fields.Text(string='Instrucciones')
     general_observations = fields.Text(string='Observaciones Generales')
 
 class CertificationCaseDTE(models.Model):
-    _name = 'l10n_cl.certification.case.dte'
+    _name = 'l10n_cl_edi.certification.case.dte'
     _description = 'Define un Caso DTE a generar desde el Set de Pruebas'
     _order = 'parsed_set_id, case_number_raw'
 
     parsed_set_id = fields.Many2one(
-        'l10n_cl.certification.parsed_set', string='Set Parseado',
+        'l10n_cl_edi.certification.parsed_set', string='Set Parseado',
         required=True, ondelete='cascade', index=True)
     case_number_raw = fields.Char(string='Número de Caso SII (Raw)', index=True)
     
@@ -75,12 +75,12 @@ class CertificationCaseDTE(models.Model):
     document_type_code = fields.Char(string='Código Tipo Documento (Normalizado)', help="Ej: 33, 34, 52, 56, 61, 110, 111, 112") 
 
     item_ids = fields.One2many(
-        'l10n_cl.certification.case.dte.item', 'case_dte_id',
+        'l10n_cl_edi.certification.case.dte.item', 'case_dte_id',
         string='Ítems del Documento')
     global_discount_percent = fields.Float(string='Descuento Global (%)')
     
     reference_ids = fields.One2many(
-        'l10n_cl.certification.case.dte.reference', 'case_dte_id',
+        'l10n_cl_edi.certification.case.dte.reference', 'case_dte_id',
         string='Referencias del Documento')
 
     # Guia de Despacho specific
@@ -114,12 +114,12 @@ class CertificationCaseDTE(models.Model):
     error_message = fields.Text(string='Mensaje de Error', readonly=True, copy=False)
 
 class CertificationCaseDTEItem(models.Model):
-    _name = 'l10n_cl.certification.case.dte.item'
+    _name = 'l10n_cl_edi.certification.case.dte.item'
     _description = 'Ítem para un Caso DTE del Set de Pruebas'
     _order = 'case_dte_id, sequence'
 
     case_dte_id = fields.Many2one(
-        'l10n_cl.certification.case.dte', string='Caso DTE',
+        'l10n_cl_edi.certification.case.dte', string='Caso DTE',
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
     
@@ -132,27 +132,27 @@ class CertificationCaseDTEItem(models.Model):
     is_exempt = fields.Boolean(string='¿Es Exento?')
 
 class CertificationCaseDTEReference(models.Model):
-    _name = 'l10n_cl.certification.case.dte.reference'
+    _name = 'l10n_cl_edi.certification.case.dte.reference'
     _description = 'Referencia para un Caso DTE del Set de Pruebas'
     _order = 'case_dte_id, sequence'
 
     case_dte_id = fields.Many2one(
-        'l10n_cl.certification.case.dte', string='Caso DTE',
+        'l10n_cl_edi.certification.case.dte', string='Caso DTE',
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
 
     reference_document_text_raw = fields.Text(string='Texto Documento Referenciado (Raw)')
     referenced_sii_case_number = fields.Char(string='Nº Caso SII Referenciado')
-    # referenced_internal_case_id = fields.Many2one('l10n_cl.certification.case.dte', string='Caso Interno Referenciado') # Link to another case within the same process
+    # referenced_internal_case_id = fields.Many2one('l10n_cl_edi.certification.case.dte', string='Caso Interno Referenciado') # Link to another case within the same process
     reason_raw = fields.Text(string='Razón Referencia (Raw)')
 
 class CertificationPurchaseBookEntry(models.Model):
-    _name = 'l10n_cl.certification.purchase_book.entry'
+    _name = 'l10n_cl_edi.certification.purchase_book.entry'
     _description = 'Entrada para el Libro de Compras del Set de Pruebas'
     _order = 'parsed_set_id, sequence'
     
     parsed_set_id = fields.Many2one(
-        'l10n_cl.certification.parsed_set', string='Set Parseado',
+        'l10n_cl_edi.certification.parsed_set', string='Set Parseado',
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
 
@@ -170,4 +170,4 @@ class CertificationPurchaseBookEntry(models.Model):
         ('pending', 'Pendiente'),
         ('processed', 'Procesado'), # If we create other records or just for data logging
         ('error', 'Error')
-    ], string='Estado Procesamiento', default='pending', copy=False) 
+    ], string='Estado Procesamiento', default='pending', copy=False)

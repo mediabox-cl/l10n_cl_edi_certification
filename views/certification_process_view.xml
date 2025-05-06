@@ -3,8 +3,8 @@
     <data>
         <!-- Form View -->
         <record id="view_l10n_cl_edi_certification_process_form" model="ir.ui.view">
-            <field name="name">l10n_cl.certification.process.form</field>
-            <field name="model">l10n_cl.certification.process</field>
+            <field name="name">l10n_cl_edi.certification.process.form</field>
+            <field name="model">l10n_cl_edi.certification.process</field>
             <field name="arch" type="xml">
                 <form create="false" delete="false">
                     <header>
@@ -102,8 +102,8 @@
 
         <!-- List View -->
         <record id="view_l10n_cl_edi_certification_process_tree" model="ir.ui.view">
-            <field name="name">l10n_cl.certification.process.list</field>
-            <field name="model">l10n_cl.certification.process</field>
+            <field name="name">l10n_cl_edi.certification.process.list</field>
+            <field name="model">l10n_cl_edi.certification.process</field>
             <field name="arch" type="xml">
                 <list>
                     <field name="company_id"/>
@@ -117,8 +117,8 @@
 
         <!-- Minimal List view for Parsed Sets -->
         <record id="view_l10n_cl_edi_certification_parsed_set_tree_inline" model="ir.ui.view">
-            <field name="name">l10n_cl.certification.parsed_set.list.inline</field>
-            <field name="model">l10n_cl.certification.parsed_set</field>
+            <field name="name">l10n_cl_edi.certification.parsed_set.list.inline</field>
+            <field name="model">l10n_cl_edi.certification.parsed_set</field>
             <field name="arch" type="xml">
                 <list editable="bottom" create="false" delete="false">
                     <field name="sequence" widget="handle"/>
@@ -132,7 +132,7 @@
         <!-- Action -->
         <record id="action_l10n_cl_edi_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
-            <field name="res_model">l10n_cl.certification.process</field>
+            <field name="res_model">l10n_cl_edi.certification.process</field>
             <field name="view_mode">list,form</field>
             <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
             <field name="target">current</field>

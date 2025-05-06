@@ -9,7 +9,7 @@ from lxml import etree
 _logger = logging.getLogger(__name__)
 
 class CertificationProcess(models.Model):
-    _name = 'l10n_cl.certification.process'
+    _name = 'l10n_cl_edi.certification.process'  # Actualizado
     _description = 'Proceso de Certificación SII'
     _rec_name = 'company_id'
     
@@ -38,13 +38,13 @@ class CertificationProcess(models.Model):
     set_prueba_file = fields.Binary(string='Archivo XML Set de Pruebas', attachment=True)
     set_prueba_filename = fields.Char(string='Nombre del archivo XML')
     test_invoice_ids = fields.One2many(
-        'account.move', 'l10n_cl_edi_certification_id',
+        'account.move', 'l10n_cl_edi_certification_id',  # Actualizado
         string='Documentos de Prueba Generados',
         domain=[('move_type', 'not in', ('entry', 'liq_purchase'))])
 
     # New field to link to parsed sets
     parsed_set_ids = fields.One2many(
-        'l10n_cl.certification.parsed_set', 'certification_process_id',
+        'l10n_cl_edi.certification.parsed_set', 'certification_process_id',  # Actualizado
         string='Sets de Pruebas Definidos')
     
     dte_case_to_generate_count = fields.Integer(
@@ -85,7 +85,7 @@ class CertificationProcess(models.Model):
     
     def _compute_dte_case_to_generate_count(self):
         for record in self:
-            record.dte_case_to_generate_count = self.env['l10n_cl.certification.case.dte'].search_count([
+            record.dte_case_to_generate_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
                 ('parsed_set_id.certification_process_id', '=', record.id),
                 ('generation_status', '=', 'pending')
             ])
@@ -200,12 +200,12 @@ class CertificationProcess(models.Model):
             _logger.error("Error parsing XML Set de Pruebas: %s", str(e))
             raise UserError(_("Error al procesar el archivo XML: %s") % str(e))
 
-        parsed_set_model = self.env['l10n_cl.certification.parsed_set']
-        dte_case_model = self.env['l10n_cl.certification.case.dte']
-        item_model = self.env['l10n_cl.certification.case.dte.item']
-        ref_model = self.env['l10n_cl.certification.case.dte.reference']
-        purchase_entry_model = self.env['l10n_cl.certification.purchase_book.entry']
-        instructional_model = self.env['l10n_cl.certification.instructional_set']
+        parsed_set_model = self.env['l10n_cl_edi.certification.parsed_set']  # Actualizado
+        dte_case_model = self.env['l10n_cl_edi.certification.case.dte']  # Actualizado
+        item_model = self.env['l10n_cl_edi.certification.case.dte.item']  # Actualizado
+        ref_model = self.env['l10n_cl_edi.certification.case.dte.reference']  # Actualizado
+        purchase_entry_model = self.env['l10n_cl_edi.certification.purchase_book.entry']  # Actualizado
+        instructional_model = self.env['l10n_cl_edi.certification.instructional_set']  # Actualizado
 
         sequence = 10
         for set_node in root.findall('ParsedSet'):
@@ -319,7 +319,7 @@ class CertificationProcess(models.Model):
         self.state = 'generation'
         self.env.cr.commit()
 
-        cases_to_generate = self.env['l10n_cl.certification.case.dte'].search([
+        cases_to_generate = self.env['l10n_cl_edi.certification.case.dte'].search([  # Actualizado
             ('parsed_set_id.certification_process_id', '=', self.id),
             ('generation_status', '=', 'pending')
         ])
@@ -344,17 +344,17 @@ class CertificationProcess(models.Model):
             self.env.cr.commit()
 
         if error_count == 0 and generated_count > 0:
-            all_cases = self.env['l10n_cl.certification.case.dte'].search_count([
+            all_cases = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
                 ('parsed_set_id.certification_process_id', '=', self.id)
             ])
-            total_generated = self.env['l10n_cl.certification.case.dte'].search_count([
+            total_generated = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
                 ('parsed_set_id.certification_process_id', '=', self.id),
                 ('generation_status', '=', 'generated')
             ])
             if all_cases == total_generated:
                 self.state = 'finished'
             else:
-                 self.state = 'data_loaded'
+                self.state = 'data_loaded'
         elif generated_count > 0 and error_count > 0:
             self.state = 'data_loaded'
         elif error_count > 0 and generated_count == 0:
@@ -410,7 +410,7 @@ class CertificationProcess(models.Model):
         if not referenced_sii_case_number:
             return self.env['account.move']
         
-        referenced_dte_case = self.env['l10n_cl.certification.case.dte'].search([
+        referenced_dte_case = self.env['l10n_cl_edi.certification.case.dte'].search([  # Actualizado
             ('parsed_set_id.certification_process_id', '=', self.id),
             ('case_number_raw', '=', referenced_sii_case_number),
             ('generated_account_move_id', '!=', False)
@@ -521,7 +521,7 @@ class CertificationProcess(models.Model):
         return ref_data_to_store_on_move
 
     def _create_move_from_dte_case(self, dte_case):
-        """Creates an account.move record from a l10n_cl.certification.case.dte record."""
+        """Creates an account.move record from a l10n_cl_edi.certification.case.dte record."""
         self.ensure_one()
         dte_case.ensure_one()
 
@@ -611,7 +611,7 @@ class CertificationProcess(models.Model):
         return {
             'name': _('Sets de Pruebas Definidos'),
             'type': 'ir.actions.act_window',
-            'res_model': 'l10n_cl.certification.parsed_set',
+            'res_model': 'l10n_cl_edi.certification.parsed_set',
             'view_mode': 'tree,form',
             'domain': [('certification_process_id', '=', self.id)],
             'context': {'default_certification_process_id': self.id}

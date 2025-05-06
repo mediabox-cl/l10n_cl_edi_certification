@@ -24,7 +24,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
-        'data/l10n_cl_certification_demo_data.xml',
+        'data/l10n_cl_edi_certification_demo_data.xml',
     ],
     'installable': True,
     'application': False,
