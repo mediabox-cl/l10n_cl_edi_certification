@@ -136,8 +136,8 @@
             <field name="view_mode">list,form</field>
             <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
             <field name="target">current</field>
-            <field name="context">{'create_if_not_exist': True, 'search_default_my_company': 1}</field>
-            
+            <field name="context">{'create_if_not_exist': True}</field>
+            <!-- Eliminar completamente el campo domain -->
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
@@ -151,9 +151,9 @@
 
         <!-- Menu -->
         <menuitem id="menu_l10n_cl_edi_certification"
-                  name="Certificación SII"
-                  parent="l10n_cl_edi.menu_sii_chile"
-                  sequence="25"
-                  action="action_l10n_cl_edi_certification_process"/>
+                name="Certificación SII"
+                parent="l10n_cl_edi.menu_sii_chile"
+                sequence="25"
+                action="action_l10n_cl_edi_certification_process"/>
     </data>
 </odoo>
