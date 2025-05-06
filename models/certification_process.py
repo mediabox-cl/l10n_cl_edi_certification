@@ -71,13 +71,21 @@ class CertificationProcess(models.Model):
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         """Crear un registro automáticamente si no existe y se solicita desde la acción del menú"""
+        if domain is None:
+            domain = []
+        
+        # Añadir filtro de compañía al dominio si no existe ya
+        if not any(term[0] == 'company_id' for term in domain if isinstance(term, (list, tuple))):
+            domain.append(('company_id', '=', self.env.company.id))
+        
         if self.env.context.get('create_if_not_exist'):
             existing = self.search([('company_id', '=', self.env.company.id)], limit=1)
             if not existing:
                 self.create({'company_id': self.env.company.id})
         
         return super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
-                                                            offset=offset, limit=limit, order=order)
+                                                        offset=offset, limit=limit, order=order)
+    
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
