@@ -137,7 +137,7 @@
             <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
             <field name="target">current</field>
             <field name="context">{'create_if_not_exist': True, 'search_default_my_company': 1}</field>
-            <field name="domain">[('company_id', '=', company_id)]</field>
+            
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
