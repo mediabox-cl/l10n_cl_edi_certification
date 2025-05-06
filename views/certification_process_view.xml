@@ -7,6 +7,9 @@
             <field name="model">l10n_cl_edi.certification.process</field>
             <field name="arch" type="xml">
                 <form create="false" delete="false">
+                    <!-- Agregar el campo computado que no será visible -->
+                    <field name="active_company_id" invisible="1"/>
+                    
                     <header>
                         <button name="action_prepare_certification" string="1. Preparar Certificación"
                                 type="object" class="oe_highlight"
@@ -95,7 +98,6 @@
                             </page>
                         </notebook>
                     </sheet>
-                    <!-- Eliminar sección chatter o agregar mixin mail.thread al modelo -->
                 </form>
             </field>
         </record>
@@ -137,7 +139,7 @@
             <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
             <field name="target">current</field>
             <field name="context">{'create_if_not_exist': True}</field>
-            <!-- Eliminar completamente el campo domain -->
+            <field name="domain">[('company_id', '=', active_id)]</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
@@ -151,9 +153,9 @@
 
         <!-- Menu -->
         <menuitem id="menu_l10n_cl_edi_certification"
-                name="Certificación SII"
-                parent="l10n_cl_edi.menu_sii_chile"
-                sequence="25"
-                action="action_l10n_cl_edi_certification_process"/>
+                  name="Certificación SII"
+                  parent="l10n_cl_edi.menu_sii_chile"
+                  sequence="25"
+                  action="action_l10n_cl_edi_certification_process"/>
     </data>
 </odoo>

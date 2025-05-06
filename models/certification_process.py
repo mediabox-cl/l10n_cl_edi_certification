@@ -56,6 +56,18 @@ class CertificationProcess(models.Model):
     has_company_activities = fields.Boolean(compute='_compute_has_company_activities', string='Actividades Económicas')
     has_required_cafs = fields.Boolean(compute='_compute_has_required_cafs', string='CAFs Requeridos')
     
+    active_company_id = fields.Many2one(
+        'res.company',
+        string="Compañía Activa",
+        compute='_compute_active_company_id',
+        store=False
+    )
+
+    def _compute_active_company_id(self):
+        """Calcula la compañía activa del usuario"""
+        for record in self:
+            record.active_company_id = self.env.company
+
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         """Crear un registro automáticamente si no existe y se solicita desde la acción del menú"""
