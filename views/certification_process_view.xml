@@ -8,16 +8,20 @@
             <field name="arch" type="xml">
                 <form create="false" delete="false">
                     <header>
-                        <button name="action_prepare_certification" string="Preparar Certificación" 
-                                type="object" class="oe_highlight" 
+                        <button name="action_prepare_certification" string="1. Preparar Certificación"
+                                type="object" class="oe_highlight"
                                 invisible="state != 'draft'"/>
-                        <button name="action_create_demo_cafs" string="Crear CAFs Demo" 
-                                type="object" class="oe_highlight" 
-                                invisible="state == 'draft'"/>
-                        <button name="action_process_set_prueba" string="Procesar Set de Pruebas" 
-                                type="object" class="oe_highlight" 
-                                invisible="state != 'setup' or set_prueba_file == False"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,setup,basic_test,simulation,exchange,printing,finished"/>
+                        <button name="action_create_demo_cafs" string="2. Crear CAFs Demo"
+                                type="object" class="oe_highlight"
+                                invisible="state not in ('setup', 'data_loaded')"/>
+                        <button name="action_process_set_prueba_xml" string="3. Cargar XML Set Pruebas"
+                                type="object" class="oe_highlight"
+                                invisible="state not in ('setup', 'data_loaded') or company_id == False"/>
+                        <button name="action_generate_dte_documents" string="4. Generar Documentos DTE"
+                                type="object" class="oe_highlight"
+                                invisible="state != 'data_loaded' or dte_case_to_generate_count == 0"
+                                help="Genera los documentos DTE definidos a partir del XML cargado."/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,setup,data_loaded,generation,finished"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -25,12 +29,18 @@
                                 <field name="caf_count" widget="statinfo" string="CAFs"/>
                             </button>
                             <button name="action_view_test_documents" type="object" class="oe_stat_button" icon="fa-file-o">
-                                <field name="document_count" widget="statinfo" string="Documentos"/>
+                                <field name="document_count" widget="statinfo" string="Documentos DTE Generados"/>
+                            </button>
+                            <button name="action_view_parsed_sets" type="object" class="oe_stat_button" icon="fa-files-o">
+                                 <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value"><field name="dte_case_to_generate_count" nolabel="1"/> Casos Pendientes</span>
+                                    <span class="o_stat_text">Sets Definidos</span>
+                                </div>
                             </button>
                         </div>
                         <div class="oe_title">
                             <h1>
-                                <field name="company_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="company_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
                             </h1>
                         </div>
                         <notebook>
@@ -43,7 +53,7 @@
                                         <field name="resolution_date" required="1"/>
                                         <field name="sii_regional_office" required="1"/>
                                     </group>
-                                    <group string="Checklist">
+                                    <group string="Checklist Inicial">
                                         <field name="has_digital_signature" widget="boolean_toggle"/>
                                         <field name="has_company_activities" widget="boolean_toggle"/>
                                         <field name="has_required_cafs" widget="boolean_toggle"/>
@@ -53,21 +63,34 @@
                                     <field name="company_activity_ids" widget="many2many_tags" options="{'no_create': True}" nolabel="1"/>
                                 </group>
                             </page>
-                            <page name="test_set" string="Set de Pruebas">
+                            <page name="test_set_data" string="Datos Set de Pruebas (XML)">
                                 <group>
                                     <field name="set_prueba_file" filename="set_prueba_filename"/>
                                     <field name="set_prueba_filename" invisible="1"/>
                                 </group>
-                                <group string="Documentos Generados">
-                                    <field name="test_invoice_ids" nolabel="1">
-                                        <list>
+                                <group string="Sets de Pruebas Definidos" name="parsed_sets_group" invisible="not parsed_set_ids">
+                                    <field name="parsed_set_ids" nolabel="1" context="{'tree_view_ref': 'l10n_cl_edi_certification.view_l10n_cl_certification_parsed_set_tree_inline'}">
+                                        <tree editable="bottom" create="false" delete="false">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name" readonly="1"/>
+                                            <field name="set_type_normalized" readonly="1"/>
+                                            <field name="attention_number" readonly="1"/>
+                                            <!-- Further details could be shown in a dedicated form view for parsed_set -->
+                                        </tree>
+                                    </field>
+                                </group>
+                                <group string="Casos DTE a Generar" name="dte_cases_group" invisible="not parsed_set_ids">
+                                     <field name="test_invoice_ids" nolabel="1" readonly="1"
+                                           options="{'no_create': True, 'no_open': True}">
+                                        <tree>
                                             <field name="name"/>
                                             <field name="l10n_latam_document_type_id"/>
                                             <field name="partner_id"/>
                                             <field name="invoice_date"/>
                                             <field name="amount_total"/>
                                             <field name="l10n_cl_dte_status"/>
-                                        </list>
+                                            <field name="l10n_cl_sii_send_ident"/>
+                                        </tree>
                                     </field>
                                 </group>
                             </page>
@@ -81,7 +104,7 @@
             </field>
         </record>
 
-        <!-- List View (changed from Tree View) -->
+        <!-- List View (no change from before, just ensuring it's here) -->
         <record id="view_l10n_cl_certification_process_tree" model="ir.ui.view">
             <field name="name">l10n_cl.certification.process.list</field>
             <field name="model">l10n_cl.certification.process</field>
@@ -89,20 +112,37 @@
                 <list>
                     <field name="company_id"/>
                     <field name="state"/>
-                    <field name="document_count"/>
+                    <field name="dte_case_to_generate_count" string="Casos Pendientes"/>
+                    <field name="document_count" string="DTEs Generados"/>
                     <field name="caf_count"/>
                 </list>
             </field>
         </record>
 
-        <!-- Action -->
+        <!-- Minimal Tree view for Parsed Sets (inline) -->
+        <record id="view_l10n_cl_certification_parsed_set_tree_inline" model="ir.ui.view">
+            <field name="name">l10n_cl.certification.parsed_set.tree.inline</field>
+            <field name="model">l10n_cl.certification.parsed_set</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom" create="false" delete="false">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name" readonly="1"/>
+                    <field name="set_type_normalized" readonly="1"/>
+                    <field name="attention_number" readonly="1"/>
+                    <!-- We would need a separate action and form view to see dte_case_ids etc. -->
+                </tree>
+            </field>
+        </record>
+        
+        <!-- Action (no change needed to action itself) -->
         <record id="action_l10n_cl_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
             <field name="res_model">l10n_cl.certification.process</field>
-            <field name="view_mode">form</field>
+            <field name="view_mode">list,form</field>
             <field name="view_id" ref="view_l10n_cl_certification_process_form"/>
-            <field name="context">{'create_if_not_exist': True}</field>
-            <field name="create">false</field>
+            <field name="target">current</field>
+            <field name="context">{'create_if_not_exist': True, 'search_default_my_company': 1}</field>
+            <field name="domain">[('company_id', '=', company_id)]</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
@@ -114,7 +154,7 @@
             </field>
         </record>
 
-        <!-- Menu -->
+        <!-- Menu (no change needed) -->
         <menuitem id="menu_l10n_cl_certification"
                   name="Certificación SII"
                   parent="l10n_cl_edi.menu_sii_chile"

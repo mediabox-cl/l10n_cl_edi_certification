@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1"> <!-- noupdate=1 to prevent overriding on module update once user interacts -->
+
+        <!-- Demo Certification Process Record -->
+        <record id="demo_certification_process_main_company" model="l10n_cl.certification.process">
+            <field name="company_id" ref="base.main_company"/> <!-- Assumes main_company exists -->
+            <field name="state">setup</field> <!-- Initial state, ready for data or further setup -->
+            <!-- Populate other company-related fields if needed for demo, or let them be taken from company -->
+            <field name="set_prueba_filename">SIISetDePruebas762352915 - 03.txt (Simulated Load)</field>
+        </record>
+
+        <!-- Parsed Sets based on SIISetDePruebas762352915 - 03.txt -->
+
+        <!-- SET BASICO - ATENCION: 4267228 -->
+        <record id="parsed_set_03_basico_4267228" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">10</field>
+            <field name="set_type_raw">BASICO</field>
+            <field name="set_type_normalized">basic</field>
+            <field name="attention_number">4267228</field>
+            <field name="raw_header_text">SET BASICO - NUMERO DE ATENCION: 4267228\nIMPORTANTE: Considerar que los descuentos por línea o globales deben ser indicados en las representaciones impresas. Adem\u00e1s, se\u00f1alar las cifras con separador de miles con ".".</field>
+        </record>
+
+        <!-- CASO 4267228-1 (Factura Electronica) -->
+        <record id="case_dte_03_4267228_1" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_basico_4267228"/>
+            <field name="case_number_raw">4267228-1</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">CASO 4267228-1\n==============\nDOCUMENTO\tFACTURA ELECTRONICA\n\nITEM\t\t\tCANTIDAD\tPRECIO UNITARIO\nCajón AFECTO\t\t    187\t\t   4552\nRelleno AFECTO\t\t     78\t\t   7608</field>
+        </record>
+        <record id="item_03_4267228_1_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_1"/>
+            <field name="sequence">10</field>
+            <field name="name">Cajón AFECTO</field>
+            <field name="quantity">187.0</field>
+            <field name="price_unit">4552.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_03_4267228_1_2" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_1"/>
+            <field name="sequence">20</field>
+            <field name="name">Relleno AFECTO</field>
+            <field name="quantity">78.0</field>
+            <field name="price_unit">7608.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4267228-2 (Factura Electronica con Descuento Item) -->
+        <record id="case_dte_03_4267228_2" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_basico_4267228"/>
+            <field name="case_number_raw">4267228-2</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">CASO 4267228-2\n==============\nDOCUMENTO\tFACTURA ELECTRONICA\n\nITEM\t\t\tCANTIDAD\tPRECIO UNITARIO\t\tDESCUENTO ITEM\nPañuelo AFECTO\t\t    975\t\t   7508\t\t\t     12%\nITEM 2 AFECTO\t\t    927\t\t   6553\t\t\t     30%</field>
+        </record>
+        <record id="item_03_4267228_2_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_2"/>
+            <field name="name">Pañuelo AFECTO</field>
+            <field name="quantity">975.0</field>
+            <field name="price_unit">7508.0</field>
+            <field name="discount_percent">12.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_03_4267228_2_2" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_2"/>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">927.0</field>
+            <field name="price_unit">6553.0</field>
+            <field name="discount_percent">30.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4267228-4 (Factura Electronica con Descuento Global) -->
+        <record id="case_dte_03_4267228_4" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_basico_4267228"/>
+            <field name="case_number_raw">4267228-4</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="global_discount_percent">29.0</field>
+            <field name="raw_text_block">CASO 4267228-4\n... (contenido omitido por brevedad) ...\nDESCUENTO GLOBAL ITEMES AFECTOS\t\t     29%</field>
+        </record>
+        <!-- Items para 4267228-4 -->
+        <record id="item_03_4267228_4_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_4"/>
+            <field name="name">ITEM 1 AFECTO</field>
+            <field name="quantity">552.0</field>
+            <field name="price_unit">7675.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_03_4267228_4_2" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_4"/>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">233.0</field>
+            <field name="price_unit">9603.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_03_4267228_4_3" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267228_4"/>
+            <field name="name">ITEM 3 SERVICIO EXENTO</field>
+            <field name="quantity">2.0</field>
+            <field name="price_unit">6860.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+
+        <!-- CASO 4267228-5 (Nota de Credito) -->
+        <record id="case_dte_03_4267228_5" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_basico_4267228"/>
+            <field name="case_number_raw">4267228-5</field>
+            <field name="document_type_raw">NOTA DE CREDITO ELECTRONICA</field>
+            <field name="document_type_code">61</field>
+            <field name="raw_text_block">CASO 4267228-5\n... (contenido omitido por brevedad) ...</field>
+        </record>
+        <record id="ref_03_4267228_5_1" model="l10n_cl.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_03_4267228_5"/>
+            <field name="reference_document_text_raw">FACTURA ELECTRONICA CORRESPONDIENTE A CASO 4267228-1</field>
+            <field name="referenced_sii_case_number">4267228-1</field>
+            <field name="reason_raw">CORRIGE GIRO DEL RECEPTOR</field>
+        </record>
+        <!-- NC para anular usualmente repite los items de la factura que anula. Asumiendo que aqui no hay items explicitos en el set para el NC-->
+
+        <!-- SET LIBRO DE VENTAS - ATENCION: 4267229 -->
+        <record id="parsed_set_03_lventas_4267229" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">20</field>
+            <field name="set_type_raw">LIBRO DE VENTAS</field>
+            <field name="set_type_normalized">sales_book</field>
+            <field name="attention_number">4267229</field>
+            <field name="raw_header_text">SET LIBRO DE VENTAS - NUMERO DE ATENCION: 4267229</field>
+        </record>
+        <record id="instr_set_03_lventas_4267229" model="l10n_cl.certification.instructional_set">
+            <field name="parsed_set_id" ref="parsed_set_03_lventas_4267229"/>
+            <field name="instructions_text">CONSTRUYA EL LIBRO DE VENTAS CON LOS DOCUMENTOS CON QUE GENERO EL SET BASICO O EL SET DE FACTURA EXENTA, SEGUN CORRESPONDA. SI OBTUVO AMBOS SET, UTILICE LOS DOCUMENTOS DEL SET BASICO PARA CONSTRUIR EL LIBRO DE VENTAS.</field>
+        </record>
+
+        <!-- SET LIBRO DE COMPRAS - ATENCION: 4267230 -->
+        <record id="parsed_set_03_lcompras_4267230" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">30</field>
+            <field name="set_type_raw">LIBRO DE COMPRAS</field>
+            <field name="set_type_normalized">purchase_book</field>
+            <field name="attention_number">4267230</field>
+            <field name="raw_header_text">SET LIBRO DE COMPRAS - NUMERO DE ATENCION: 4267230\n==========================================================================\nTIPO DOCUMENTO\t\t\t\tFOLIO\nOBSERVACIONES\nMONTO EXENTO\tMONTO AFECTO\n==========================================================================</field>
+        </record>
+        <record id="pb_entry_03_4267230_1" model="l10n_cl.certification.purchase_book.entry">
+            <field name="parsed_set_id" ref="parsed_set_03_lcompras_4267230"/>
+            <field name="sequence">10</field>
+            <field name="document_type_raw">FACTURA</field>
+            <field name="folio">234</field>
+            <field name="observations_raw">FACTURA DEL GIRO CON DERECHO A CREDITO</field>
+            <field name="amount_net_affected">31501.0</field>
+            <field name="amount_exempt">0</field>
+            <field name="raw_text_lines">FACTURA\t\t\t\t\t234\nFACTURA DEL GIRO CON DERECHO A CREDITO\n\t\t  31501</field>
+        </record>
+        <record id="pb_entry_03_4267230_2" model="l10n_cl.certification.purchase_book.entry">
+            <field name="parsed_set_id" ref="parsed_set_03_lcompras_4267230"/>
+            <field name="sequence">20</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="folio">32</field>
+            <field name="observations_raw">FACTURA DEL GIRO CON DERECHO A CREDITO</field>
+            <field name="amount_net_affected">8107.0</field>
+            <field name="amount_exempt">9415.0</field>
+            <field name="raw_text_lines">FACTURA ELECTRONICA \t\t\t 32\nFACTURA DEL GIRO CON DERECHO A CREDITO\n   9415\t\t   8107</field>
+        </record>
+        <!-- Add more purchase book entries as needed -->
+
+        <!-- SET GUIA DE DESPACHO - ATENCION: 4267231 -->
+        <record id="parsed_set_03_guia_4267231" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">40</field>
+            <field name="set_type_raw">GUIA DE DESPACHO</field>
+            <field name="set_type_normalized">dispatch_guide</field>
+            <field name="attention_number">4267231</field>
+            <field name="raw_header_text">SET GUIA DE DESPACHO - NUMERO DE ATENCIÓN: 4267231\nIMPORTANTE: Se debe señalar el tipo de traslado...</field>
+        </record>
+        <record id="case_dte_03_4267231_1" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_guia_4267231"/>
+            <field name="case_number_raw">4267231-1</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA</field>
+            <field name="raw_text_block">CASO 4267231-1\n... (contenido omitido) ...</field>
+        </record>
+        <record id="item_03_4267231_1_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267231_1"/>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">55.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <!-- Add other items for Guia 4267231-1 -->
+
+        <!-- SET FACTURA EXENTA - ATENCION: 4267233 -->
+        <record id="parsed_set_03_exenta_4267233" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">50</field>
+            <field name="set_type_raw">FACTURA EXENTA</field>
+            <field name="set_type_normalized">exempt_invoice</field>
+            <field name="attention_number">4267233</field>
+            <field name="raw_header_text">SET FACTURA EXENTA - NUMERO DE ATENCIÓN: 4267233\nINDICACIÓN: No se debe señalar el monto IVA 19%...</field>
+        </record>
+        <record id="case_dte_03_4267233_1" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_exenta_4267233"/>
+            <field name="case_number_raw">4267233-1</field>
+            <field name="document_type_raw">FACTURA NO AFECTA O EXENTA ELECTRONICA</field>
+            <field name="document_type_code">34</field> <!-- Assuming 34 for exenta -->
+            <field name="raw_text_block">CASO 4267233-1\n... (contenido omitido) ...</field>
+        </record>
+        <record id="item_03_4267233_1_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267233_1"/>
+            <field name="name">HORAS PROGRAMADOR</field>
+            <field name="quantity">14.0</field>
+            <field name="uom_raw">Hora</field>
+            <field name="price_unit">8151.0</field>
+            <field name="is_exempt">True</field> <!-- Factura exenta implies items are exempt -->
+        </record>
+
+        <!-- SET BASICO DOCUMENTOS DE EXPORTACION (1) - ATENCION: 4267234 -->
+        <record id="parsed_set_03_export_4267234" model="l10n_cl.certification.parsed_set">
+            <field name="certification_process_id" ref="demo_certification_process_main_company"/>
+            <field name="sequence">60</field>
+            <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (1)</field>
+            <field name="set_type_normalized">export_documents</field>
+            <field name="attention_number">4267234</field>
+            <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (1) - NUMERO DE ATENCION: 4267234</field>
+        </record>
+        <record id="case_dte_03_4267234_1" model="l10n_cl.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_03_export_4267234"/>
+            <field name="case_number_raw">4267234-1</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="export_reference_text">MIC (MANIFIESTO INTERNACIONAL)</field>
+            <field name="export_currency_raw">LIBRA EST</field>
+            <field name="export_payment_terms_raw">SIN PAGO</field>
+            <field name="export_sale_modality_raw">EN CONSIGNACION CON UN MINIMO A FIRME</field>
+            <field name="export_sale_clause_raw">S/CL</field>
+            <field name="export_total_sale_clause_amount">4419.86</field>
+            <field name="export_transport_way_raw">MARITIMA, FLUVIAL Y LACUSTRE</field>
+            <field name="export_loading_port_raw">PUNTA ARENAS</field>
+            <field name="export_unloading_port_raw">YOKOHAMA</field>
+            <field name="export_tare_uom_raw">PAR</field>
+            <field name="export_gross_weight_uom_raw">LT</field>
+            <field name="export_net_weight_uom_raw">LT</field>
+            <field name="raw_text_block">CASO 4267234-1\n... (export details) ...</field>
+        </record>
+        <record id="item_03_4267234_1_1" model="l10n_cl.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_03_4267234_1"/>
+            <field name="name">CHATARRA DE ALUMINIO</field>
+            <field name="quantity">837.0</field>
+            <field name="uom_raw">LT</field>
+            <field name="price_unit">174.0</field>
+            <field name="is_exempt">False</field> <!-- Export items usually not exempt from IVA in Chile but context matters -->
+        </record>
+
+    </data>
+</odoo> 

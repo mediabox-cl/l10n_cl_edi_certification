@@ -13,13 +13,13 @@ class SiiTestSetParser:
     
     # Patrones de expresiones regulares para identificar secciones y datos
     SET_HEADER_PATTERN = r'SET\s+([A-ZÁ-Úa-zá-ú\s]+)\s*-\s*NUMERO\s+DE\s+(?:ATENCION|ATENCIÓN):\s*(\d+)'
-    CASE_HEADER_PATTERN = r'CASO\s+(\d+-\d+)'
-    DOCUMENT_TYPE_PATTERN = r'DOCUMENTO\s+([\w\sÁ-Úá-ú]+)'
-    REFERENCE_PATTERN = r'REFERENCIA\s+([\w\sÁ-Úá-ú]+)'
-    REFERENCE_REASON_PATTERN = r'RAZON\s+REFERENCIA\s+([\w\sÁ-Úá-ú]+)'
+    CASE_HEADER_PATTERN = r'^CASO\s+(\d+-\d+)'
+    DOCUMENT_TYPE_PATTERN = r'DOCUMENTO\s+(.+)'
+    REFERENCE_PATTERN = r'REFERENCIA\s+(.+)'
+    REFERENCE_REASON_PATTERN = r'RAZON REFERENCIA\s+(.+)'
     ITEM_HEADER_PATTERN = r'ITEM\s+(?:CANTIDAD|VALOR\s+UNITARIO|PRECIO\s+UNITARIO|TOTAL\s+LINEA)?'
-    MOTIVO_PATTERN = r'MOTIVO:\s+([\w\sÁ-Úá-ú]+)'
-    TRASLADO_PATTERN = r'TRASLADO POR:\s+([\w\sÁ-Úá-ú]+)'
+    MOTIVO_PATTERN = r'MOTIVO:\s+(.+)'
+    TRASLADO_PATTERN = r'TRASLADO POR:\s+(.+)'
     
     def __init__(self, file_content: str):
         """
@@ -78,32 +78,28 @@ class SiiTestSetParser:
     def _extract_cases(self, set_content: str, set_type: str, attention_number: str) -> List[Dict[str, Any]]:
         """
         Extrae los casos de prueba de un set.
-        
-        Args:
-            set_content: Texto del set de pruebas.
-            set_type: Tipo de set.
-            attention_number: Número de atención del set.
-            
-        Returns:
-            Lista de casos extraídos.
+        Utiliza los encabezados de CASO para delimitar el contenido de cada caso.
         """
         cases = []
         
-        # Buscar todos los casos en el set
-        case_matches = re.finditer(self.CASE_HEADER_PATTERN, set_content)
-        for i, case_match in enumerate(case_matches):
-            case_number = case_match.group(1).strip()
+        # Encontrar todos los inicios y números de caso
+        matches = list(re.finditer(self.CASE_HEADER_PATTERN, set_content, re.MULTILINE))
+        
+        for i, current_match in enumerate(matches):
+            case_number = current_match.group(1).strip()
+            start_pos = current_match.start()
             
-            # Obtener el texto del caso hasta el próximo caso o el final
-            start_pos = case_match.start()
-            next_case = set_content.find('CASO', start_pos + 1)
-            if next_case == -1:
-                next_case = len(set_content)
+            # Determinar el final del contenido de este caso
+            # Es el inicio del siguiente caso, o el final del set_content si este es el último caso
+            if i + 1 < len(matches):
+                end_pos = matches[i+1].start()
+            else:
+                end_pos = len(set_content)
             
-            case_content = set_content[start_pos:next_case]
+            case_content_block = set_content[start_pos:end_pos]
             
-            # Procesar el caso
-            case_data = self._process_case(case_content, case_number, set_type, attention_number)
+            # Procesar el caso con su bloque de contenido completo
+            case_data = self._process_case(case_content_block, case_number, set_type, attention_number)
             if case_data:
                 cases.append(case_data)
         
@@ -111,16 +107,7 @@ class SiiTestSetParser:
     
     def _process_case(self, case_content: str, case_number: str, set_type: str, attention_number: str) -> Dict[str, Any]:
         """
-        Procesa un caso de prueba individual.
-        
-        Args:
-            case_content: Texto del caso.
-            case_number: Número del caso.
-            set_type: Tipo de set al que pertenece.
-            attention_number: Número de atención del set.
-            
-        Returns:
-            Diccionario con los datos del caso.
+        Procesa un caso de prueba individual a partir de su bloque de contenido.
         """
         lines = case_content.split('\n')
         
@@ -130,6 +117,7 @@ class SiiTestSetParser:
             'set_attention_number': attention_number,
             'document_type': None,
             'reference_document': None,
+            'referenced_case_number': None,
             'reference_reason': None,
             'motivo': None,
             'traslado_por': None,
@@ -137,80 +125,86 @@ class SiiTestSetParser:
             'additional_info': {}
         }
         
-        # Para mantener el seguimiento del contexto actual
         in_items_section = False
-        
+        item_header_text = ""
+        has_uom_column = False
+
+        # Primera pasada para encontrar la cabecera de items y determinar si hay UoM
+        temp_item_header_found = False
+        for line_idx, line_content in enumerate(lines):
+            if not temp_item_header_found and 'ITEM' in line_content and \
+               ('CANTIDAD' in line_content or 'PRECIO UNITARIO' in line_content or \
+                'VALOR UNITARIO' in line_content or 'UNIDAD MEDIDA' in line_content):
+                item_header_text = line_content
+                if 'UNIDAD MEDIDA' in item_header_text:
+                    has_uom_column = True
+                temp_item_header_found = True
+
         for line in lines:
-            # Detectar tipo de documento
+            line_strip = line.strip()
+            if not line_strip:
+                continue
+
+            if re.match(self.CASE_HEADER_PATTERN, line_strip):
+                continue
+
             doc_match = re.search(self.DOCUMENT_TYPE_PATTERN, line)
             if doc_match:
-                document_type = doc_match.group(1).strip()
-                case_data['document_type'] = self._normalize_document_type(document_type)
+                document_type_text = doc_match.group(1).strip()
+                if not case_data.get('document_type'):
+                    case_data['document_type'] = self._normalize_document_type(document_type_text)
                 continue
             
-            # Detectar referencias
-            ref_match = re.search(self.REFERENCE_PATTERN, line)
-            if ref_match:
-                reference = ref_match.group(1).strip()
-                case_data['reference_document'] = reference
-                continue
-            
-            # Detectar razón de referencia
+            # Check for RAZON REFERENCIA FIRST to avoid conflict with REFERENCE_PATTERN
             reason_match = re.search(self.REFERENCE_REASON_PATTERN, line)
             if reason_match:
-                reason = reason_match.group(1).strip()
-                case_data['reference_reason'] = reason
+                case_data['reference_reason'] = reason_match.group(1).strip()
                 continue
             
-            # Detectar motivo (para guías de despacho)
+            # Then check for REFERENCIA
+            ref_match = re.search(self.REFERENCE_PATTERN, line)
+            if ref_match:
+                reference_text = ref_match.group(1).strip()
+                case_data['reference_document'] = reference_text
+                referenced_case_num_match = re.search(r'CASO\s+(\d+-\d+)', reference_text)
+                if referenced_case_num_match:
+                    case_data['referenced_case_number'] = referenced_case_num_match.group(1).strip()
+                continue
+            
             motivo_match = re.search(self.MOTIVO_PATTERN, line)
             if motivo_match:
-                motivo = motivo_match.group(1).strip()
-                case_data['motivo'] = motivo
+                case_data['motivo'] = motivo_match.group(1).strip()
                 continue
             
-            # Detectar traslado por (para guías de despacho)
             traslado_match = re.search(self.TRASLADO_PATTERN, line)
             if traslado_match:
-                traslado_por = traslado_match.group(1).strip()
-                case_data['traslado_por'] = traslado_por
+                case_data['traslado_por'] = traslado_match.group(1).strip()
                 continue
             
-            # Detectar inicio de sección de ítems
-            if 'ITEM' in line and ('CANTIDAD' in line or 'PRECIO UNITARIO' in line or 'VALOR UNITARIO' in line):
+            if not in_items_section and item_header_text and line.strip() == item_header_text.strip():
                 in_items_section = True
                 continue
             
-            # Procesar ítems si estamos en la sección de ítems
-            if in_items_section and line.strip() and not line.startswith('=') and not 'DESCUENTO GLOBAL' in line:
-                item = self._parse_item_line(line)
+            if in_items_section and line_strip and not line_strip.startswith('=') and not 'DESCUENTO GLOBAL' in line_strip:
+                item = self._parse_item_line(line_strip, has_uom_column, item_header_text)
                 if item:
                     case_data['items'].append(item)
-                continue
             
-            # Capturar información adicional con formato clave: valor
-            if ":" in line and not in_items_section:
-                parts = line.split(":", 1)
-                if len(parts) == 2:
-                    key = parts[0].strip()
-                    value = parts[1].strip()
-                    if key and value:
-                        case_data['additional_info'][key] = value
-            
-            # Capturar descuento global
             if 'DESCUENTO GLOBAL' in line:
-                discount_match = re.search(r'(\d+)%', line)
+                discount_match = re.search(r'(\d+)%\s*$', line)
                 if discount_match:
                     case_data['global_discount'] = float(discount_match.group(1))
-        
+
         return case_data
     
-    def _parse_item_line(self, line: str) -> Optional[Dict[str, Any]]:
+    def _parse_item_line(self, line: str, has_uom_column: bool, item_header_text: str) -> Optional[Dict[str, Any]]:
         """
         Parsea una línea de ítem.
         
         Args:
             line: Línea con datos del ítem.
+            has_uom_column: Flag para indicar si la línea contiene una columna de UoM.
+            item_header_text: Texto de la cabecera de la sección de ítems.
             
         Returns:
             Diccionario con los datos del ítem o None si no se pudo parsear.
@@ -218,55 +212,128 @@ class SiiTestSetParser:
         if not line.strip() or line.startswith('=') or line.startswith('-'):
             return None
         
-        # Trabajar con una copia de la línea para no modificar la original
         line_copy = line.strip()
         
-        # Detectar porcentaje de descuento si aparece al final
         discount_percent = None
-        discount_match = re.search(r'(\d+)%$', line_copy)
+        discount_match = re.search(r'(\d+)%\s*$', line_copy)
         if discount_match:
             discount_percent = float(discount_match.group(1))
-            # Quitar el descuento de la línea para no afectar el parsing del resto
             line_copy = line_copy[:discount_match.start()].strip()
         
-        # Intentar extraer cantidad y precio unitario
-        # Buscamos números al final de la línea
-        numbers = re.findall(r'\b\d+\b', line_copy)
+        numbers = re.findall(r'\b(\d+(?:.\d+)?)\b', line_copy)
         
         item = {
-            'name': line_copy,  # Valor predeterminado si no podemos parsear correctamente
             'is_exempt': 'EXENTO' in line_copy.upper() or 'EXENTA' in line_copy.upper()
         }
-        
+        if has_uom_column:
+            item['uom'] = None
+
         if discount_percent is not None:
             item['discount_percent'] = discount_percent
         
-        if len(numbers) >= 2:
-            # Al menos dos números, asumimos que el último es precio y el penúltimo es cantidad
-            item['price_unit'] = float(numbers[-1])
-            item['quantity'] = float(numbers[-2])
+        parts = re.split(r'\s{2,}', line_copy)
+        
+        if parts:
+            item['name'] = parts[0].strip()
             
-            # El nombre es todo lo que está antes de los números
-            # Para esto, necesitamos encontrar la posición del penúltimo número
-            pos_quantity = line_copy.rfind(numbers[-2])
-            if pos_quantity > 0:
-                item['name'] = line_copy[:pos_quantity].strip()
-        elif len(numbers) == 1:
-            # Solo un número, podría ser cantidad o precio
-            if 'CANTIDAD' in line_copy:
-                item['quantity'] = float(numbers[0])
+            if 'VALOR UNITARIO' in item_header_text and not 'CANTIDAD' in item_header_text:
+                if numbers:
+                    price_str = numbers[-1]
+                    item['price_unit'] = float(price_str)
+                    idx_price_val = line_copy.rfind(price_str)
+                    text_before_price = line_copy[:idx_price_val].strip() if idx_price_val != -1 else ""
+                    
+                    if has_uom_column and text_before_price:
+                        name_uom_parts = text_before_price.split()
+                        if len(name_uom_parts) > 1:
+                            uom_candidate = name_uom_parts[-1]
+                            # Check if uom_candidate is non-numeric and plausible (e.g., not overly long)
+                            if not uom_candidate.replace('.', '', 1).isdigit() and len(uom_candidate) < 15: # Heuristic
+                                item['uom'] = uom_candidate
+                                item['name'] = " ".join(name_uom_parts[:-1])
+                            else:
+                                item['name'] = text_before_price # UoM candidate not plausible
+                        else:
+                            item['name'] = text_before_price # Only one word, assume name
+                    else:
+                        item['name'] = text_before_price
+
+            elif 'CANTIDAD' in item_header_text and not ('PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text):
+                if numbers:
+                    qty_str = numbers[-1]
+                    item['quantity'] = float(qty_str)
+                    idx_qty_val = line_copy.rfind(qty_str)
+
+                    if has_uom_column and idx_qty_val != -1:
+                        uom_candidate = line_copy[idx_qty_val + len(qty_str):].strip()
+                        if uom_candidate and not uom_candidate.replace('.', '', 1).isdigit():
+                            item['uom'] = uom_candidate
+                    
+                    if idx_qty_val != -1:
+                        item['name'] = line_copy[:idx_qty_val].strip()
+                    elif numbers: # Fallback name logic if idx_qty_val failed (e.g. name is just numbers[0])
+                         item['name'] = line_copy[:line_copy.rfind(numbers[0])].strip()
+                    else: # Should not happen if numbers were found
+                         item['name'] = line_copy 
+            
+            elif len(numbers) >= 2 and ('PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text) and 'CANTIDAD' in item_header_text:
+                qty_str = numbers[-2]
+                price_str = numbers[-1]
+                item['quantity'] = float(qty_str)
+                item['price_unit'] = float(price_str)
+                
+                idx_price_val = line_copy.rfind(price_str)
+                search_area_for_qty = line_copy[:idx_price_val] if idx_price_val != -1 else line_copy
+                idx_qty_val = search_area_for_qty.rfind(qty_str)
+
+                if has_uom_column and idx_qty_val != -1 and idx_price_val != -1 and (idx_qty_val + len(qty_str) < idx_price_val):
+                    uom_candidate = line_copy[idx_qty_val + len(qty_str):idx_price_val].strip()
+                    if uom_candidate and not uom_candidate.replace('.', '', 1).isdigit():
+                        item['uom'] = uom_candidate
+                
+                if idx_qty_val != -1:
+                    item['name'] = line_copy[:idx_qty_val].strip()
+                else: 
+                    # Fallback: if precise indices not found, try original simpler name extraction
+                    _temp_line = line_copy
+                    _idx_price = _temp_line.rfind(price_str)
+                    if _idx_price != -1: _temp_line = _temp_line[:_idx_price].strip()
+                    # If UoM was parsed, it might be at the end of _temp_line now
+                    if item.get('uom') and _temp_line.endswith(str(item['uom'])):
+                         _temp_line = _temp_line[:-len(str(item['uom']))].strip()
+                    _idx_qty = _temp_line.rfind(qty_str)
+                    if _idx_qty != -1: _temp_line = _temp_line[:_idx_qty].strip()
+                    item['name'] = _temp_line.strip()
+
+
+            elif len(numbers) == 1 and ('PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text or 'CANTIDAD' in item_header_text):
+                val = float(numbers[0])
+                if 'CANTIDAD' in item_header_text and not ('PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text):
+                    item['quantity'] = val
+                elif ('PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text) and not 'CANTIDAD' in item_header_text:
+                    item['price_unit'] = val
+                else:
+                    if 'PRECIO UNITARIO' in item_header_text or 'VALOR UNITARIO' in item_header_text:
+                         item['price_unit'] = val
+                    elif 'CANTIDAD' in item_header_text:
+                         item['quantity'] = val
+
+                numeric_part_start_index = line_copy.rfind(numbers[0])
+                item['name'] = line_copy[:numeric_part_start_index].strip()
+
+        if not item.get('name') and line.strip():
+            if numbers:
+                first_num_idx = line_copy.find(numbers[0])
+                if first_num_idx > 0:
+                    item['name'] = line_copy[:first_num_idx].strip()
+                else:
+                    item['name'] = line_copy
             else:
-                item['price_unit'] = float(numbers[0])
+                item['name'] = line_copy
+        
+        if not item.get('name') and len(item.keys()) <= (2 if has_uom_column else 1):
+            return None
             
-            # El nombre es todo lo que está antes del número
-            pos_number = line_copy.find(numbers[0])
-            if pos_number > 0:
-                item['name'] = line_copy[:pos_number].strip()
-        
-        # Si no se pudo extraer el nombre, usar toda la línea
-        if 'name' not in item or not item['name']:
-            item['name'] = line_copy
-        
         return item
     
     def _normalize_set_type(self, set_type: str) -> str:
@@ -338,19 +405,16 @@ class SiiTestSetParser:
         Args:
             cases: Lista de casos donde buscar referencias.
         """
-        # Crear diccionario para búsqueda rápida por caso_number
         cases_by_number = {case['case_number']: case for case in cases}
         
-        # Crear diccionario por tipo de documento
         cases_by_doc_type = {}
         for case in cases:
             doc_type = case.get('document_type')
-            if doc_type:  # Solo agregar si doc_type no es None
+            if doc_type:
                 if doc_type not in cases_by_doc_type:
                     cases_by_doc_type[doc_type] = []
                 cases_by_doc_type[doc_type].append(case)
         
-        # Para cada caso que tenga referencia, intentar encontrar el caso referenciado
         for case in cases:
             if not case.get('reference_document'):
                 continue
@@ -358,7 +422,6 @@ class SiiTestSetParser:
             ref_doc = case['reference_document']
             ref_reason = case.get('reference_reason', '')
             
-            # Extraer caso referenciado si se menciona el número
             case_ref_match = re.search(r'CASO\s+(\d+-\d+)', ref_doc)
             if case_ref_match:
                 ref_case_number = case_ref_match.group(1)
@@ -366,11 +429,8 @@ class SiiTestSetParser:
                     case['reference_id'] = ref_case_number
                     continue
             
-            # Si no encontramos por número, buscar por tipo de documento
             for doc_type, doc_cases in cases_by_doc_type.items():
-                if doc_type and doc_type in ref_doc:  # Asegurarse de que doc_type no sea None
-                    # Si hay varios del mismo tipo, tomamos el más reciente (número más alto)
-                    # a menos que sea una anulación, en cuyo caso buscamos el primero
+                if doc_type and doc_type in ref_doc:
                     if doc_cases:
                         if 'ANULA' in ref_reason:
                             case['reference_id'] = doc_cases[0]['case_number']

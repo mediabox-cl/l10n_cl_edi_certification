@@ -15,7 +15,7 @@
     * Panel de control para el proceso de certificación
     * Preparación automática de la base de datos
     * Creación de CAFs de demostración
-    * Procesamiento de set de pruebas
+    * Procesamiento de set de pruebas (simulado con datos demo)
     * Seguimiento de documentos de prueba
     """,
     'author': 'Tomás Díaz',
@@ -24,6 +24,8 @@
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
+        'views/l10n_cl_certification_data_views.xml',
+        'data/l10n_cl_certification_demo_data.xml',
     ],
     'installable': True,
     'application': False,

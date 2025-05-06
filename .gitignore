@@ -1,5 +1,7 @@
 @"
 # Python
+reference_modules/
+examples/
 __pycache__/
 *.py[cod]
 *$py.class

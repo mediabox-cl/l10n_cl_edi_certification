@@ -23,10 +23,32 @@ def main():
     
     print(f"Procesando archivo: {file_path}")
     
+    content = None
+    encodings_to_try = ['utf-8', 'latin-1']
+
+    for enc in encodings_to_try:
+        try:
+            print(f"Intentando leer el archivo con codificación: {enc}")
+            with open(file_path, 'r', encoding=enc) as file:
+                content = file.read()
+            print(f"Archivo leído exitosamente con {enc}")
+            break 
+        except UnicodeDecodeError:
+            print(f"Falló la decodificación con {enc}.")
+        except FileNotFoundError:
+            print(f"Error: El archivo '{file_path}' no fue encontrado al intentar leer con {enc}.")
+            content = None 
+            break 
+        except Exception as e:
+            print(f"Error inesperado al leer el archivo '{file_path}' con {enc}: {e}")
+            content = None 
+            break
+
+    if content is None:
+        print(f"Error: No se pudo leer el archivo '{file_path}' con las codificaciones probadas ({', '.join(encodings_to_try)}).")
+        return 1
+    
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='replace') as file:
-            content = file.read()
-        
         parser = SiiTestSetParser(content)
         result = parser.parse()
         
@@ -175,7 +197,7 @@ def main():
         
         return 0
     except Exception as e:
-        print(f"Error al procesar el archivo: {e}")
+        print(f"Error durante el parseo o escritura de resultados: {e}")
         import traceback
         traceback.print_exc()
         return 1
