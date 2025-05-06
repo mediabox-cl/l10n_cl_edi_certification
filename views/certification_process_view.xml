@@ -69,20 +69,20 @@
                                     <field name="set_prueba_filename" invisible="1"/>
                                 </group>
                                 <group string="Sets de Pruebas Definidos" name="parsed_sets_group" invisible="not parsed_set_ids">
-                                    <field name="parsed_set_ids" nolabel="1" context="{'tree_view_ref': 'l10n_cl_edi_certification.view_l10n_cl_certification_parsed_set_tree_inline'}">
-                                        <tree editable="bottom" create="false" delete="false">
+                                    <field name="parsed_set_ids" nolabel="1">
+                                        <list editable="bottom" create="false" delete="false">
+                                            <!-- El campo sequence está en el modelo l10n_cl.certification.parsed_set -->
                                             <field name="sequence" widget="handle"/>
                                             <field name="name" readonly="1"/>
                                             <field name="set_type_normalized" readonly="1"/>
                                             <field name="attention_number" readonly="1"/>
-                                            <!-- Further details could be shown in a dedicated form view for parsed_set -->
-                                        </tree>
+                                        </list>
                                     </field>
                                 </group>
                                 <group string="Casos DTE a Generar" name="dte_cases_group" invisible="not parsed_set_ids">
                                      <field name="test_invoice_ids" nolabel="1" readonly="1"
                                            options="{'no_create': True, 'no_open': True}">
-                                        <tree>
+                                        <list>
                                             <field name="name"/>
                                             <field name="l10n_latam_document_type_id"/>
                                             <field name="partner_id"/>
@@ -90,7 +90,7 @@
                                             <field name="amount_total"/>
                                             <field name="l10n_cl_dte_status"/>
                                             <field name="l10n_cl_sii_send_ident"/>
-                                        </tree>
+                                        </list>
                                     </field>
                                 </group>
                             </page>
@@ -104,7 +104,7 @@
             </field>
         </record>
 
-        <!-- List View (no change from before, just ensuring it's here) -->
+        <!-- List View -->
         <record id="view_l10n_cl_certification_process_tree" model="ir.ui.view">
             <field name="name">l10n_cl.certification.process.list</field>
             <field name="model">l10n_cl.certification.process</field>
@@ -119,22 +119,21 @@
             </field>
         </record>
 
-        <!-- Minimal Tree view for Parsed Sets (inline) -->
+        <!-- Minimal List view for Parsed Sets -->
         <record id="view_l10n_cl_certification_parsed_set_tree_inline" model="ir.ui.view">
-            <field name="name">l10n_cl.certification.parsed_set.tree.inline</field>
+            <field name="name">l10n_cl.certification.parsed_set.list.inline</field>
             <field name="model">l10n_cl.certification.parsed_set</field>
             <field name="arch" type="xml">
-                <tree editable="bottom" create="false" delete="false">
+                <list editable="bottom" create="false" delete="false">
                     <field name="sequence" widget="handle"/>
                     <field name="name" readonly="1"/>
                     <field name="set_type_normalized" readonly="1"/>
                     <field name="attention_number" readonly="1"/>
-                    <!-- We would need a separate action and form view to see dte_case_ids etc. -->
-                </tree>
+                </list>
             </field>
         </record>
         
-        <!-- Action (no change needed to action itself) -->
+        <!-- Action -->
         <record id="action_l10n_cl_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
             <field name="res_model">l10n_cl.certification.process</field>
@@ -154,7 +153,7 @@
             </field>
         </record>
 
-        <!-- Menu (no change needed) -->
+        <!-- Menu -->
         <menuitem id="menu_l10n_cl_certification"
                   name="Certificación SII"
                   parent="l10n_cl_edi.menu_sii_chile"
