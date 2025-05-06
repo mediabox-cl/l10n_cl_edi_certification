@@ -2,4 +2,4 @@
 
 from . import certification_process
 from . import account_move
-from . import l10n_cl_edi_certification_data
+from . import l10n_cl_certification_data
