@@ -38,7 +38,7 @@ class CertificationProcess(models.Model):
     set_prueba_file = fields.Binary(string='Archivo XML Set de Pruebas', attachment=True)
     set_prueba_filename = fields.Char(string='Nombre del archivo XML')
     test_invoice_ids = fields.One2many(
-        'account.move', 'l10n_cl_certification_id',
+        'account.move', 'l10n_cl_edi_certification_id',
         string='Documentos de Prueba Generados',
         domain=[('move_type', 'not in', ('entry', 'liq_purchase'))])
 
@@ -464,7 +464,7 @@ class CertificationProcess(models.Model):
             'company_id': self.company_id.id,
             'l10n_latam_document_type_id': sii_doc_type.id,
             'invoice_date': fields.Date.context_today(self),
-            'l10n_cl_certification_id': self.id, 
+            'l10n_cl_edi_certification_id': self.id, 
         }
         return move_vals
 

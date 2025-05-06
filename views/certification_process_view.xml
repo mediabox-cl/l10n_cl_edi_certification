@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!-- Form View -->
-        <record id="view_l10n_cl_certification_process_form" model="ir.ui.view">
+        <record id="view_l10n_cl_edi_certification_process_form" model="ir.ui.view">
             <field name="name">l10n_cl.certification.process.form</field>
             <field name="model">l10n_cl.certification.process</field>
             <field name="arch" type="xml">
@@ -71,7 +71,6 @@
                                 <group string="Sets de Pruebas Definidos" name="parsed_sets_group" invisible="not parsed_set_ids">
                                     <field name="parsed_set_ids" nolabel="1">
                                         <list editable="bottom" create="false" delete="false">
-                                            <!-- El campo sequence está en el modelo l10n_cl.certification.parsed_set -->
                                             <field name="sequence" widget="handle"/>
                                             <field name="name" readonly="1"/>
                                             <field name="set_type_normalized" readonly="1"/>
@@ -96,12 +95,13 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <!-- Eliminar sección chatter o agregar mixin mail.thread al modelo -->
                 </form>
             </field>
         </record>
 
         <!-- List View -->
-        <record id="view_l10n_cl_certification_process_tree" model="ir.ui.view">
+        <record id="view_l10n_cl_edi_certification_process_tree" model="ir.ui.view">
             <field name="name">l10n_cl.certification.process.list</field>
             <field name="model">l10n_cl.certification.process</field>
             <field name="arch" type="xml">
@@ -116,7 +116,7 @@
         </record>
 
         <!-- Minimal List view for Parsed Sets -->
-        <record id="view_l10n_cl_certification_parsed_set_tree_inline" model="ir.ui.view">
+        <record id="view_l10n_cl_edi_certification_parsed_set_tree_inline" model="ir.ui.view">
             <field name="name">l10n_cl.certification.parsed_set.list.inline</field>
             <field name="model">l10n_cl.certification.parsed_set</field>
             <field name="arch" type="xml">
@@ -130,11 +130,11 @@
         </record>
         
         <!-- Action -->
-        <record id="action_l10n_cl_certification_process" model="ir.actions.act_window">
+        <record id="action_l10n_cl_edi_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
             <field name="res_model">l10n_cl.certification.process</field>
             <field name="view_mode">list,form</field>
-            <field name="view_id" ref="view_l10n_cl_certification_process_form"/>
+            <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
             <field name="target">current</field>
             <field name="context">{'create_if_not_exist': True, 'search_default_my_company': 1}</field>
             <field name="domain">[('company_id', '=', company_id)]</field>
@@ -150,10 +150,10 @@
         </record>
 
         <!-- Menu -->
-        <menuitem id="menu_l10n_cl_certification"
+        <menuitem id="menu_l10n_cl_edi_certification"
                   name="Certificación SII"
                   parent="l10n_cl_edi.menu_sii_chile"
                   sequence="25"
-                  action="action_l10n_cl_certification_process"/>
+                  action="action_l10n_cl_edi_certification_process"/>
     </data>
 </odoo>

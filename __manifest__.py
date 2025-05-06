@@ -20,11 +20,10 @@
     """,
     'author': 'Tomás Díaz',
     'website': 'https://www.withinplaygames.com',
-    'depends': ['account', 'l10n_cl', 'l10n_cl_edi'],
+    'depends': ['account', 'l10n_cl', 'l10n_cl_edi'],  # Añadir 'mail' si usas chatter
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
-        'views/l10n_cl_certification_data_views.xml',
         'data/l10n_cl_certification_demo_data.xml',
     ],
     'installable': True,
