@@ -131,14 +131,13 @@
             </field>
         </record>
         
-        <!-- Action -->
         <record id="action_l10n_cl_edi_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
             <field name="res_model">l10n_cl_edi.certification.process</field>
-            <field name="view_mode">list,form</field>
-            <field name="view_id" ref="view_l10n_cl_edi_certification_process_form"/>
+            <field name="view_mode">form</field>
             <field name="target">current</field>
             <field name="context">{'create_if_not_exist': True}</field>
+            <field name="res_id" eval="obj().env['l10n_cl_edi.certification.process'].search([('company_id', '=', obj().env.company.id)], limit=1).id or False"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
@@ -156,5 +155,79 @@
                   parent="l10n_cl_edi.menu_sii_chile"
                   sequence="25"
                   action="action_l10n_cl_edi_certification_process"/>
+    <!-- Vista form para parsed_set -->
+    <record id="view_l10n_cl_edi_certification_parsed_set_form" model="ir.ui.view">
+        <field name="name">l10n_cl_edi.certification.parsed_set.form</field>
+        <field name="model">l10n_cl_edi.certification.parsed_set</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="set_type_raw"/>
+                        <field name="set_type_normalized"/>
+                        <field name="attention_number"/>
+                        <field name="raw_header_text"/>
+                    </group>
+                    <notebook>
+                        <page string="Casos DTE" name="dte_cases">
+                            <field name="dte_case_ids">
+                                <list>
+                                    <field name="case_number_raw"/>
+                                    <field name="document_type_raw"/>
+                                    <field name="document_type_code"/>
+                                    <field name="generation_status"/>
+                                    <field name="generated_account_move_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Entradas Libro de Compras" name="purchase_book_entries" invisible="purchase_book_entry_ids == []">
+                            <field name="purchase_book_entry_ids">
+                                <list>
+                                    <field name="document_type_raw"/>
+                                    <field name="folio"/>
+                                    <field name="amount_net_affected"/>
+                                    <field name="amount_exempt"/>
+                                    <field name="processing_status"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Instrucciones" name="instructions" invisible="instructional_content_ids == []">
+                            <field name="instructional_content_ids">
+                                <list>
+                                    <field name="instructions_text"/>
+                                    <field name="general_observations"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista list para parsed_set -->
+    <record id="view_l10n_cl_edi_certification_parsed_set_list" model="ir.ui.view">
+        <field name="name">l10n_cl_edi.certification.parsed_set.list</field>
+        <field name="model">l10n_cl_edi.certification.parsed_set</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="set_type_normalized"/>
+                <field name="attention_number"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Acción para Ver Sets Parseados -->
+    <record id="action_l10n_cl_edi_certification_parsed_set" model="ir.actions.act_window">
+        <field name="name">Sets de Pruebas</field>
+        <field name="res_model">l10n_cl_edi.certification.parsed_set</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('certification_process_id', '=', active_id)]</field>
+        <field name="context">{'default_certification_process_id': active_id}</field>
+    </record>
+    
     </data>
 </odoo>

@@ -63,6 +63,10 @@ class CertificationProcess(models.Model):
         store=False
     )
 
+    _sql_constraints = [
+            ('company_uniq', 'unique(company_id)', 'Solo puede existir un proceso de certificación por compañía'),
+        ]
+
     def _compute_active_company_id(self):
         """Calcula la compañía activa del usuario"""
         for record in self:
@@ -90,7 +94,7 @@ class CertificationProcess(models.Model):
                 domain = [('id', '=', existing.id)]
         
         return super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
-                                                        offset=offset, limit=limit, order=order)    
+                                                        offset=offset, limit=limit, order=order)
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
@@ -633,11 +637,7 @@ class CertificationProcess(models.Model):
 
     def action_view_parsed_sets(self):
         self.ensure_one()
-        return {
-            'name': _('Sets de Pruebas Definidos'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'l10n_cl_edi.certification.parsed_set',
-            'view_mode': 'list,form',
-            'domain': [('certification_process_id', '=', self.id)],
-            'context': {'default_certification_process_id': self.id}
-        }
+        action = self.env.ref('l10n_cl_edi.action_l10n_cl_edi_certification_parsed_set').read()[0]
+        action['domain'] = [('certification_process_id', '=', self.id)]
+        action['context'] = {'default_certification_process_id': self.id}
+        return action
