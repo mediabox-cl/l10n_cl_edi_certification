@@ -75,17 +75,22 @@ class CertificationProcess(models.Model):
             domain = []
         
         # Añadir filtro de compañía al dominio si no existe ya
+        company_id = self.env.company.id
         if not any(term[0] == 'company_id' for term in domain if isinstance(term, (list, tuple))):
-            domain.append(('company_id', '=', self.env.company.id))
+            domain.append(('company_id', '=', company_id))
         
         if self.env.context.get('create_if_not_exist'):
-            existing = self.search([('company_id', '=', self.env.company.id)], limit=1)
+            existing = self.search([('company_id', '=', company_id)], limit=1)
             if not existing:
-                self.create({'company_id': self.env.company.id})
+                new_record = self.create({'company_id': company_id})
+                # Forzar que solo se devuelva este registro
+                domain = [('id', '=', new_record.id)]
+            else:
+                # Forzar que solo se devuelva el registro existente
+                domain = [('id', '=', existing.id)]
         
         return super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
-                                                        offset=offset, limit=limit, order=order)
-    
+                                                        offset=offset, limit=limit, order=order)    
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
@@ -632,7 +637,7 @@ class CertificationProcess(models.Model):
             'name': _('Sets de Pruebas Definidos'),
             'type': 'ir.actions.act_window',
             'res_model': 'l10n_cl_edi.certification.parsed_set',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('certification_process_id', '=', self.id)],
             'context': {'default_certification_process_id': self.id}
         }

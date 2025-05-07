@@ -1,0 +1,132 @@
+<!-- Vista form para parsed_set -->
+<record id="view_l10n_cl_edi_certification_parsed_set_form" model="ir.ui.view">
+    <field name="name">l10n_cl_edi.certification.parsed_set.form</field>
+    <field name="model">l10n_cl_edi.certification.parsed_set</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="name"/>
+                    <field name="set_type_raw"/>
+                    <field name="set_type_normalized"/>
+                    <field name="attention_number"/>
+                    <field name="raw_header_text"/>
+                </group>
+                <notebook>
+                    <page string="Casos DTE" name="dte_cases">
+                        <field name="dte_case_ids">
+                            <list>
+                                <field name="case_number_raw"/>
+                                <field name="document_type_raw"/>
+                                <field name="document_type_code"/>
+                                <field name="generation_status"/>
+                                <field name="generated_account_move_id"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Entradas Libro de Compras" name="purchase_book_entries" invisible="purchase_book_entry_ids == []">
+                        <field name="purchase_book_entry_ids">
+                            <list>
+                                <field name="document_type_raw"/>
+                                <field name="folio"/>
+                                <field name="amount_net_affected"/>
+                                <field name="amount_exempt"/>
+                                <field name="processing_status"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Instrucciones" name="instructions" invisible="instructional_content_ids == []">
+                        <field name="instructional_content_ids">
+                            <list>
+                                <field name="instructions_text"/>
+                                <field name="general_observations"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<!-- Vista list para parsed_set -->
+<record id="view_l10n_cl_edi_certification_parsed_set_list" model="ir.ui.view">
+    <field name="name">l10n_cl_edi.certification.parsed_set.list</field>
+    <field name="model">l10n_cl_edi.certification.parsed_set</field>
+    <field name="arch" type="xml">
+        <list>
+            <field name="sequence" widget="handle"/>
+            <field name="name"/>
+            <field name="set_type_normalized"/>
+            <field name="attention_number"/>
+        </list>
+    </field>
+</record>
+
+<!-- Vista form para case.dte -->
+<record id="view_l10n_cl_edi_certification_case_dte_form" model="ir.ui.view">
+    <field name="name">l10n_cl_edi.certification.case.dte.form</field>
+    <field name="model">l10n_cl_edi.certification.case.dte</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <field name="generation_status" widget="statusbar" statusbar_visible="pending,generated,error"/>
+            </header>
+            <sheet>
+                <group>
+                    <group>
+                        <field name="case_number_raw"/>
+                        <field name="document_type_raw"/>
+                        <field name="document_type_code"/>
+                        <field name="parsed_set_id"/>
+                    </group>
+                    <group>
+                        <field name="generated_account_move_id"/>
+                        <field name="global_discount_percent"/>
+                        <field name="error_message" invisible="generation_status != 'error'"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Ítems" name="items">
+                        <field name="item_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="quantity"/>
+                                <field name="uom_raw"/>
+                                <field name="price_unit"/>
+                                <field name="discount_percent"/>
+                                <field name="is_exempt"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Referencias" name="references">
+                        <field name="reference_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="reference_document_text_raw"/>
+                                <field name="referenced_sii_case_number"/>
+                                <field name="reason_raw"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<!-- Vista list para case.dte -->
+<record id="view_l10n_cl_edi_certification_case_dte_list" model="ir.ui.view">
+    <field name="name">l10n_cl_edi.certification.case.dte.list</field>
+    <field name="model">l10n_cl_edi.certification.case.dte</field>
+    <field name="arch" type="xml">
+        <list>
+            <field name="case_number_raw"/>
+            <field name="document_type_raw"/>
+            <field name="document_type_code"/>
+            <field name="generation_status" decoration-success="generation_status == 'generated'" decoration-danger="generation_status == 'error'" decoration-info="generation_status == 'pending'"/>
+            <field name="generated_account_move_id"/>
+        </list>
+    </field>
+</record>

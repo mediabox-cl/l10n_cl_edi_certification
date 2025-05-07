@@ -35,7 +35,7 @@
                                 <field name="document_count" widget="statinfo" string="Documentos DTE Generados"/>
                             </button>
                             <button name="action_view_parsed_sets" type="object" class="oe_stat_button" icon="fa-files-o">
-                                 <div class="o_field_widget o_stat_info">
+                                <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="dte_case_to_generate_count" nolabel="1"/> Casos Pendientes</span>
                                     <span class="o_stat_text">Sets Definidos</span>
                                 </div>
