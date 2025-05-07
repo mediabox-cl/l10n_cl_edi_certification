@@ -641,3 +641,10 @@ class CertificationProcess(models.Model):
         action['domain'] = [('certification_process_id', '=', self.id)]
         action['context'] = {'default_certification_process_id': self.id}
         return action
+    
+    @api.model
+    def _get_certification_id(self):
+        record = self.search([('company_id', '=', self.env.company.id)], limit=1)
+        if not record:
+            record = self.create({'company_id': self.env.company.id})
+        return record.id

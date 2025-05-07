@@ -137,7 +137,6 @@
             <field name="view_mode">form</field>
             <field name="target">current</field>
             <field name="context">{'create_if_not_exist': True}</field>
-            <field name="res_id" eval="obj().env['l10n_cl_edi.certification.process'].search([('company_id', '=', obj().env.company.id)], limit=1).id or False"/>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Inicie su proceso de certificación SII
@@ -149,12 +148,28 @@
             </field>
         </record>
 
+        <record id="action_open_certification" model="ir.actions.server">
+            <field name="name">Abrir Certificación</field>
+            <field name="model_id" ref="model_l10n_cl_edi_certification_process"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'l10n_cl_edi.certification.process',
+                    'view_mode': 'form',
+                    'res_id': model._get_certification_id(),
+                    'target': 'current',
+                    'context': {'create_if_not_exist': True},
+                }
+            </field>
+        </record>
+
         <!-- Menu -->
         <menuitem id="menu_l10n_cl_edi_certification"
-                  name="Certificación SII"
-                  parent="l10n_cl_edi.menu_sii_chile"
-                  sequence="25"
-                  action="action_l10n_cl_edi_certification_process"/>
+          name="Certificación SII"
+          parent="l10n_cl_edi.menu_sii_chile"
+          sequence="25"
+          action="action_open_certification"/>
     <!-- Vista form para parsed_set -->
     <record id="view_l10n_cl_edi_certification_parsed_set_form" model="ir.ui.view">
         <field name="name">l10n_cl_edi.certification.parsed_set.form</field>
