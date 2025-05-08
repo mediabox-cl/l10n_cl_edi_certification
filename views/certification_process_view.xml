@@ -14,13 +14,11 @@
                         <button name="action_prepare_certification" string="1. Preparar Certificación"
                                 type="object" class="oe_highlight"
                                 invisible="state != 'draft'"/>
-                        <button name="action_create_demo_cafs" string="2. Crear CAFs Demo"
-                                type="object" class="oe_highlight"
-                                invisible="state not in ('setup', 'data_loaded')"/>
-                        <button name="action_process_set_prueba_xml" string="3. Cargar XML Set Pruebas"
+                        <!-- Eliminamos el botón de CAFs Demo -->
+                        <button name="action_process_set_prueba_xml" string="2. Cargar XML Set Pruebas"
                                 type="object" class="oe_highlight"
                                 invisible="state not in ('setup', 'data_loaded') or company_id == False"/>
-                        <button name="action_generate_dte_documents" string="4. Generar Documentos DTE"
+                        <button name="action_generate_dte_documents" string="3. Generar Documentos DTE"
                                 type="object" class="oe_highlight"
                                 invisible="state != 'data_loaded' or dte_case_to_generate_count == 0"
                                 help="Genera los documentos DTE definidos a partir del XML cargado."/>
@@ -35,7 +33,7 @@
                                 <field name="document_count" widget="statinfo" string="Documentos DTE Generados"/>
                             </button>
                             <button name="action_view_parsed_sets" type="object" class="oe_stat_button" icon="fa-files-o">
-                                <div class="o_field_widget o_stat_info">
+                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="dte_case_to_generate_count" nolabel="1"/> Casos Pendientes</span>
                                     <span class="o_stat_text">Sets Definidos</span>
                                 </div>
@@ -103,7 +101,7 @@
         </record>
 
         <!-- List View -->
-        <record id="view_l10n_cl_edi_certification_process_tree" model="ir.ui.view">
+        <record id="view_l10n_cl_edi_certification_process_list" model="ir.ui.view">
             <field name="name">l10n_cl_edi.certification.process.list</field>
             <field name="model">l10n_cl_edi.certification.process</field>
             <field name="arch" type="xml">
@@ -117,25 +115,205 @@
             </field>
         </record>
 
+        <!-- Acción para ver Parsed Sets -->
+        <record id="action_l10n_cl_edi_certification_parsed_set" model="ir.actions.act_window">
+            <field name="name">Sets de Pruebas</field>
+            <field name="res_model">l10n_cl_edi.certification.parsed_set</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('certification_process_id', '=', active_id)]</field>
+            <field name="context">{'default_certification_process_id': active_id}</field>
+        </record>
+
         <!-- Minimal List view for Parsed Sets -->
-        <record id="view_l10n_cl_edi_certification_parsed_set_tree_inline" model="ir.ui.view">
-            <field name="name">l10n_cl_edi.certification.parsed_set.list.inline</field>
+        <record id="view_l10n_cl_edi_certification_parsed_set_list" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.parsed_set.list</field>
             <field name="model">l10n_cl_edi.certification.parsed_set</field>
             <field name="arch" type="xml">
-                <list editable="bottom" create="false" delete="false">
+                <list>
                     <field name="sequence" widget="handle"/>
-                    <field name="name" readonly="1"/>
-                    <field name="set_type_normalized" readonly="1"/>
-                    <field name="attention_number" readonly="1"/>
+                    <field name="name"/>
+                    <field name="set_type_normalized"/>
+                    <field name="attention_number"/>
+                    <field name="certification_process_id" invisible="1"/>
                 </list>
             </field>
         </record>
-        
+
+        <!-- Form view for Parsed Sets -->
+        <record id="view_l10n_cl_edi_certification_parsed_set_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.parsed_set.form</field>
+            <field name="model">l10n_cl_edi.certification.parsed_set</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="set_type_normalized"/>
+                                <field name="attention_number"/>
+                            </group>
+                            <group>
+                                <field name="certification_process_id" readonly="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Casos DTE" name="dte_cases" invisible="not dte_case_ids">
+                                <field name="dte_case_ids">
+                                    <list>
+                                        <field name="case_number_raw"/>
+                                        <field name="document_type_raw"/>
+                                        <field name="document_type_code"/>
+                                        <field name="generation_status"/>
+                                        <field name="generated_account_move_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Entradas Libro de Compras" name="purchase_book" invisible="not purchase_book_entry_ids">
+                                <field name="purchase_book_entry_ids">
+                                    <list>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="document_type_raw"/>
+                                        <field name="folio"/>
+                                        <field name="amount_net_affected" sum="Total Afecto"/>
+                                        <field name="amount_exempt" sum="Total Exento"/>
+                                        <field name="processing_status"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Contenido Instruccional" name="instructional" invisible="not instructional_content_ids">
+                                <field name="instructional_content_ids">
+                                    <form>
+                                        <group>
+                                            <field name="instructions_text" widget="html"/>
+                                            <field name="general_observations" widget="html"/>
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="Texto Original" name="raw_text">
+                                <field name="raw_header_text" widget="text"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para ver casos DTE -->
+        <record id="action_l10n_cl_edi_certification_case_dte" model="ir.actions.act_window">
+            <field name="name">Casos DTE</field>
+            <field name="res_model">l10n_cl_edi.certification.case.dte</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Form view for DTE Cases -->
+        <record id="view_l10n_cl_edi_certification_case_dte_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.case.dte.form</field>
+            <field name="model">l10n_cl_edi.certification.case.dte</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="generation_status" widget="statusbar" statusbar_visible="pending,generated,error"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="case_number_raw"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="document_type_raw"/>
+                                <field name="document_type_code"/>
+                                <field name="global_discount_percent" widget="percentage"/>
+                                <field name="parsed_set_id"/>
+                            </group>
+                            <group>
+                                <field name="generated_account_move_id" readonly="1"/>
+                                <field name="error_message" attrs="{'invisible': [('generation_status', '!=', 'error')]}"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Ítems" name="items">
+                                <field name="item_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="quantity"/>
+                                        <field name="uom_raw"/>
+                                        <field name="price_unit"/>
+                                        <field name="discount_percent" widget="percentage"/>
+                                        <field name="is_exempt"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Referencias" name="references" invisible="not reference_ids">
+                                <field name="reference_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="reference_document_text_raw"/>
+                                        <field name="referenced_sii_case_number"/>
+                                        <field name="reason_raw"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Datos de Guía" name="dispatch_data" attrs="{'invisible': [('document_type_code', '!=', '52')]}">
+                                <group>
+                                    <field name="dispatch_motive_raw"/>
+                                    <field name="dispatch_transport_type_raw"/>
+                                </group>
+                            </page>
+                            <page string="Datos de Exportación" name="export_data" attrs="{'invisible': [('document_type_code', 'not in', ['110', '111', '112'])]}">
+                                <group>
+                                    <group>
+                                        <field name="export_reference_text"/>
+                                        <field name="export_currency_raw"/>
+                                        <field name="export_payment_terms_raw"/>
+                                        <field name="export_sale_modality_raw"/>
+                                    </group>
+                                    <group>
+                                        <field name="export_sale_clause_raw"/>
+                                        <field name="export_total_sale_clause_amount"/>
+                                        <field name="export_transport_way_raw"/>
+                                        <field name="export_loading_port_raw"/>
+                                        <field name="export_unloading_port_raw"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Texto Original" name="raw_text">
+                                <field name="raw_text_block" widget="text"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- List view for DTE Cases -->
+        <record id="view_l10n_cl_edi_certification_case_dte_list" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.case.dte.list</field>
+            <field name="model">l10n_cl_edi.certification.case.dte</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="case_number_raw"/>
+                    <field name="document_type_raw"/>
+                    <field name="document_type_code"/>
+                    <field name="parsed_set_id"/>
+                    <field name="generation_status"/>
+                    <field name="generated_account_move_id"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Action: main entry point -->
         <record id="action_l10n_cl_edi_certification_process" model="ir.actions.act_window">
             <field name="name">Certificación SII</field>
             <field name="res_model">l10n_cl_edi.certification.process</field>
-            <field name="view_mode">form</field>
-            <field name="target">current</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{'create_if_not_exist': True}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
@@ -148,101 +326,11 @@
             </field>
         </record>
 
-        <record id="action_open_certification" model="ir.actions.server">
-            <field name="name">Abrir Certificación</field>
-            <field name="model_id" ref="model_l10n_cl_edi_certification_process"/>
-            <field name="state">code</field>
-            <field name="code">
-                action = {
-                    'type': 'ir.actions.act_window',
-                    'res_model': 'l10n_cl_edi.certification.process',
-                    'view_mode': 'form',
-                    'res_id': model._get_certification_id(),
-                    'target': 'current',
-                    'context': {'create_if_not_exist': True},
-                }
-            </field>
-        </record>
-
         <!-- Menu -->
         <menuitem id="menu_l10n_cl_edi_certification"
-          name="Certificación SII"
-          parent="l10n_cl_edi.menu_sii_chile"
-          sequence="25"
-          action="action_open_certification"/>
-    <!-- Vista form para parsed_set -->
-    <record id="view_l10n_cl_edi_certification_parsed_set_form" model="ir.ui.view">
-        <field name="name">l10n_cl_edi.certification.parsed_set.form</field>
-        <field name="model">l10n_cl_edi.certification.parsed_set</field>
-        <field name="arch" type="xml">
-            <form>
-                <sheet>
-                    <group>
-                        <field name="name"/>
-                        <field name="set_type_raw"/>
-                        <field name="set_type_normalized"/>
-                        <field name="attention_number"/>
-                        <field name="raw_header_text"/>
-                    </group>
-                    <notebook>
-                        <page string="Casos DTE" name="dte_cases">
-                            <field name="dte_case_ids">
-                                <list>
-                                    <field name="case_number_raw"/>
-                                    <field name="document_type_raw"/>
-                                    <field name="document_type_code"/>
-                                    <field name="generation_status"/>
-                                    <field name="generated_account_move_id"/>
-                                </list>
-                            </field>
-                        </page>
-                        <page string="Entradas Libro de Compras" name="purchase_book_entries" invisible="purchase_book_entry_ids == []">
-                            <field name="purchase_book_entry_ids">
-                                <list>
-                                    <field name="document_type_raw"/>
-                                    <field name="folio"/>
-                                    <field name="amount_net_affected"/>
-                                    <field name="amount_exempt"/>
-                                    <field name="processing_status"/>
-                                </list>
-                            </field>
-                        </page>
-                        <page string="Instrucciones" name="instructions" invisible="instructional_content_ids == []">
-                            <field name="instructional_content_ids">
-                                <list>
-                                    <field name="instructions_text"/>
-                                    <field name="general_observations"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-    <!-- Vista list para parsed_set -->
-    <record id="view_l10n_cl_edi_certification_parsed_set_list" model="ir.ui.view">
-        <field name="name">l10n_cl_edi.certification.parsed_set.list</field>
-        <field name="model">l10n_cl_edi.certification.parsed_set</field>
-        <field name="arch" type="xml">
-            <list>
-                <field name="sequence" widget="handle"/>
-                <field name="name"/>
-                <field name="set_type_normalized"/>
-                <field name="attention_number"/>
-            </list>
-        </field>
-    </record>
-
-    <!-- Acción para Ver Sets Parseados -->
-    <record id="action_l10n_cl_edi_certification_parsed_set" model="ir.actions.act_window">
-        <field name="name">Sets de Pruebas</field>
-        <field name="res_model">l10n_cl_edi.certification.parsed_set</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('certification_process_id', '=', active_id)]</field>
-        <field name="context">{'default_certification_process_id': active_id}</field>
-    </record>
-    
+                  name="Certificación SII"
+                  parent="l10n_cl_edi.menu_sii_chile"
+                  sequence="25"
+                  action="action_l10n_cl_edi_certification_process"/>
     </data>
 </odoo>

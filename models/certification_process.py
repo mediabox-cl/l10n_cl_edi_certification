@@ -620,26 +620,25 @@ class CertificationProcess(models.Model):
             'name': _('CAFs'),
             'type': 'ir.actions.act_window',
             'res_model': 'l10n_cl.dte.caf',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',  # Cambiado de tree a list
             'domain': [('company_id', '=', self.company_id.id)],
             'context': {'default_company_id': self.company_id.id},
         }
-    
+        
     def action_view_test_documents(self):
         self.ensure_one()
         return {
             'name': _('Documentos de Prueba Generados'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.move',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',  # Cambiado de tree a list
             'domain': [('id', 'in', self.test_invoice_ids.ids)],
         }
 
     def action_view_parsed_sets(self):
         self.ensure_one()
-        action = self.env.ref('l10n_cl_edi.action_l10n_cl_edi_certification_parsed_set').read()[0]
-        action['domain'] = [('certification_process_id', '=', self.id)]
-        action['context'] = {'default_certification_process_id': self.id}
+        # Referenciar la acción por su ID XML correcto
+        action = self.env.ref('l10n_cl_edi_certification.action_l10n_cl_edi_certification_parsed_set').read()[0]
         return action
     
     @api.model
