@@ -229,7 +229,7 @@
                             <group>
                                 <field name="document_type_raw"/>
                                 <field name="document_type_code"/>
-                                <field name="global_discount_percent" widget="percentage"/>
+                                <field name="global_discount_percent"/>
                                 <field name="parsed_set_id"/>
                             </group>
                             <group>
@@ -247,7 +247,7 @@
                                         <field name="quantity"/>
                                         <field name="uom_raw"/>
                                         <field name="price_unit"/>
-                                        <field name="discount_percent" widget="percentage"/>
+                                        <field name="discount_percent"/>
                                         <field name="is_exempt"/>
                                     </list>
                                 </field>

@@ -143,8 +143,17 @@ class CertificationCaseDTEReference(models.Model):
 
     reference_document_text_raw = fields.Text(string='Texto Documento Referenciado (Raw)')
     referenced_sii_case_number = fields.Char(string='Nº Caso SII Referenciado')
-    # referenced_internal_case_id = fields.Many2one('l10n_cl_edi.certification.case.dte', string='Caso Interno Referenciado') # Link to another case within the same process
+    # Campo de enlace directo al caso DTE referenciado
+    referenced_case_dte_id = fields.Many2one(
+        'l10n_cl_edi.certification.case.dte', 
+        string='Caso DTE Referenciado',
+        help='Enlace directo al caso DTE dentro del mismo proceso de certificación'
+    )
     reason_raw = fields.Text(string='Razón Referencia (Raw)')
+    reference_code = fields.Char(
+        string='Código Referencia', 
+        help='Código SII para el tipo de referencia (1=Anula, 2=Corrige Texto, 3=Corrige Monto)'
+    )
 
 class CertificationPurchaseBookEntry(models.Model):
     _name = 'l10n_cl_edi.certification.purchase_book.entry'

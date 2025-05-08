@@ -529,28 +529,167 @@ class CertificationProcess(models.Model):
 
         return line_vals
 
-    def _prepare_references_for_move(self, dte_case, new_move):
-        """Prepares reference data for the account.move. 
-           This is usually handled by l10n_cl_edi module logic when _get_cl_reference_data is called.
-           Here we are primarily concerned with linking to other Cert Process generated docs.
+    def _map_reference_reason_to_code(self, reason_raw):
         """
-        ref_data_to_store_on_move = []
+        Mapea la razón de referencia textual al código SII correspondiente.
+        
+        Códigos SII:
+        1 = Anula Documento de Referencia
+        2 = Corrige Texto Documento de Referencia
+        3 = Corrige Montos
+        """
+        if not reason_raw:
+            return False
+            
+        reason_upper = reason_raw.upper()
+        
+        # Mapeo de razones comunes a códigos SII
+        if 'ANULA' in reason_upper:
+            return '1'
+        elif 'CORRIGE' in reason_upper and any(word in reason_upper for word in ['TEXTO', 'GIRO', 'RUT', 'DIRECCION', 'RAZON']):
+            return '2'
+        elif any(word in reason_upper for word in ['MONTO', 'PRECIO', 'VALOR', 'DESCUENTO']):
+            return '3'
+        elif 'DEVOLUCION' in reason_upper:
+            # Para devoluciones, generalmente se usa código 1
+            return '1'
+        
+        # Si no hay coincidencia clara, devolvemos None para manejo manual
+        return False
+
+    def _prepare_references_for_move(self, dte_case, new_move):
+        """
+        Prepara las referencias para el documento account.move basado en el caso DTE.
+        Crea registros de referencia vinculados al documento generado.
+        """
+        self.ensure_one()
+        
         if not dte_case.reference_ids:
             return []
-
+            
+        # Verificar si el modelo de referencia l10n_cl está disponible
+        ref_model = self.env['l10n_cl.account.invoice.reference']
+        
         for ref_def in dte_case.reference_ids:
+            # Buscar el documento referenciado
             referenced_move = self._get_referenced_move(ref_def.referenced_sii_case_number)
+            
             if not referenced_move:
                 _logger.warning(
-                    "Referenced move for SII Case %s not found for DTE Case %s. Manual check might be needed.", 
+                    "Documento referenciado para caso SII %s no encontrado para DTE Caso %s. Se requiere verificación manual.", 
                     ref_def.referenced_sii_case_number, dte_case.case_number_raw
                 )
-                pass
+                continue
+                
+            # Mapear la razón a código SII
+            reason_code = self._map_reference_reason_to_code(ref_def.reason_raw)
+            
+            # Si no se pudo mapear automáticamente, usar código genérico
+            if not reason_code:
+                _logger.warning(
+                    "No se pudo mapear automáticamente la razón '%s' a código SII. Se usará código '2' (Corrige Texto).", 
+                    ref_def.reason_raw
+                )
+                reason_code = '2'  # Default a "Corrige Texto"
+                
+            # Determinar el tipo de documento referenciado según l10n_latam
+            ref_doc_type = referenced_move.l10n_latam_document_type_id
+                
+            # Crear la referencia
+            ref_values = {
+                'move_id': new_move.id,
+                'origin_doc_number': referenced_move.l10n_latam_document_number,
+                'reference_doc_type_id': ref_doc_type.id,
+                'l10n_cl_reference_code_id': int(reason_code),
+                'reason': ref_def.reason_raw,
+                'date': referenced_move.invoice_date,
+            }
+            
+            # Crear la referencia
+            ref_model.create(ref_values)
+            
+            # Si es anulación o devolución (código 1), marcar el documento original
+            if reason_code == '1':
+                # Solo informativo - la acción real se manejará en flujo de certificación
+                _logger.info(
+                    "Documento %s requiere anulación/devolución del documento %s",
+                    new_move.name, referenced_move.name
+                )
+                
+        return True
 
-        return ref_data_to_store_on_move
+    def _apply_global_discount(self, move, discount_percent):
+        """
+        Aplica un descuento global al documento como una línea negativa.
+        
+        Args:
+            move: Documento account.move al que aplicar el descuento
+            discount_percent: Porcentaje de descuento a aplicar
+        
+        Returns:
+            El documento modificado
+        """
+        if not move or not discount_percent or discount_percent <= 0:
+            return move
+            
+        # Solo aplicar a líneas afectas (no exentas)
+        affected_lines = move.invoice_line_ids.filtered(lambda l: l.tax_ids)
+        
+        if not affected_lines:
+            _logger.warning("No se encontraron líneas afectas para aplicar descuento global en %s", move.name)
+            return move
+            
+        # Calcular el monto total de los ítems afectos
+        total_affected = sum(line.price_subtotal for line in affected_lines)
+        
+        # Calcular el monto del descuento
+        discount_amount = total_affected * (discount_percent / 100.0)
+        
+        if discount_amount <= 0:
+            return move
+            
+        # Buscar producto para descuento o crear uno genérico
+        discount_product = self.env['product.product'].search(
+            [('name', '=', 'Descuento Global')], limit=1)
+            
+        if not discount_product:
+            discount_product = self.env['product.product'].create({
+                'name': 'Descuento Global',
+                'type': 'service',
+                'default_code': 'DSCTO_GLOBAL',
+                'invoice_policy': 'order',
+                'lst_price': 0.0,
+            })
+            
+        # Obtener la cuenta contable para descuentos
+        # Normalmente se usa la misma cuenta que los productos afectos
+        account_id = affected_lines[0].account_id.id if affected_lines else False
+        
+        # Obtener los impuestos de las líneas afectas
+        # Normalmente el descuento lleva los mismos impuestos que las líneas afectadas
+        tax_ids = affected_lines[0].tax_ids.ids if affected_lines else []
+        
+        # Crear la línea de descuento
+        discount_line_vals = {
+            'product_id': discount_product.id,
+            'name': f'Descuento Global {discount_percent}%',
+            'price_unit': -discount_amount,  # Monto negativo
+            'quantity': 1.0,
+            'account_id': account_id,
+            'tax_ids': [(6, 0, tax_ids)],
+            'move_id': move.id,
+        }
+        
+        # Crear la línea directamente
+        self.env['account.move.line'].create(discount_line_vals)
+        
+        # Actualizar totales del documento
+        move._recompute_dynamic_lines()
+        
+        return move
 
     def _create_move_from_dte_case(self, dte_case):
-        """Creates an account.move record from a l10n_cl_edi.certification.case.dte record."""
+        """Crea un registro account.move a partir de un registro l10n_cl_edi.certification.case.dte."""
         self.ensure_one()
         dte_case.ensure_one()
 
@@ -564,31 +703,36 @@ class CertificationProcess(models.Model):
             invoice_lines_vals.append((0, 0, self._prepare_move_line_vals(item, move_vals)))
         move_vals['invoice_line_ids'] = invoice_lines_vals
 
-        if dte_case.global_discount_percent and dte_case.global_discount_percent > 0:
-            _logger.info("Caso %s tiene descuento global de %s%%. Implementar manejo.", 
-                         dte_case.case_number_raw, dte_case.global_discount_percent)
-            move_vals['narration'] = (move_vals.get('narration', '') + 
-                                     f"\nDescuento Global Test SII: {dte_case.global_discount_percent}%").strip()
-
+        # Crear el documento sin aplicar aún descuentos globales
         new_move = self.env['account.move'].create(move_vals)
         
+        # Preparar referencias entre documentos
         self._prepare_references_for_move(dte_case, new_move)
 
+        # Para guías de despacho, configurar campos específicos
         if dte_case.document_type_code == '52':
             new_move.write({
                 'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(dte_case.dispatch_motive_raw),
                 'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(dte_case.dispatch_transport_type_raw),
             })
         
+        # Para documentos de exportación configurar campos específicos
         if dte_case.document_type_code in ['110', '111', '112']:
-             new_move.write({
-             })
+            new_move.write({
+                # Aquí se agregarían campos específicos para exportación
+            })
 
+        # Aplicar descuento global si corresponde
+        if dte_case.global_discount_percent and dte_case.global_discount_percent > 0:
+            self._apply_global_discount(new_move, dte_case.global_discount_percent)
+
+        # Actualizar el caso DTE con la referencia al documento generado
         dte_case.write({
             'generated_account_move_id': new_move.id,
             'generation_status': 'generated',
             'error_message': False
         })
+        
         _logger.info("DTE %s generado para Caso SII %s (ID: %s)", new_move.name, dte_case.case_number_raw, new_move.id)
         return new_move
 
