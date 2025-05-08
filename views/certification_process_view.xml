@@ -210,7 +210,7 @@
             <field name="view_mode">list,form</field>
         </record>
 
-        <!-- Form view for DTE Cases -->
+        <!-- Form view for DTE Cases - corregido -->
         <record id="view_l10n_cl_edi_certification_case_dte_form" model="ir.ui.view">
             <field name="name">l10n_cl_edi.certification.case.dte.form</field>
             <field name="model">l10n_cl_edi.certification.case.dte</field>
@@ -234,7 +234,8 @@
                             </group>
                             <group>
                                 <field name="generated_account_move_id" readonly="1"/>
-                                <field name="error_message" attrs="{'invisible': [('generation_status', '!=', 'error')]}"/>
+                                <!-- Cambiar attrs por expresión directa -->
+                                <field name="error_message" invisible="generation_status != 'error'"/>
                             </group>
                         </group>
                         <notebook>
@@ -261,13 +262,15 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Datos de Guía" name="dispatch_data" attrs="{'invisible': [('document_type_code', '!=', '52')]}">
+                            <!-- Cambiar attrs por expresión directa -->
+                            <page string="Datos de Guía" name="dispatch_data" invisible="document_type_code != '52'">
                                 <group>
                                     <field name="dispatch_motive_raw"/>
                                     <field name="dispatch_transport_type_raw"/>
                                 </group>
                             </page>
-                            <page string="Datos de Exportación" name="export_data" attrs="{'invisible': [('document_type_code', 'not in', ['110', '111', '112'])]}">
+                            <!-- Cambiar attrs por expresión directa -->
+                            <page string="Datos de Exportación" name="export_data" invisible="document_type_code not in ['110', '111', '112']">
                                 <group>
                                     <group>
                                         <field name="export_reference_text"/>
