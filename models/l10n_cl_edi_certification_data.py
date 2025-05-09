@@ -150,10 +150,12 @@ class CertificationCaseDTEReference(models.Model):
         help='Enlace directo al caso DTE dentro del mismo proceso de certificación'
     )
     reason_raw = fields.Text(string='Razón Referencia (Raw)')
-    reference_code = fields.Char(
-        string='Código Referencia', 
-        help='Código SII para el tipo de referencia (1=Anula, 2=Corrige Texto, 3=Corrige Monto)'
-    )
+    reference_code = fields.Selection([
+        ('1', '1. Anula Documento Referenciado'),
+        ('2', '2. Corrige Texto Documento Referenciado'),
+        ('3', '3. Corrige Monto Documento Referenciado')
+    ], string='Código Referencia SII', 
+       help='Código SII para el tipo de referencia')
 
 class CertificationPurchaseBookEntry(models.Model):
     _name = 'l10n_cl_edi.certification.purchase_book.entry'
