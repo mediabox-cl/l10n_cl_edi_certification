@@ -3,7 +3,7 @@
     <data noupdate="0">
         <!-- SET BASICO - ATENCION: 4267228 -->
         <record id="parsed_set_03_basico_4267228" model="l10n_cl_edi.certification.parsed_set">
-            <field name="certification_process_id" ref="l10n_cl_edi_certification.demo_certification_process_main_company"/>
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
             <field name="sequence">10</field>
             <field name="set_type_raw">BASICO</field>
             <field name="set_type_normalized">basic</field>

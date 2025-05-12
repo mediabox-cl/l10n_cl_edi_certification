@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- TODO: Considerar implementar un hook post-instalación para crear procesos 
+         de certificación dinámicamente para todas las empresas activas -->
+         
+    <!-- Proceso de certificación predeterminado para la empresa principal -->
+    <record id="default_certification_process" model="l10n_cl_edi.certification.process">
+        <field name="name">Proceso de Certificación SII</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="state">draft</field>
+        <!-- Agregar otros campos necesarios según el modelo -->
+    </record>
+</odoo>
