@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class CertificationParsedSet(models.Model):
     _name = 'l10n_cl_edi.certification.parsed_set'
@@ -112,6 +118,67 @@ class CertificationCaseDTE(models.Model):
         ('error', 'Error al Generar')
     ], string='Estado Generación', default='pending', copy=False)
     error_message = fields.Text(string='Mensaje de Error', readonly=True, copy=False)
+
+    
+    def action_view_case_detail(self):
+        """Abre la vista detallada del caso DTE."""
+        self.ensure_one()
+        return {
+            'name': _('Detalle del Caso DTE'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.case.dte',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+        }
+
+    def action_generate_single_document(self):
+        """Genera sólo este documento DTE específico."""
+        self.ensure_one()
+        
+        if self.generation_status != 'pending':
+            raise UserError(_("Este documento ya ha sido procesado o está en error."))
+        
+        certification_process = self.parsed_set_id.certification_process_id
+        
+        try:
+            # Asegurarse que estamos en el estado correcto
+            if certification_process.state not in ['data_loaded', 'generation']:
+                certification_process.state = 'data_loaded'
+            
+            # Generar el documento
+            certification_process._create_move_from_dte_case(self)
+            
+            # Verificar el estado del proceso de certificación
+            certification_process.check_certification_status()
+            
+            # Notificar éxito
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('DTE generado'),
+                    'message': _('El documento %s ha sido generado correctamente.') % self.case_number_raw,
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        except Exception as e:
+            # Registrar error y notificar
+            self.write({
+                'generation_status': 'error',
+                'error_message': str(e)
+            })
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Error al generar DTE'),
+                    'message': str(e),
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }
 
 class CertificationCaseDTEItem(models.Model):
     _name = 'l10n_cl_edi.certification.case.dte.item'

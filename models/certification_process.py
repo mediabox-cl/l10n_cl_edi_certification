@@ -62,6 +62,18 @@ class CertificationProcess(models.Model):
         compute='_compute_active_company_id',
         store=False
     )
+    current_parsed_set_id = fields.Many2one(
+        'l10n_cl_edi.certification.parsed_set',
+        string="Set Seleccionado Actualmente",
+        compute='_compute_current_parsed_set',
+        store=True,
+    )
+
+    related_dte_cases = fields.One2many(
+        'l10n_cl_edi.certification.case.dte',
+        compute='_compute_related_dte_cases',
+        string="Casos DTE Relacionados",
+    )
 
     _sql_constraints = [
             ('company_uniq', 'unique(company_id)', 'Solo puede existir un proceso de certificación por compañía'),
@@ -71,6 +83,70 @@ class CertificationProcess(models.Model):
         """Calcula la compañía activa del usuario"""
         for record in self:
             record.active_company_id = self.env.company
+
+    @api.depends('parsed_set_ids')
+    def _compute_current_parsed_set(self):
+        """Obtiene el set de prueba seleccionado actualmente."""
+        for record in self:
+            if record.parsed_set_ids:
+                record.current_parsed_set_id = record.parsed_set_ids[0]
+            else:
+                record.current_parsed_set_id = False
+
+    @api.depends('current_parsed_set_id')
+    def _compute_related_dte_cases(self):
+        """Filtra los casos DTE basados en el set seleccionado."""
+        for record in self:
+            if record.current_parsed_set_id:
+                record.related_dte_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+                    ('parsed_set_id', '=', record.current_parsed_set_id.id)
+                ])
+            else:
+                record.related_dte_cases = False
+    
+    def check_certification_status(self):
+        """Verifica el estado general del proceso de certificación y actualiza su estado según corresponda."""
+        self.ensure_one()
+        
+        # Verificar que existe el tipo de documento SET
+        set_doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        # Verificar que hay sets cargados
+        has_sets = bool(self.parsed_set_ids)
+        
+        # Verificar si hay casos pendientes
+        has_pending_cases = self.dte_case_to_generate_count > 0
+        
+        # Verificar si todos los casos están generados
+        all_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+        ])
+        
+        generated_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+            ('generation_status', '=', 'generated')
+        ])
+        
+        # Actualizar estado según verificaciones
+        if not set_doc_type:
+            self.state = 'draft'
+        elif not has_sets:
+            if self.state == 'draft':
+                self.state = 'setup'
+        elif has_sets and has_pending_cases:
+            self.state = 'data_loaded'
+        elif all_cases_count > 0 and all_cases_count == generated_cases_count:
+            self.state = 'finished'
+        
+        return {
+            'has_set_doc_type': bool(set_doc_type),
+            'has_sets': has_sets,
+            'has_pending_cases': has_pending_cases,
+            'all_cases_generated': all_cases_count > 0 and all_cases_count == generated_cases_count
+        }
 
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):

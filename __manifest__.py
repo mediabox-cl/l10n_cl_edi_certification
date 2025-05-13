@@ -24,6 +24,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
+        'views/test_set_views.xml',
         'data/l10n_cl_edi_certification_data.xml',
         'data/l10n_cl_edi_certification_basic_set.xml',
     ],
