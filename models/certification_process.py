@@ -168,15 +168,51 @@ class CertificationProcess(models.Model):
             else:
                 # Forzar que solo se devuelva el registro existente
                 domain = [('id', '=', existing.id)]
+            
+            # Si estamos en la vista inicial (no tenemos res_id en el contexto)
+            # y el view_mode es 'form', redireccionar al formulario del único registro
+            if self.env.context.get('params', {}).get('view_type') == 'form' and not self.env.context.get('params', {}).get('id'):
+                record_id = new_record.id if not existing else existing.id
+                
+                # Verificar el estado del proceso al cargar el formulario
+                record = self.browse(record_id)
+                record.check_certification_status()
+                
+                # Preparar un redirect a la vista form con el ID específico
+                action = {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'l10n_cl_edi.certification.process',
+                    'view_mode': 'form',
+                    'res_id': record_id,
+                    'views': [(False, 'form')],
+                    'target': 'current',
+                }
+                
+                # Añadir el redirect a un contexto separado para ser procesado
+                self.env.context = dict(self.env.context, certification_redirect=action)
         
-        return super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
+        result = super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
                                                         offset=offset, limit=limit, order=order)
+        
+        # Si hay un redirect preparado, incluirlo en el resultado 
+        if self.env.context.get('certification_redirect'):
+            # Para señalizar la redirección, añadimos un campo especial al resultado
+            if isinstance(result, list) and result:
+                result[0]['_redirect_action'] = self.env.context.get('certification_redirect')
+        
+        return result
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
         res = super(CertificationProcess, self).default_get(fields_list)
         res['company_id'] = self.env.company.id
         return res
+    
+    @api.onchange('id')
+    def _onchange_form_load(self):
+        """Verifica el estado del proceso al cargar el formulario"""
+        if self.id:
+            self.check_certification_status()
         
     def _compute_caf_count(self):
         for record in self:
