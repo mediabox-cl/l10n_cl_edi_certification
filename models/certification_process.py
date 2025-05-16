@@ -160,45 +160,27 @@ class CertificationProcess(models.Model):
             domain.append(('company_id', '=', company_id))
         
         if self.env.context.get('create_if_not_exist'):
+            # Buscar el registro existente
             existing = self.search([('company_id', '=', company_id)], limit=1)
-            if not existing:
-                new_record = self.create({'company_id': company_id})
-                # Forzar que solo se devuelva este registro
-                domain = [('id', '=', new_record.id)]
-            else:
-                # Forzar que solo se devuelva el registro existente
-                domain = [('id', '=', existing.id)]
             
-            # Si estamos en la vista inicial (no tenemos res_id en el contexto)
-            # y el view_mode es 'form', redireccionar al formulario del único registro
-            if self.env.context.get('params', {}).get('view_type') == 'form' and not self.env.context.get('params', {}).get('id'):
-                record_id = new_record.id if not existing else existing.id
-                
-                # Verificar el estado del proceso al cargar el formulario
-                record = self.browse(record_id)
-                record.check_certification_status()
-                
-                # Preparar un redirect a la vista form con el ID específico
-                action = {
-                    'type': 'ir.actions.act_window',
-                    'res_model': 'l10n_cl_edi.certification.process',
-                    'view_mode': 'form',
-                    'res_id': record_id,
-                    'views': [(False, 'form')],
-                    'target': 'current',
-                }
-                
-                # Añadir el redirect a un contexto separado para ser procesado
-                self.env.context = dict(self.env.context, certification_redirect=action)
+            # Si no existe, crear uno nuevo
+            if not existing:
+                existing = self.create({'company_id': company_id})
+                _logger.info("Creado nuevo registro de certificación con ID %s para compañía %s", 
+                            existing.id, company_id)
+            
+            # Verificar el estado si se requiere explícitamente
+            if self.env.context.get('force_check_status'):
+                existing.check_certification_status()
+                _logger.info("Verificado estado de registro de certificación %s: %s", 
+                            existing.id, existing.state)
+            
+            # Modificar el dominio para garantizar que solo se devuelva este registro
+            domain = [('id', '=', existing.id)]
         
+        # Ejecutar la búsqueda con el dominio actualizado
         result = super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
                                                         offset=offset, limit=limit, order=order)
-        
-        # Si hay un redirect preparado, incluirlo en el resultado 
-        if self.env.context.get('certification_redirect'):
-            # Para señalizar la redirección, añadimos un campo especial al resultado
-            if isinstance(result, list) and result:
-                result[0]['_redirect_action'] = self.env.context.get('certification_redirect')
         
         return result
     @api.model
@@ -208,15 +190,18 @@ class CertificationProcess(models.Model):
         res['company_id'] = self.env.company.id
         return res
     
-    @api.onchange('id', 'company_id')
+    
+    
+    @api.onchange('id', 'active_company_id')
     def _onchange_form_load(self):
-        """Verifica el estado del proceso al cargar el formulario o cambiar compañía"""
-        # Siempre verificar el estado, incluso si aún no hay ID (nuevo registro)
+        """
+        Verifica el estado del proceso al cargar el formulario.
+        Se activa por cambios en id o en active_company_id para garantizar
+        que se ejecuta tanto para registros nuevos como existentes.
+        """
+        # Verificar estado en todos los casos, incluso sin ID (registro nuevo)
         self.check_certification_status()
-        
-        # Log para depuración
-        _logger.info("Verificando estado de certificación para registro %s (compañía: %s)", 
-                    self.id, self.company_id.name)
+        _logger.info("Ejecutado onchange en formulario de certificación, estado: %s", self.state)
         
     def _compute_caf_count(self):
         for record in self:
@@ -914,3 +899,24 @@ class CertificationProcess(models.Model):
         if not record:
             record = self.create({'company_id': self.env.company.id})
         return record.id
+    
+    @api.model
+    def _create_default_record(self):
+        """
+        Crea un registro predeterminado para la empresa actual si no existe.
+        Este método se puede llamar desde otros lugares para garantizar la existencia.
+        """
+        company_id = self.env.company.id
+        existing = self.search([('company_id', '=', company_id)], limit=1)
+        if not existing:
+            return self.create({'company_id': company_id})
+        return existing
+
+    def init(self):
+        """
+        Inicializa registros por defecto al cargar el módulo.
+        Crea un registro de certificación para la empresa actual si no existe.
+        """
+        super(CertificationProcess, self).init()
+        # Nota: Usamos sudo() porque durante init es posible que no haya un usuario autenticado
+        self.sudo()._create_default_record()
