@@ -133,21 +133,13 @@
             </field>
         </record>
 
-        <!-- Action: main entry point -->
-        <record id="action_l10n_cl_edi_certification_process" model="ir.actions.act_window">
+        <!-- Action: main entry point que usa el método open_certification_form -->
+        <record id="action_l10n_cl_edi_certification_process" model="ir.actions.server">
             <field name="name">Certificación SII</field>
-            <field name="res_model">l10n_cl_edi.certification.process</field>
-            <field name="view_mode">form</field>
-            <field name="context">{'create_if_not_exist': True}</field>
-            <field name="target">current</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Inicie su proceso de certificación SII
-                </p>
-                <p>
-                    Este asistente le guiará a través de todo el proceso de certificación
-                    con el SII para la facturación electrónica.
-                </p>
+            <field name="model_id" ref="model_l10n_cl_edi_certification_process"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.open_certification_form()
             </field>
         </record>
 

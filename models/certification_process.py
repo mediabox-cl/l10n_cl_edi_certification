@@ -208,11 +208,15 @@ class CertificationProcess(models.Model):
         res['company_id'] = self.env.company.id
         return res
     
-    @api.onchange('id')
+    @api.onchange('id', 'company_id')
     def _onchange_form_load(self):
-        """Verifica el estado del proceso al cargar el formulario"""
-        if self.id:
-            self.check_certification_status()
+        """Verifica el estado del proceso al cargar el formulario o cambiar compañía"""
+        # Siempre verificar el estado, incluso si aún no hay ID (nuevo registro)
+        self.check_certification_status()
+        
+        # Log para depuración
+        _logger.info("Verificando estado de certificación para registro %s (compañía: %s)", 
+                    self.id, self.company_id.name)
         
     def _compute_caf_count(self):
         for record in self:
@@ -878,20 +882,30 @@ class CertificationProcess(models.Model):
         action = self.env.ref('l10n_cl_edi_certification.action_l10n_cl_edi_certification_parsed_set').read()[0]
         return action
     
-    def open_form(self):
-        """Abre directamente el formulario único y verifica el estado del proceso"""
-        self.ensure_one()
-        # Verificar el estado del proceso al abrir el formulario
-        self.check_certification_status()
+    @api.model
+    def open_certification_form(self):
+        """
+        Método para abrir directamente el formulario del registro de la empresa actual,
+        garantizando que se verifica el estado del proceso.
+        """
+        # Buscar o crear el registro para la empresa actual
+        company_id = self.env.company.id
+        record = self.search([('company_id', '=', company_id)], limit=1)
+        if not record:
+            record = self.create({'company_id': company_id})
         
-        # Devolver la acción para abrir directamente el formulario
+        # Verificar el estado del proceso
+        record.check_certification_status()
+        
+        # Devolver la acción para abrir el formulario directamente
         return {
             'name': _('Certificación SII'),
             'type': 'ir.actions.act_window',
             'res_model': 'l10n_cl_edi.certification.process',
             'view_mode': 'form',
-            'res_id': self.id,
+            'res_id': record.id,
             'target': 'current',
+            'flags': {'initial_mode': 'edit'},  # Asegurar que se cargue en modo edición
         }
     
     @api.model
