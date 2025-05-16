@@ -208,16 +208,39 @@ class CertificationProcess(models.Model):
     
     def _compute_has_required_cafs(self):
         for record in self:
-            # Verificar CAFs para los tipos de documento requeridos (33, 61, 56, 52)
-            required_doc_types = ['33', '61', '56', '52']
-            record.has_required_cafs = all(
-                self.env['l10n_cl.dte.caf'].search_count([
-                    ('company_id', '=', record.company_id.id),
-                    ('l10n_latam_document_type_id.code', '=', doc_type),
-                    ('status', '=', 'in_use')
-                ]) > 0
-                for doc_type in required_doc_types
-            )
+            # Obtener los tipos de documento necesarios desde los casos DTE cargados
+            required_doc_types = []
+            
+            # Si hay casos DTE cargados, extraer los tipos de documento únicos
+            if record.parsed_set_ids:
+                # Buscar todos los casos DTE asociados a los sets de este proceso
+                dte_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+                    ('parsed_set_id.certification_process_id', '=', record.id)
+                ])
+                
+                # Extraer los códigos de documento únicos
+                if dte_cases:
+                    required_doc_types = list(set([
+                        case.document_type_code for case in dte_cases 
+                        if case.document_type_code  # Asegurar que el código no sea vacío
+                    ]))
+            
+            # Si no hay casos DTE o no se pudieron extraer códigos, usar los valores por defecto
+            if not required_doc_types:
+                required_doc_types = ['33', '61', '56', '52']
+            
+            # Verificar la existencia de CAFs para cada tipo de documento requerido
+            if required_doc_types:
+                record.has_required_cafs = all(
+                    self.env['l10n_cl.dte.caf'].search_count([
+                        ('company_id', '=', record.company_id.id),
+                        ('l10n_latam_document_type_id.code', '=', doc_type),
+                        ('status', '=', 'in_use')
+                    ]) > 0
+                    for doc_type in required_doc_types
+                )
+            else:
+                record.has_required_cafs = False
     
     def action_prepare_certification(self):
         """Prepara la base de datos para el proceso de certificación"""
@@ -818,6 +841,22 @@ class CertificationProcess(models.Model):
         # Referenciar la acción por su ID XML correcto
         action = self.env.ref('l10n_cl_edi_certification.action_l10n_cl_edi_certification_parsed_set').read()[0]
         return action
+    
+    def open_form(self):
+        """Abre directamente el formulario único y verifica el estado del proceso"""
+        self.ensure_one()
+        # Verificar el estado del proceso al abrir el formulario
+        self.check_certification_status()
+        
+        # Devolver la acción para abrir directamente el formulario
+        return {
+            'name': _('Certificación SII'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.process',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+        }
     
     @api.model
     def _get_certification_id(self):
