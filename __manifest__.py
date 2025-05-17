@@ -28,6 +28,7 @@
         'data/l10n_cl_edi_certification_data.xml',
         'data/l10n_cl_edi_certification_basic_set.xml',
     ],
+    'uninstall_hook': 'uninstall_hook',
     'installable': True,
     'application': False,
     'auto_install': False,
