@@ -150,59 +150,89 @@ class CertificationProcess(models.Model):
 
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
-        """Crear un registro automáticamente si no existe y se solicita desde la acción del menú"""
+        """
+        Sobrescribe search_read para garantizar que se cree un registro para la empresa actual
+        y se verifique su estado cuando se accede desde el menú principal.
+        """
         if domain is None:
             domain = []
         
-        # Añadir filtro de compañía al dominio si no existe ya
+        # Siempre obtener la compañía actual
         company_id = self.env.company.id
-        if not any(term[0] == 'company_id' for term in domain if isinstance(term, (list, tuple))):
-            domain.append(('company_id', '=', company_id))
+        _logger.info("Ejecutando search_read para certificación. Compañía actual: %s", company_id)
         
+        # Si viene del menú principal con nuestro contexto especial
         if self.env.context.get('create_if_not_exist'):
-            # Buscar el registro existente
-            existing = self.search([('company_id', '=', company_id)], limit=1)
+            _logger.info("Detectado llamado desde menú principal (create_if_not_exist=True)")
             
-            # Si no existe, crear uno nuevo
-            if not existing:
-                existing = self.create({'company_id': company_id})
-                _logger.info("Creado nuevo registro de certificación con ID %s para compañía %s", 
-                            existing.id, company_id)
+            # Buscar o crear el registro para la compañía actual
+            record = self._get_or_create_cert_record(company_id)
             
-            # Verificar el estado si se requiere explícitamente
+            # Verificar el estado si se solicita explícitamente
             if self.env.context.get('force_check_status'):
-                existing.check_certification_status()
-                _logger.info("Verificado estado de registro de certificación %s: %s", 
-                            existing.id, existing.state)
+                record.sudo().check_certification_status()
+                _logger.info("Verificado estado de certificación para registro %s: %s", 
+                        record.id, record.state)
             
-            # Modificar el dominio para garantizar que solo se devuelva este registro
-            domain = [('id', '=', existing.id)]
+            # Forzar el dominio para que solo devuelva este registro
+            domain = [('id', '=', record.id)]
+            _logger.info("Dominio forzado a registros específicos: %s", domain)
+        elif not any(term[0] == 'company_id' for term in domain if isinstance(term, (list, tuple))):
+            # Añadir filtro de compañía si no está ya en el dominio
+            domain.append(('company_id', '=', company_id))
+            _logger.info("Añadido filtro de compañía al dominio: %s", domain)
         
         # Ejecutar la búsqueda con el dominio actualizado
         result = super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
                                                         offset=offset, limit=limit, order=order)
         
         return result
+    
+    @api.model
+    def _get_or_create_cert_record(self, company_id=None):
+        """
+        Busca o crea un registro de certificación para la compañía especificada.
+        Si no se especifica compañía, usa la compañía actual.
+        """
+        if company_id is None:
+            company_id = self.env.company.id
+            
+        # Buscar un registro existente para esta compañía
+        record = self.search([('company_id', '=', company_id)], limit=1)
+        
+        # Si no existe, crear uno nuevo
+        if not record:
+            record = self.create({'company_id': company_id})
+            _logger.info("Creado nuevo registro de certificación con ID %s para compañía %s", 
+                        record.id, company_id)
+        else:
+            _logger.info("Encontrado registro existente de certificación con ID %s para compañía %s", 
+                        record.id, company_id)
+        
+        return record
+    
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
         res = super(CertificationProcess, self).default_get(fields_list)
         res['company_id'] = self.env.company.id
         return res
-    
-    
-    
-    @api.onchange('id', 'active_company_id')
+        
+    @api.onchange('company_id')
     def _onchange_form_load(self):
         """
         Verifica el estado del proceso al cargar el formulario.
-        Se activa por cambios en id o en active_company_id para garantizar
-        que se ejecuta tanto para registros nuevos como existentes.
+        Se activa por cambios en company_id para garantizar que se ejecuta siempre.
         """
-        # Verificar estado en todos los casos, incluso sin ID (registro nuevo)
-        self.check_certification_status()
-        _logger.info("Ejecutado onchange en formulario de certificación, estado: %s", self.state)
-        
+        # Verificar estado en todos los casos
+        if not self._origin.id:  # Es un registro nuevo
+            _logger.info("Ejecutado onchange para un registro nuevo, inicializando estado...")
+        else:
+            _logger.info("Ejecutado onchange para registro existente ID: %s", self._origin.id)
+            
+        result = self.check_certification_status()
+        _logger.info("Verificado estado de certificación: %s, resultado: %s", self.state, result)   
+    
     def _compute_caf_count(self):
         for record in self:
             record.caf_count = self.env['l10n_cl.dte.caf'].search_count([
@@ -920,3 +950,17 @@ class CertificationProcess(models.Model):
         super(CertificationProcess, self).init()
         # Nota: Usamos sudo() porque durante init es posible que no haya un usuario autenticado
         self.sudo()._create_default_record()
+
+    @api.model
+    def _purge_actions(self):
+        """
+        Método de utilidad para desarrolladores.
+        Purga todas las acciones de certificación para permitir recrearlas.
+        Solo para uso en desarrollo/pruebas.
+        """
+        action_ref = self.env.ref('l10n_cl_edi_certification.action_l10n_cl_edi_certification_process', False)
+        if action_ref:
+            # Eliminar la acción existente
+            action_ref.unlink()
+            _logger.info("Acción de certificación eliminada correctamente")
+        return True
