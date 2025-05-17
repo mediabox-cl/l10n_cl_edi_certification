@@ -82,7 +82,7 @@ class CertificationProcess(models.Model):
     def _compute_active_company_id(self):
         """Calcula la compañía activa del usuario"""
         for record in self:
-            record.active_company_id = self.env.company
+            record.active_company_id = self.env.company_id
 
     @api.depends('parsed_set_ids')
     def _compute_current_parsed_set(self):
