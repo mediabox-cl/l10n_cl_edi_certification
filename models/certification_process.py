@@ -216,37 +216,24 @@ class CertificationProcess(models.Model):
         # Asegurar que solo haya un registro por compañía
         res = super(CertificationProcess, self).default_get(fields_list)
         res['company_id'] = self.env.company.id
-        
-        # Para nuevos registros, verificar y establecer el estado inicial correcto
-        if not self._origin.id:
-            # Crear un registro temporal para verificar estado
-            temp_record = self.new(res)
-            temp_record.check_certification_status()
-            res['state'] = temp_record.state
-        
         return res
         
-    @api.onchange('company_id', 'parsed_set_ids', 'test_invoice_ids')
+    @api.onchange('company_id')
     def _onchange_form_load(self):
         """
         Verifica el estado del proceso al cargar el formulario.
-        Se activa por cambios en company_id, sets cargados o documentos generados.
+        Se activa por cambios en company_id para garantizar que se ejecuta siempre.
         """
-        # SIEMPRE verificar estado, independientemente del origen
-        _logger.info("Ejecutando verificación de estado para registro ID: %s", 
-                    self._origin.id if self._origin else 'NUEVO')
+        # Verificar estado solo para registros existentes o cuando se fuerza
+        context_force = self.env.context.get('force_check_status', False)
         
-        # Verificar estado del proceso
-        result = self.check_certification_status()
-        
-        # Forzar recálculo de indicadores de estado
-        self._compute_has_digital_signature()
-        self._compute_has_company_activities() 
-        self._compute_has_required_cafs()
-        
-        _logger.info("Estado verificado: %s, resultado: %s", self.state, result)
-        
-        return {} 
+        if self._origin.id or context_force:
+            _logger.info("Ejecutando verificación de estado para registro ID: %s", 
+                        self._origin.id if self._origin else 'NUEVO')
+            
+            # Verificar estado del proceso (método seguro)
+            result = self.check_certification_status()
+            _logger.info("Estado verificado: %s, resultado: %s", self.state, result)
     
     def _compute_caf_count(self):
         for record in self:
@@ -915,8 +902,8 @@ class CertificationProcess(models.Model):
     @api.model
     def open_certification_form(self):
         """
-        Método para abrir directamente el formulario del registro de la empresa actual,
-        garantizando que se verifica el estado del proceso.
+        Método para abrir directamente el formulario del registro de la empresa actual.
+        La verificación de estado se maneja via onchange al cargar el formulario.
         """
         # Buscar o crear el registro para la empresa actual
         company_id = self.env.company.id
@@ -924,18 +911,8 @@ class CertificationProcess(models.Model):
         if not record:
             record = self.create({'company_id': company_id})
         
-        # CRÍTICO: Verificar el estado del proceso SIEMPRE
-        record.check_certification_status()
-        
-        # CRÍTICO: Forzar recálculo de campos computados
-        record._compute_has_digital_signature()
-        record._compute_has_company_activities()
-        record._compute_has_required_cafs()
-        record._compute_caf_count()
-        record._compute_document_count()
-        record._compute_dte_case_to_generate_count()
-        
         # Devolver la acción para abrir el formulario directamente
+        # La verificación de estado se ejecutará automáticamente via onchange
         return {
             'name': _('Certificación SII'),
             'type': 'ir.actions.act_window',
@@ -944,8 +921,7 @@ class CertificationProcess(models.Model):
             'res_id': record.id,
             'target': 'current',
             'context': {
-                'initial_mode': 'edit',
-                'force_reload': True
+                'force_check_status': True  # Signal para el onchange
             }
         }
     
