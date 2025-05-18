@@ -1,20 +1,15 @@
-# -*- coding: utf-8 -*-
-
 from . import models
 from . import wizard
 
-def uninstall_hook(cr, registry):
+def uninstall_hook(env):
     """
     Hook ejecutado al desinstalar el módulo.
     Elimina todos los registros creados por los modelos del módulo de certificación.
     """
-    from odoo import api, SUPERUSER_ID
     import logging
     
     _logger = logging.getLogger(__name__)
     _logger.info("Iniciando limpieza de registros del módulo l10n_cl_edi_certification...")
-    
-    env = api.Environment(cr, SUPERUSER_ID, {})
     
     try:
         # Lista de modelos a limpiar en orden inverso de dependencias
@@ -74,12 +69,8 @@ def uninstall_hook(cr, registry):
         except Exception as e:
             _logger.error(f"Error limpiando referencias en account.move: {str(e)}")
         
-        # Confirmar transacción
-        cr.commit()
-        
         _logger.info(f"Limpieza completada. Total de registros eliminados: {total_deleted}")
         
     except Exception as e:
         _logger.error(f"Error durante la limpieza del módulo: {str(e)}")
-        cr.rollback()
         raise
