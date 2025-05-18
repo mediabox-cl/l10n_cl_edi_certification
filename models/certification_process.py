@@ -942,15 +942,6 @@ class CertificationProcess(models.Model):
             return self.create({'company_id': company_id})
         return existing
 
-    def init(self):
-        """
-        Inicializa registros por defecto al cargar el módulo.
-        Crea un registro de certificación para la empresa actual si no existe.
-        """
-        super(CertificationProcess, self).init()
-        # Nota: Usamos sudo() porque durante init es posible que no haya un usuario autenticado
-        self.sudo()._create_default_record()
-
     @api.model
     def _purge_actions(self):
         """
