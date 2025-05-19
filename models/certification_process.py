@@ -62,17 +62,18 @@ class CertificationProcess(models.Model):
         compute='_compute_active_company_id',
         store=False
     )
-    current_parsed_set_id = fields.Many2one(
+    # CON ESTOS CAMPOS NUEVOS:
+    selected_parsed_set_id = fields.Many2one(
         'l10n_cl_edi.certification.parsed_set',
-        string="Set Seleccionado Actualmente",
-        compute='_compute_current_parsed_set',
-        store=True,
+        string="Set Seleccionado",
+        domain="[('certification_process_id', '=', id)]",
+        help="Seleccione un set para ver sus casos DTE"
     )
 
     related_dte_cases = fields.One2many(
         'l10n_cl_edi.certification.case.dte',
         compute='_compute_related_dte_cases',
-        string="Casos DTE Relacionados",
+        string="Casos DTE del Set Seleccionado",
     )
 
     _sql_constraints = [
@@ -84,26 +85,15 @@ class CertificationProcess(models.Model):
         for record in self:
             record.active_company_id = self.env.company
 
-    @api.depends('parsed_set_ids')
-    def _compute_current_parsed_set(self):
-        """Obtiene el set de prueba seleccionado actualmente."""
-        for record in self:
-            if record.parsed_set_ids:
-                record.current_parsed_set_id = record.parsed_set_ids[0]
-            else:
-                record.current_parsed_set_id = False
-
-    @api.depends('current_parsed_set_id')
+    @api.depends('selected_parsed_set_id')
     def _compute_related_dte_cases(self):
         """Filtra los casos DTE basados en el set seleccionado."""
         for record in self:
-            if record.current_parsed_set_id:
-                record.related_dte_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
-                    ('parsed_set_id', '=', record.current_parsed_set_id.id)
-                ])
+            if record.selected_parsed_set_id:
+                record.related_dte_cases = record.selected_parsed_set_id.dte_case_ids
             else:
                 record.related_dte_cases = False
-    
+        
     def check_certification_status(self):
         """Verifica el estado general del proceso de certificación y actualiza su estado según corresponda."""
         self.ensure_one()
@@ -151,15 +141,26 @@ class CertificationProcess(models.Model):
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         """
-        Método search_read simplificado que solo garantiza que existe un registro
-        para la empresa actual si no hay ninguno.
+        Método search_read mejorado que verificación automáticamente el estado
+        del proceso al cargar datos para las vistas.
         """
-        # Crear un registro automáticamente si no existe ninguno para la empresa actual
+        # 1. Crear un registro automáticamente si no existe ninguno para la empresa actual
         company_id = self.env.company.id
         if not self.search_count([('company_id', '=', company_id)]):
-            self.create({'company_id': company_id})
+            record = self.create({'company_id': company_id})
+        else:
+            # Obtener el registro existente
+            record = self.search([('company_id', '=', company_id)], limit=1)
         
-        # Comportamiento estándar de search_read
+        # 2. VERIFICAR ESTADO AUTOMÁTICAMENTE
+        if record:
+            try:
+                record.check_certification_status()
+                _logger.info("Estado verificado automáticamente para proceso %s: %s", record.id, record.state)
+            except Exception as e:
+                _logger.warning("Error verificando estado automáticamente: %s", str(e))
+    
+        # 3. Comportamiento estándar de search_read
         return super(CertificationProcess, self).search_read(domain, fields, offset, limit, order)
     
     @api.model

@@ -75,18 +75,22 @@
                                     <button name="action_process_set_prueba_xml" string="Procesar Set de Pruebas XML" type="object" 
                                             class="oe_highlight" invisible="not set_prueba_file or state == 'finished'"/>
                                 </group>
-                                <separator string="SETS DE PRUEBAS DEFINIDOS"/>
-                                <field name="parsed_set_ids" selection="1">
-                                    <list string="Sets de Pruebas Definidos">
-                                        <field name="sequence" invisible="1"/>
-                                        <field name="set_type_raw" string="Nombre del Set"/>
-                                        <field name="set_type_normalized" string="Tipo de Set (Normalizado)"/>
-                                        <field name="attention_number" string="Número de Atención SII"/>
-                                    </list>
-                                </field>
-                                
-                                <separator string="CASOS DTE A GENERAR" invisible="not parsed_set_ids"/>
-                                <field name="current_parsed_set_id" invisible="1"/>
+                                <group string="SETS DE PRUEBAS DEFINIDOS" invisible="not parsed_set_ids">
+                                    <field name="selected_parsed_set_id" string="Set Seleccionado" 
+                                        placeholder="Seleccione un set para ver sus casos"/>
+                                    
+                                    <!-- Información del set seleccionado -->
+                                    <label for="selected_parsed_set_id" string="Sets disponibles:" invisible="not parsed_set_ids"/>
+                                    <field name="parsed_set_ids" nolabel="1" readonly="1" invisible="not parsed_set_ids">
+                                        <list string="Sets Cargados" create="false" edit="false" delete="false">
+                                            <field name="set_type_raw" string="Nombre"/>
+                                            <field name="set_type_normalized" string="Tipo"/>
+                                            <field name="attention_number" string="N° Atención"/>
+                                        </list>
+                                    </field>
+                                </group>
+
+                                <separator string="CASOS DTE A GENERAR" invisible="not selected_parsed_set_id"/>
                                 <div class="alert alert-info" role="alert" invisible="not dte_case_to_generate_count">
                                     <span>Hay <field name="dte_case_to_generate_count"/> caso(s) pendiente(s) por generar.</span>
                                 </div>
