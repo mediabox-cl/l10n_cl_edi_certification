@@ -56,8 +56,7 @@
                                         <field name="has_digital_signature" widget="boolean_toggle"/>
                                         <field name="has_company_activities" widget="boolean_toggle"/>
                                         <div class="d-flex align-items-center">
-                                            <field name="cafs_status" readonly="1" 
-                                                attrs="{'class': [('cafs_status_color', '!=', False), ('cafs_status_color',)]}"/>
+                                            <field name="cafs_status" readonly="1" class="cafs_status_color"/>
                                             <button name="action_view_cafs" 
                                                     string="Ver CAFs" 
                                                     type="object" 
