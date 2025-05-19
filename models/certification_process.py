@@ -52,8 +52,17 @@ class CertificationProcess(models.Model):
     # Checklists
     has_digital_signature = fields.Boolean(compute='_compute_has_digital_signature', string='Firma Digital')
     has_company_activities = fields.Boolean(compute='_compute_has_company_activities', string='Actividades Económicas')
-    has_required_cafs = fields.Boolean(compute='_compute_has_required_cafs', string='CAFs Requeridos')
-    
+    cafs_status = fields.Char(
+        compute='_compute_cafs_status', 
+        string='CAFs Requeridos',
+        help='Estado de CAFs por tipo de documento'
+    )
+
+    cafs_status_color = fields.Char(
+        compute='_compute_cafs_status',
+        string='Color CAFs',
+        help='Color del estado de CAFs'
+    )    
     active_company_id = fields.Many2one(
         'res.company',
         string="Compañía Activa",
@@ -170,41 +179,98 @@ class CertificationProcess(models.Model):
         for record in self:
             record.has_company_activities = bool(record.company_id.l10n_cl_company_activity_ids)
     
-    def _compute_has_required_cafs(self):
+    def _compute_cafs_status(self):
+        """
+        Computes and updates the CAFs (Folio Authorization Codes) status for each certification process record.
+        This method determines which document types require CAFs based on related DTE (Electronic Tax Document) cases.
+        If no DTE cases are found, it falls back to a default set of document types. For each required document type,
+        it checks if there is at least one CAF in 'in_use' status for the company. The method then updates the
+        `cafs_status` and `cafs_status_color` fields on the record to reflect whether all required CAFs are available.
+        Fields updated:
+            - cafs_status (str): A string indicating the number of available CAFs versus required, with an emoji.
+            - cafs_status_color (str): A CSS class for coloring the status text ('text-success' or 'text-danger').
+        """
         for record in self:
-            # Obtener los tipos de documento necesarios desde los casos DTE cargados
+            # Obtener tipos de documento requeridos desde los casos DTE
             required_doc_types = []
             
-            # Si hay casos DTE cargados, extraer los tipos de documento únicos
             if record.parsed_set_ids:
-                # Buscar todos los casos DTE asociados a los sets de este proceso
+                # Extraer tipos únicos de todos los casos DTE
                 dte_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
                     ('parsed_set_id.certification_process_id', '=', record.id)
                 ])
                 
-                # Extraer los códigos de documento únicos
                 if dte_cases:
                     required_doc_types = list(set([
                         case.document_type_code for case in dte_cases 
-                        if case.document_type_code  # Asegurar que el código no sea vacío
+                        if case.document_type_code
                     ]))
             
-            # Si no hay casos DTE o no se pudieron extraer códigos, usar los valores por defecto
+            # Si no hay casos DTE, usar tipos por defecto
             if not required_doc_types:
                 required_doc_types = ['33', '61', '56', '52']
             
-            # Verificar la existencia de CAFs para cada tipo de documento requerido
-            if required_doc_types:
-                record.has_required_cafs = all(
-                    self.env['l10n_cl.dte.caf'].search_count([
-                        ('company_id', '=', record.company_id.id),
-                        ('l10n_latam_document_type_id.code', '=', doc_type),
-                        ('status', '=', 'in_use')
-                    ]) > 0
-                    for doc_type in required_doc_types
-                )
+            # Verificar CAFs disponibles
+            available_count = 0
+            for doc_type in required_doc_types:
+                if self.env['l10n_cl.dte.caf'].search_count([
+                    ('company_id', '=', record.company_id.id),
+                    ('l10n_latam_document_type_id.code', '=', doc_type),
+                    ('status', '=', 'in_use')
+                ]) > 0:
+                    available_count += 1
+            
+            total_required = len(required_doc_types)
+            
+            # Generar texto del estado
+            if available_count == total_required:
+                record.cafs_status = f"✅ {available_count}/{total_required} Completo"
+                record.cafs_status_color = 'text-success'
             else:
-                record.has_required_cafs = False
+                record.cafs_status = f"❌ {available_count}/{total_required} Faltan CAFs"
+                record.cafs_status_color = 'text-danger'
+
+            # Crear detalles por tipo
+            caf_details = []
+            missing_types = []
+            
+            for doc_type in required_doc_types:
+                # Buscar el nombre del tipo de documento
+                doc_type_name = record._get_document_type_name(doc_type)
+                
+                if self.env['l10n_cl.dte.caf'].search_count([
+                    ('company_id', '=', record.company_id.id),
+                    ('l10n_latam_document_type_id.code', '=', doc_type),
+                    ('status', '=', 'in_use')
+                ]) > 0:
+                    caf_details.append(f"✅ {doc_type_name}")
+                else:
+                    caf_details.append(f"❌ {doc_type_name}")
+                    missing_types.append(doc_type_name)
+            
+            # Generar resumen y detalles
+            available_count = total_required - len(missing_types)
+            
+            if missing_types:
+                summary = f"❌ {available_count}/{total_required} - Faltan: {', '.join(missing_types)}"
+                record.cafs_status_color = 'text-danger'
+            else:
+                summary = f"✅ {available_count}/{total_required} - Todos los CAFs disponibles"
+                record.cafs_status_color = 'text-success'
+            
+            record.cafs_status = summary
+
+    def _get_document_type_name(self, code):
+        """Obtiene el nombre legible del tipo de documento."""
+        doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', code),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if doc_type:
+            return f"{code} ({doc_type.name})"
+        else:
+            return code
     
     def action_prepare_certification(self):
         """Prepara la base de datos para el proceso de certificación"""
