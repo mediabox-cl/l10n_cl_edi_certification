@@ -82,7 +82,7 @@ class CertificationProcess(models.Model):
     def _compute_active_company_id(self):
         """Calcula la compañía activa del usuario"""
         for record in self:
-            record.active_company_id = self.env.company_id
+            record.active_company_id = self.env.company
 
     @api.depends('parsed_set_ids')
     def _compute_current_parsed_set(self):
@@ -151,65 +151,16 @@ class CertificationProcess(models.Model):
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         """
-        Sobrescribe search_read para garantizar que se cree un registro para la empresa actual
-        y se verifique su estado cuando se accede desde el menú principal.
+        Método search_read simplificado que solo garantiza que existe un registro
+        para la empresa actual si no hay ninguno.
         """
-        if domain is None:
-            domain = []
-        
-        # Siempre obtener la compañía actual
+        # Crear un registro automáticamente si no existe ninguno para la empresa actual
         company_id = self.env.company.id
-        _logger.info("Ejecutando search_read para certificación. Compañía actual: %s", company_id)
+        if not self.search_count([('company_id', '=', company_id)]):
+            self.create({'company_id': company_id})
         
-        # Si viene del menú principal con nuestro contexto especial
-        if self.env.context.get('create_if_not_exist'):
-            _logger.info("Detectado llamado desde menú principal (create_if_not_exist=True)")
-            
-            # Buscar o crear el registro para la compañía actual
-            record = self._get_or_create_cert_record(company_id)
-            
-            # Verificar el estado si se solicita explícitamente
-            if self.env.context.get('force_check_status'):
-                record.sudo().check_certification_status()
-                _logger.info("Verificado estado de certificación para registro %s: %s", 
-                        record.id, record.state)
-            
-            # Forzar el dominio para que solo devuelva este registro
-            domain = [('id', '=', record.id)]
-            _logger.info("Dominio forzado a registros específicos: %s", domain)
-        elif not any(term[0] == 'company_id' for term in domain if isinstance(term, (list, tuple))):
-            # Añadir filtro de compañía si no está ya en el dominio
-            domain.append(('company_id', '=', company_id))
-            _logger.info("Añadido filtro de compañía al dominio: %s", domain)
-        
-        # Ejecutar la búsqueda con el dominio actualizado
-        result = super(CertificationProcess, self).search_read(domain=domain, fields=fields, 
-                                                        offset=offset, limit=limit, order=order)
-        
-        return result
-    
-    @api.model
-    def _get_or_create_cert_record(self, company_id=None):
-        """
-        Busca o crea un registro de certificación para la compañía especificada.
-        Si no se especifica compañía, usa la compañía actual.
-        """
-        if company_id is None:
-            company_id = self.env.company.id
-            
-        # Buscar un registro existente para esta compañía
-        record = self.search([('company_id', '=', company_id)], limit=1)
-        
-        # Si no existe, crear uno nuevo
-        if not record:
-            record = self.create({'company_id': company_id})
-            _logger.info("Creado nuevo registro de certificación con ID %s para compañía %s", 
-                        record.id, company_id)
-        else:
-            _logger.info("Encontrado registro existente de certificación con ID %s para compañía %s", 
-                        record.id, company_id)
-        
-        return record
+        # Comportamiento estándar de search_read
+        return super(CertificationProcess, self).search_read(domain, fields, offset, limit, order)
     
     @api.model
     def default_get(self, fields_list):
@@ -218,22 +169,23 @@ class CertificationProcess(models.Model):
         res['company_id'] = self.env.company.id
         return res
         
-    @api.onchange('company_id')
-    def _onchange_form_load(self):
+    def open(self):
         """
-        Verifica el estado del proceso al cargar el formulario.
-        Se activa por cambios en company_id para garantizar que se ejecuta siempre.
+        Método llamado cuando se abre un registro específico desde la vista de lista.
+        Verifica automáticamente el estado del proceso al abrir el formulario.
         """
-        # Verificar estado solo para registros existentes o cuando se fuerza
-        context_force = self.env.context.get('force_check_status', False)
+        self.ensure_one()
+        result = self.check_certification_status()
+        _logger.info("Abierto registro de certificación %s, estado verificado: %s", self.id, self.state)
         
-        if self._origin.id or context_force:
-            _logger.info("Ejecutando verificación de estado para registro ID: %s", 
-                        self._origin.id if self._origin else 'NUEVO')
-            
-            # Verificar estado del proceso (método seguro)
-            result = self.check_certification_status()
-            _logger.info("Estado verificado: %s, resultado: %s", self.state, result)
+        # Redirigir a la vista del formulario
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.process',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+        }
     
     def _compute_caf_count(self):
         for record in self:
@@ -900,60 +852,9 @@ class CertificationProcess(models.Model):
         return action
     
     @api.model
-    def open_certification_form(self):
-        """
-        Método para abrir directamente el formulario del registro de la empresa actual.
-        La verificación de estado se maneja via onchange al cargar el formulario.
-        """
-        # Buscar o crear el registro para la empresa actual
-        company_id = self.env.company.id
-        record = self.search([('company_id', '=', company_id)], limit=1)
-        if not record:
-            record = self.create({'company_id': company_id})
-        
-        # Devolver la acción para abrir el formulario directamente
-        # La verificación de estado se ejecutará automáticamente via onchange
-        return {
-            'name': _('Certificación SII'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'l10n_cl_edi.certification.process',
-            'view_mode': 'form',
-            'res_id': record.id,
-            'target': 'current',
-            'context': {
-                'force_check_status': True  # Signal para el onchange
-            }
-        }
-    
-    @api.model
     def _get_certification_id(self):
         record = self.search([('company_id', '=', self.env.company.id)], limit=1)
         if not record:
             record = self.create({'company_id': self.env.company.id})
         return record.id
-    
-    @api.model
-    def _create_default_record(self):
-        """
-        Crea un registro predeterminado para la empresa actual si no existe.
-        Este método se puede llamar desde otros lugares para garantizar la existencia.
-        """
-        company_id = self.env.company.id
-        existing = self.search([('company_id', '=', company_id)], limit=1)
-        if not existing:
-            return self.create({'company_id': company_id})
-        return existing
-
-    @api.model
-    def _purge_actions(self):
-        """
-        Método de utilidad para desarrolladores.
-        Purga todas las acciones de certificación para permitir recrearlas.
-        Solo para uso en desarrollo/pruebas.
-        """
-        action_ref = self.env.ref('l10n_cl_edi_certification.action_l10n_cl_edi_certification_process', False)
-        if action_ref:
-            # Eliminar la acción existente
-            action_ref.unlink()
-            _logger.info("Acción de certificación eliminada correctamente")
-        return True
+  
