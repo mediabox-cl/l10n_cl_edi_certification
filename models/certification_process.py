@@ -15,12 +15,10 @@ class CertificationProcess(models.Model):
     
     company_id = fields.Many2one('res.company', string='Empresa', required=True, default=lambda self: self.env.company)
     state = fields.Selection([
-        ('draft', 'Borrador'),
-        ('setup', 'Configuración Inicial'),
-        ('data_loaded', 'Datos Cargados'),
+        ('preparation', 'Preparación Inicial'),
+        ('configuration', 'Configuración Sets y CAFs'),
         ('generation', 'Generación DTEs'),
-        ('finished', 'Certificado')
-    ], string='Estado', default='draft', tracking=True)
+    ], string='Estado', default='preparation', tracking=True)
     
     # Información de certificación
     dte_email = fields.Char(related='company_id.l10n_cl_dte_email', readonly=False, string='Email DTE')
@@ -93,50 +91,6 @@ class CertificationProcess(models.Model):
                 record.related_dte_cases = record.selected_parsed_set_id.dte_case_ids
             else:
                 record.related_dte_cases = False
-        
-    def check_certification_status(self):
-        """Verifica el estado general del proceso de certificación y actualiza su estado según corresponda."""
-        self.ensure_one()
-        
-        # Verificar que existe el tipo de documento SET
-        set_doc_type = self.env['l10n_latam.document.type'].search([
-            ('code', '=', 'SET'),
-            ('country_id.code', '=', 'CL')
-        ], limit=1)
-        
-        # Verificar que hay sets cargados
-        has_sets = bool(self.parsed_set_ids)
-        
-        # Verificar si hay casos pendientes
-        has_pending_cases = self.dte_case_to_generate_count > 0
-        
-        # Verificar si todos los casos están generados
-        all_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
-            ('parsed_set_id.certification_process_id', '=', self.id),
-        ])
-        
-        generated_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
-            ('parsed_set_id.certification_process_id', '=', self.id),
-            ('generation_status', '=', 'generated')
-        ])
-        
-        # Actualizar estado según verificaciones
-        if not set_doc_type:
-            self.state = 'draft'
-        elif not has_sets:
-            if self.state == 'draft':
-                self.state = 'setup'
-        elif has_sets and has_pending_cases:
-            self.state = 'data_loaded'
-        elif all_cases_count > 0 and all_cases_count == generated_cases_count:
-            self.state = 'finished'
-        
-        return {
-            'has_set_doc_type': bool(set_doc_type),
-            'has_sets': has_sets,
-            'has_pending_cases': has_pending_cases,
-            'all_cases_generated': all_cases_count > 0 and all_cases_count == generated_cases_count
-        }
 
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
@@ -259,8 +213,8 @@ class CertificationProcess(models.Model):
         # 1. Crear/actualizar tipo de documento SET
         self._create_document_type_set()
         
-        # 2. Actualizar estado
-        self.state = 'setup'
+        # 2. Verificar estado automáticamente (no forzar estado)
+        self.check_certification_status()
         
         return {
             'type': 'ir.actions.client',
@@ -437,7 +391,7 @@ class CertificationProcess(models.Model):
                     'general_observations': instructional_node.findtext('GeneralObservations')
                 })
 
-        self.state = 'data_loaded'
+        self.check_certification_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -451,8 +405,8 @@ class CertificationProcess(models.Model):
 
     def action_generate_dte_documents(self):
         self.ensure_one()
-        if self.state != 'data_loaded':
-            raise UserError(_("Primero debe cargar y procesar el archivo XML del Set de Pruebas."))
+        if self.state != 'generation':
+            raise UserError(_("Primero debe completar la configuración inicial y cargar el set de pruebas."))
 
         self.state = 'generation'
         self.env.cr.commit()
@@ -481,22 +435,7 @@ class CertificationProcess(models.Model):
                 error_count += 1
             self.env.cr.commit()
 
-        if error_count == 0 and generated_count > 0:
-            all_cases = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
-                ('parsed_set_id.certification_process_id', '=', self.id)
-            ])
-            total_generated = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
-                ('parsed_set_id.certification_process_id', '=', self.id),
-                ('generation_status', '=', 'generated')
-            ])
-            if all_cases == total_generated:
-                self.state = 'finished'
-            else:
-                self.state = 'data_loaded'
-        elif generated_count > 0 and error_count > 0:
-            self.state = 'data_loaded'
-        elif error_count > 0 and generated_count == 0:
-            self.state = 'data_loaded'
+        self.check_certification_status()
         
         message = _("%s DTEs generados exitosamente. %s DTEs con error.") % (generated_count, error_count)
         return {
@@ -859,3 +798,153 @@ class CertificationProcess(models.Model):
             record = self.create({'company_id': self.env.company.id})
         return record.id
   
+    def check_certification_status(self):
+        """Verifica el estado general del proceso de certificación con lógica mejorada."""
+        self.ensure_one()
+        
+        # ETAPA 1: Verificar PREPARATION (Preparación Inicial)
+        preparation_complete, preparation_details = self._check_preparation_complete()
+        if not preparation_complete:
+            self.state = 'preparation'
+            return {
+                'state': 'preparation',
+                'complete': False,
+                'missing': preparation_details,
+                'message': 'Complete la configuración básica para continuar'
+            }
+        
+        # ETAPA 2: Verificar CONFIGURATION (Sets y CAFs)
+        configuration_complete, configuration_details = self._check_configuration_complete()
+        if not configuration_complete:
+            self.state = 'configuration'
+            return {
+                'state': 'configuration', 
+                'complete': False,
+                'missing': configuration_details,
+                'message': 'Cargue sets de pruebas y verifique CAFs'
+            }
+        
+        # ETAPA 3: Está en GENERATION
+        self.state = 'generation'
+        generation_status = self._check_generation_status()
+        
+        return {
+            'state': 'generation',
+            'complete': True,
+            'generation_details': generation_status,
+            'message': generation_status.get('message', 'Proceso de generación en curso')
+        }
+
+    def _check_preparation_complete(self):
+        """Verifica si la preparación inicial está completa."""
+        checks = {
+            'company_data': self._validate_company_data(),
+            'digital_signature': self._validate_digital_signature(), 
+            'server_config': self._validate_server_configuration(),
+            'set_document_type': self._validate_set_document_type(),
+        }
+        
+        missing = [key for key, value in checks.items() if not value]
+        return len(missing) == 0, missing
+
+    def _validate_company_data(self):
+        """Valida que los datos de la empresa estén completos."""
+        return all([
+            bool(self.company_activity_ids),
+            bool(self.resolution_number),
+            bool(self.resolution_date), 
+            bool(self.sii_regional_office),
+        ])
+
+    def _validate_digital_signature(self):
+        """Valida que exista una firma digital válida."""
+        return bool(self.env['certificate.certificate'].search([
+            ('company_id', '=', self.company_id.id),
+            ('is_valid', '=', True)
+        ], limit=1))
+
+    def _validate_server_configuration(self):
+        """Valida configuración de servidores y email."""
+        return all([
+            bool(self.dte_service_provider),
+            bool(self.dte_email),
+        ])
+
+    def _validate_set_document_type(self):
+        """Valida que exista el tipo de documento SET."""
+        return bool(self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1))
+
+    def _check_configuration_complete(self):
+        """Verifica sets cargados y CAFs correspondientes."""
+        # Primero verificar que preparation esté completo
+        prep_ok, _ = self._check_preparation_complete()
+        if not prep_ok:
+            return False, ['preparation_incomplete']
+        
+        checks = {
+            'sets_loaded': bool(self.parsed_set_ids),
+            'cafs_available': self._validate_required_cafs_dynamic(),
+        }
+        
+        missing = [key for key, value in checks.items() if not value]
+        return len(missing) == 0, missing
+
+    def _validate_required_cafs_dynamic(self):
+        """Valida CAFs para los tipos de documento específicos del set cargado."""
+        if not self.parsed_set_ids:
+            return False
+        
+        # Extraer tipos de documento únicos de todos los casos DTE
+        required_types = set()
+        for parsed_set in self.parsed_set_ids:
+            for dte_case in parsed_set.dte_case_ids:
+                if dte_case.document_type_code:
+                    required_types.add(dte_case.document_type_code)
+        
+        if not required_types:
+            return False
+        
+        # Verificar CAF para cada tipo requerido
+        for doc_type in required_types:
+            if not self.env['l10n_cl.dte.caf'].search_count([
+                ('company_id', '=', self.company_id.id),
+                ('l10n_latam_document_type_id.code', '=', doc_type),
+                ('status', '=', 'in_use')
+            ]):
+                return False
+        
+        return True
+
+    def _check_generation_status(self):
+        """Analiza el estado de generación de DTEs (mantiene lógica existente)."""
+        all_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+        ])
+        
+        if all_cases_count == 0:
+            return {'stage': 'no_documents', 'message': 'No hay documentos para generar'}
+        
+        generated_cases_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+            ('generation_status', '=', 'generated')
+        ])
+        
+        pending_cases_count = all_cases_count - generated_cases_count
+        
+        if pending_cases_count > 0:
+            message = f'{pending_cases_count} documento(s) pendiente(s) de generar'
+            stage = 'pending_generation' 
+        else:
+            message = 'Todos los documentos generados correctamente'
+            stage = 'all_generated'
+        
+        return {
+            'stage': stage,
+            'message': message,
+            'total': all_cases_count,
+            'generated': generated_cases_count,
+            'pending': pending_cases_count
+        }

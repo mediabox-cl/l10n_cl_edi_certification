@@ -76,18 +76,8 @@
                                             class="oe_highlight" invisible="not set_prueba_file or state == 'finished'"/>
                                 </group>
                                 <group string="SETS DE PRUEBAS DEFINIDOS" invisible="not parsed_set_ids">
-                                    <field name="selected_parsed_set_id" string="Set Seleccionado" 
+                                    <field name="selected_parsed_set_id" string="Sets Cargados" 
                                         placeholder="Seleccione un set para ver sus casos"/>
-                                    
-                                    <!-- Información del set seleccionado -->
-                                    <label for="selected_parsed_set_id" string="Sets disponibles:" invisible="not parsed_set_ids"/>
-                                    <field name="parsed_set_ids" nolabel="1" readonly="1" invisible="not parsed_set_ids">
-                                        <list string="Sets Cargados" create="false" edit="false" delete="false">
-                                            <field name="set_type_raw" string="Nombre"/>
-                                            <field name="set_type_normalized" string="Tipo"/>
-                                            <field name="attention_number" string="N° Atención"/>
-                                        </list>
-                                    </field>
                                 </group>
 
                                 <separator string="CASOS DTE A GENERAR" invisible="not selected_parsed_set_id"/>
