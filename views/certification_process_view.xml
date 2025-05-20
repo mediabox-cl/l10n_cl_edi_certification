@@ -55,13 +55,7 @@
                                     <group string="ESTADO">
                                         <field name="has_digital_signature" widget="boolean_toggle"/>
                                         <field name="has_company_activities" widget="boolean_toggle"/>
-                                        <div class="d-flex align-items-center">
-                                            <field name="cafs_status" readonly="1" class="cafs_status_color"/>
-                                            <button name="action_view_cafs" 
-                                                    string="Ver CAFs" 
-                                                    type="object" 
-                                                    class="btn btn-sm btn-secondary ml-2"/>
-                                        </div>
+                                        <field name="cafs_status" readonly="1" class="cafs_status_color"/>
                                         <field name="dte_case_to_generate_count" invisible="dte_case_to_generate_count == 0"/>
                                     </group>
                                 </group>
@@ -101,8 +95,8 @@
                                         <field name="generation_status" string="Estado"/>
                                         <field name="error_message" string="Mensaje de Error" invisible="1"/>
                                         <button name="action_view_case_detail" type="object" string="Ver Detalle" icon="fa-search"/>
-                                        <button name="action_generate_single_document" type="object" string="Generar" 
-                                                icon="fa-cogs" invisible="generation_status != 'pending'"/>
+                                        <button name="action_generate_document" string="Generar Documento" type="object"
+                                            class="oe_highlight" invisible="generation_status != 'pending'"/>
                                     </list>
                                 </field>
 

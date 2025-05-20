@@ -179,6 +179,61 @@ class CertificationCaseDTE(models.Model):
                     'sticky': True,
                 }
             }
+    def action_generate_document(self):
+        """
+        Acción para generar el documento DTE individualmente usando el nuevo generador.
+        Este método reemplaza la lógica anterior de generación en certification_process.
+        """
+        self.ensure_one()
+        
+        # Verificar que el caso esté en estado correcto
+        if self.generation_status != 'pending':
+            raise UserError(_("Este caso DTE ya ha sido procesado"))
+        
+        # Crear una instancia del generador transitorio
+        generator = self.env['l10n_cl_edi.certification.document.generator'].create({
+            'dte_case_id': self.id,
+            'certification_process_id': self.parsed_set_id.certification_process_id.id
+        })
+        
+        try:
+            # Generar el documento
+            move = generator.generate_document()
+            
+            # Retornar acción para abrir el documento generado
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'view_mode': 'form',
+                'res_id': move.id,
+                'target': 'current',
+                'context': {'default_move_type': move.move_type}
+            }
+            
+        except NotImplementedError as e:
+            # Mostrar mensaje claro cuando el tipo de documento no está implementado aún
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Función en desarrollo'),
+                    'message': str(e),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+        except Exception as e:
+            # Para otros errores, mostrar notificación de error
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Error al generar documento'),
+                    'message': str(e),
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }
 
 class CertificationCaseDTEItem(models.Model):
     _name = 'l10n_cl_edi.certification.case.dte.item'

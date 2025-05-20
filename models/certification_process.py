@@ -470,14 +470,20 @@ class CertificationProcess(models.Model):
         }
 
     def action_generate_dte_documents(self):
+        """
+        Genera todos los documentos tributarios electrónicos pendientes.
+        Versión refactorizada que usa el nuevo generador por caso.
+        """
         self.ensure_one()
         if self.state != 'generation':
             raise UserError(_("Primero debe completar la configuración inicial y cargar el set de pruebas."))
 
+        # Asegurar que estamos en estado adecuado
         self.state = 'generation'
-        self.env.cr.commit()
+        self.env.cr.commit()  # Guardar el cambio de estado
 
-        cases_to_generate = self.env['l10n_cl_edi.certification.case.dte'].search([  # Actualizado
+        # Buscar casos pendientes
+        cases_to_generate = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.id),
             ('generation_status', '=', 'pending')
         ])
@@ -486,31 +492,74 @@ class CertificationProcess(models.Model):
             self.state = 'data_loaded'
             raise UserError(_("No hay casos DTE pendientes de generación."))
 
+        # Generar documentos usando el nuevo método por caso
         generated_count = 0
         error_count = 0
+        not_implemented_count = 0
+        
         for dte_case in cases_to_generate:
             try:
-                self._create_move_from_dte_case(dte_case)
+                # Crear el generador
+                generator = self.env['l10n_cl_edi.certification.document.generator'].create({
+                    'dte_case_id': dte_case.id,
+                    'certification_process_id': self.id
+                })
+                
+                # Intentar generar el documento
+                generator.generate_document()
                 generated_count += 1
+                _logger.info("Documento generado exitosamente para caso %s", dte_case.case_number_raw)
+                
+            except NotImplementedError as e:
+                # Tipo de documento no implementado aún
+                _logger.warning("Tipo de documento no implementado para caso %s: %s", 
+                               dte_case.case_number_raw, str(e))
+                dte_case.write({
+                    'generation_status': 'error',
+                    'error_message': f"No implementado: {str(e)}"
+                })
+                not_implemented_count += 1
+                
             except Exception as e:
+                # Error real en la generación
                 _logger.error("Error generando DTE para caso %s: %s", dte_case.case_number_raw, str(e))
                 dte_case.write({
                     'generation_status': 'error',
                     'error_message': str(e)
                 })
                 error_count += 1
+                
+            # Commit por cada documento para preservar el progreso
             self.env.cr.commit()
 
+        # Actualizar estado del proceso
         self.check_certification_status()
         
-        message = _("%s DTEs generados exitosamente. %s DTEs con error.") % (generated_count, error_count)
+        # Construir mensaje más detallado
+        message_parts = []
+        if generated_count > 0:
+            message_parts.append(_("%s DTEs generados exitosamente") % generated_count)
+        if not_implemented_count > 0:
+            message_parts.append(_("%s tipos de documento pendientes de implementar") % not_implemented_count)
+        if error_count > 0:
+            message_parts.append(_("%s DTEs con error") % error_count)
+            
+        message = ". ".join(message_parts) + "."
+        
+        # Determinar tipo de notificación
+        notification_type = 'success'
+        if error_count > 0:
+            notification_type = 'danger'
+        elif not_implemented_count > 0:
+            notification_type = 'warning'
+        
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Generación de DTEs Completada'),
                 'message': message,
-                'type': 'info' if error_count > 0 else 'success',
+                'type': notification_type,
                 'sticky': True,
             }
         }
