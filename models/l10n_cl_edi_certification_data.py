@@ -234,6 +234,42 @@ class CertificationCaseDTE(models.Model):
                     'sticky': True,
                 }
             }
+    def action_reset_error_state(self):
+        """
+        Resetea el estado de error o generado, permitiendo intentar nuevamente la generación.
+        """
+        self.ensure_one()
+        
+        if self.generation_status not in ['error', 'generated']:
+            raise UserError(_("Solo se pueden resetear documentos en estado de error o generados."))
+        
+        # Si hay un documento generado, solo desvincularlo (no eliminarlo)
+        if self.generated_account_move_id:
+            move_name = self.generated_account_move_id.name
+            self.write({
+                'generated_account_move_id': False,
+            })
+            
+            # Mostrar mensaje informativo
+            message = _("Se ha desvinculado la referencia al documento %s. El documento sigue existiendo en el sistema.") % move_name
+            self.env.user.notify_info(message=message, title=_("Documento desvinculado"))
+        
+        # Resetear a estado pendiente
+        self.write({
+            'generation_status': 'pending',
+            'error_message': False
+        })
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Estado reseteado'),
+                'message': _('El documento ha sido reseteado a estado pendiente y puede intentar generarlo nuevamente.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
 class CertificationCaseDTEItem(models.Model):
     _name = 'l10n_cl_edi.certification.case.dte.item'

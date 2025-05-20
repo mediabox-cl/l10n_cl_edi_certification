@@ -97,6 +97,9 @@
                                         <button name="action_view_case_detail" type="object" string="Ver Detalle" icon="fa-search"/>
                                         <button name="action_generate_document" string="Generar Documento" type="object"
                                             class="oe_highlight" invisible="generation_status != 'pending'"/>
+                                        <button name="action_reset_error_state" string="Resetear Estado" type="object"
+                                            class="btn btn-warning" confirm="¿Está seguro de resetear el estado? Si hay un documento generado, se desvinculará del caso."
+                                            invisible="generation_status not in ['error', 'generated']"/>
                                     </list>
                                 </field>
 

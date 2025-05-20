@@ -418,7 +418,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # Primero intentamos encontrar un journal específico
         journal = self.env['account.journal'].search(domain + [
-            ('l10n_cl_document_types_ids.code', '=', doc_type)
+            ('l10n_latam_document_type_ids.code', '=', doc_type)
         ], limit=1)
         
         # Si no existe uno específico, buscamos cualquier journal de ventas con docs LATAM
