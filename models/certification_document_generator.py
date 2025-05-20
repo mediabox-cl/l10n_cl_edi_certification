@@ -405,22 +405,31 @@ class CertificationDocumentGenerator(models.TransientModel):
     
     def _get_appropriate_journal(self):
         """
-        Busca un journal apropiado para la certificación o configura uno automáticamente.
-        Para la certificación, necesitamos un diario que:
-        1. Sea de tipo venta
-        2. Tenga l10n_latam_use_documents=True para usar documentos LATAM
+        Busca el diario más apropiado para el proceso de certificación.
+        Prioriza el diario específico de certificación, si existe.
         """
         company = self.certification_process_id.company_id
         
-        # Buscar primero un diario ya configurado para documentos LATAM
+        # 1. Buscar primero un diario específico de certificación
+        certification_journal = self.env['account.journal'].search([
+            ('company_id', '=', company.id),
+            ('name', '=like', '%Certificación SII%'),
+            ('type', '=', 'sale'),
+            ('l10n_latam_use_documents', '=', True),
+        ], limit=1)
+        
+        if certification_journal:
+            return certification_journal
+            
+        # 2. Si no hay diario de certificación, buscar cualquier diario de ventas con documentos
         journal = self.env['account.journal'].search([
             ('company_id', '=', company.id),
             ('type', '=', 'sale'),
             ('l10n_latam_use_documents', '=', True),
         ], limit=1)
         
-        # Si no hay diario configurado para documentos LATAM, buscar cualquier diario de ventas
-        # y configurarlo temporalmente para la certificación
+        # 3. Si aún no hay diario con documentos, buscar cualquier diario de ventas
+        # y activar documentos LATAM temporalmente
         if not journal:
             journal = self.env['account.journal'].search([
                 ('company_id', '=', company.id),
@@ -432,15 +441,19 @@ class CertificationDocumentGenerator(models.TransientModel):
                     "Configurando temporalmente el diario '%s' para usar documentos LATAM durante certificación",
                     journal.name
                 )
+                # Activar documentos LATAM
                 journal.write({
                     'l10n_latam_use_documents': True,
+                    'l10n_cl_point_of_sale_type': 'online',
                 })
         
-        # Si no encontramos ningún diario, mostrar error informativo
+        # 4. Si aún no hay diario, error informativo
         if not journal:
+            # Sugerir crear un diario desde preparación de certificación
             raise UserError(_(
-                "No se encontró ningún diario de ventas en la compañía %s. "
-                "Configure al menos un diario de ventas para continuar con la certificación."
+                "No se encontró ningún diario de ventas en la compañía %s.\n"
+                "Vuelva a la pantalla principal de certificación y ejecute la acción 'Preparar Certificación' "
+                "para configurar automáticamente un diario."
             ) % company.name)
         
         return journal
