@@ -405,31 +405,42 @@ class CertificationDocumentGenerator(models.TransientModel):
     
     def _get_appropriate_journal(self):
         """
-        Busca o crea el journal apropiado para el documento.
+        Busca un journal apropiado para la certificación o configura uno automáticamente.
+        Para la certificación, necesitamos un diario que:
+        1. Sea de tipo venta
+        2. Tenga l10n_latam_use_documents=True para usar documentos LATAM
         """
         company = self.certification_process_id.company_id
-        doc_type = self.dte_case_id.document_type_code
         
-        domain = [
+        # Buscar primero un diario ya configurado para documentos LATAM
+        journal = self.env['account.journal'].search([
             ('company_id', '=', company.id),
             ('type', '=', 'sale'),
             ('l10n_latam_use_documents', '=', True),
-        ]
-        
-        # Primero intentamos encontrar un journal específico
-        journal = self.env['account.journal'].search(domain + [
-            ('l10n_latam_document_type_ids.code', '=', doc_type)
         ], limit=1)
         
-        # Si no existe uno específico, buscamos cualquier journal de ventas con docs LATAM
+        # Si no hay diario configurado para documentos LATAM, buscar cualquier diario de ventas
+        # y configurarlo temporalmente para la certificación
         if not journal:
-            journal = self.env['account.journal'].search(domain, limit=1)
+            journal = self.env['account.journal'].search([
+                ('company_id', '=', company.id),
+                ('type', '=', 'sale'),
+            ], limit=1)
+            
+            if journal:
+                _logger.info(
+                    "Configurando temporalmente el diario '%s' para usar documentos LATAM durante certificación",
+                    journal.name
+                )
+                journal.write({
+                    'l10n_latam_use_documents': True,
+                })
         
-        # Si no hay ningún journal configurado, mostramos error informativo
+        # Si no encontramos ningún diario, mostrar error informativo
         if not journal:
             raise UserError(_(
-                "No se encontró un diario de ventas configurado para documentos LATAM en la compañía %s.\n"
-                "Configure un diario con tipo 'Ventas' y active 'Usar documentos'."
+                "No se encontró ningún diario de ventas en la compañía %s. "
+                "Configure al menos un diario de ventas para continuar con la certificación."
             ) % company.name)
         
         return journal

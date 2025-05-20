@@ -279,19 +279,90 @@ class CertificationProcess(models.Model):
         # 1. Crear/actualizar tipo de documento SET
         self._create_document_type_set()
         
-        # 2. Verificar estado automáticamente (no forzar estado)
+        # 2. Crear/configurar diario específico para certificación
+        certification_journal = self._create_certification_journal()
+        
+        # 3. Verificar estado automáticamente (no forzar estado)
         self.check_certification_status()
+        
+        msg = _('Se ha configurado el tipo de documento SET para referencias.')
+        if certification_journal:
+            msg += _(' Se ha configurado el diario "%s" para la certificación.') % certification_journal.name
         
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Base de datos preparada'),
-                'message': _('Se ha configurado el tipo de documento SET para referencias.'),
+                'message': msg,
                 'type': 'success',
                 'sticky': False,
             }
         }
+        
+    def _create_certification_journal(self):
+        """
+        Crea o configura un diario específico para el proceso de certificación SII.
+        
+        Este diario servirá exclusivamente para la emisión de documentos
+        durante el proceso de certificación, evitando conflictos con la operación normal.
+        
+        Returns:
+            El diario configurado para certificación
+        """
+        self.ensure_one()
+        company = self.company_id
+        
+        # 1. Buscar si ya existe un diario configurado para certificación
+        certification_journal = self.env['account.journal'].search([
+            ('company_id', '=', company.id),
+            ('name', '=like', '%Certificación SII%'),
+            ('type', '=', 'sale')
+        ], limit=1)
+        
+        if certification_journal:
+            # Si ya existe, asegurar que esté correctamente configurado
+            if not certification_journal.l10n_latam_use_documents:
+                certification_journal.write({
+                    'l10n_latam_use_documents': True,
+                    'l10n_cl_point_of_sale_type': 'online'
+                })
+            return certification_journal
+        
+        # 2. Si no existe un diario específico, crear uno nuevo
+        sequence = self.env['ir.sequence'].create({
+            'name': 'Diario de Certificación SII',
+            'padding': 6,
+            'code': 'account.journal.certification.sequence',
+            'company_id': company.id,
+        })
+        
+        vals = {
+            'name': 'Certificación SII',
+            'code': 'CERT',
+            'type': 'sale',
+            'sequence': 10,
+            'sequence_id': sequence.id,
+            'company_id': company.id,
+            'l10n_latam_use_documents': True,
+            'l10n_cl_point_of_sale_type': 'online',
+        }
+        
+        # Buscar cuenta de ingresos para asignar al diario
+        income_account = self.env['account.account'].search([
+            ('company_id', '=', company.id),
+            ('account_type', '=like', 'income%'),
+        ], limit=1)
+        
+        if income_account:
+            vals['default_account_id'] = income_account.id
+        
+        # Crear el diario
+        certification_journal = self.env['account.journal'].create(vals)
+        _logger.info("Creado diario específico para certificación SII: %s (ID: %s)", 
+                     certification_journal.name, certification_journal.id)
+        
+        return certification_journal
     
     def _create_document_type_set(self):
         """Crea o actualiza el tipo de documento SET para referencias de certificación"""
