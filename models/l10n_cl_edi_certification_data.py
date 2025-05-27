@@ -132,25 +132,93 @@ class CertificationCaseDTE(models.Model):
             'target': 'current',
         }
 
+    def _validate_generation_requirements(self):
+        """Valida que todos los requisitos estén cumplidos antes de generar el documento."""
+        import logging
+        _logger = logging.getLogger(__name__)
+        
+        errors = []
+        
+        # Validar que el caso tenga items
+        if not self.item_ids:
+            errors.append(_("El caso DTE no tiene items definidos"))
+        
+        # Validar que el tipo de documento esté configurado
+        if not self.document_type_code:
+            errors.append(_("El caso DTE no tiene tipo de documento definido"))
+        else:
+            # Verificar que el tipo de documento exista en Odoo
+            doc_type = self.env['l10n_latam.document.type'].search([
+                ('code', '=', self.document_type_code),
+                ('country_id.code', '=', 'CL')
+            ], limit=1)
+            if not doc_type:
+                errors.append(_("Tipo de documento SII '%s' no encontrado en Odoo") % self.document_type_code)
+        
+        # Validar que exista un diario de ventas configurado
+        journal = self.env['account.journal'].search([
+            ('company_id', '=', self.parsed_set_id.certification_process_id.company_id.id),
+            ('type', '=', 'sale'),
+            ('l10n_latam_use_documents', '=', True)
+        ], limit=1)
+        if not journal:
+            errors.append(_("No se encontró un diario de ventas configurado para documentos LATAM"))
+        
+        # Validar que existan impuestos configurados (si hay items no exentos)
+        non_exempt_items = self.item_ids.filtered(lambda i: not i.is_exempt)
+        if non_exempt_items:
+            iva_tax = self.env['account.tax'].search([
+                ('company_id', '=', self.parsed_set_id.certification_process_id.company_id.id),
+                ('type_tax_use', '=', 'sale'),
+                ('amount_type', '=', 'percent'),
+                ('amount', '=', 19),
+                ('country_id.code', '=', 'CL')
+            ], limit=1)
+            if not iva_tax:
+                errors.append(_("No se encontró impuesto IVA al 19% para ventas en Chile"))
+        
+        if errors:
+            _logger.error(f"Errores de validación para caso {self.case_number_raw}: {errors}")
+            raise UserError(_("Errores de validación:\n%s") % '\n'.join(errors))
+        
+        _logger.info(f"Validación exitosa para caso {self.case_number_raw}")
+        return True
+
     def action_generate_single_document(self):
         """Genera sólo este documento DTE específico."""
+        import logging
+        _logger = logging.getLogger(__name__)
+        
         self.ensure_one()
+        _logger.info(f"Iniciando generación de DTE para caso {self.case_number_raw} (ID: {self.id})")
         
         if self.generation_status != 'pending':
             raise UserError(_("Este documento ya ha sido procesado o está en error."))
         
         certification_process = self.parsed_set_id.certification_process_id
+        _logger.info(f"Proceso de certificación: {certification_process.name} (ID: {certification_process.id})")
         
         try:
-            # Asegurarse que estamos en el estado correcto
-            if certification_process.state not in ['data_loaded', 'generation']:
-                certification_process.state = 'data_loaded'
+            # Validar requisitos previos
+            _logger.info(f"Validando requisitos para caso {self.case_number_raw}")
+            self._validate_generation_requirements()
             
-            # Generar el documento
-            certification_process._create_move_from_dte_case(self)
-            
-            # Verificar el estado del proceso de certificación
-            certification_process.check_certification_status()
+            # Usar savepoint para manejar transacciones de forma segura
+            with self.env.cr.savepoint():
+                # Asegurarse que estamos en el estado correcto
+                _logger.info(f"Estado actual del proceso: {certification_process.state}")
+                if certification_process.state not in ['data_loaded', 'generation']:
+                    _logger.info(f"Cambiando estado del proceso de '{certification_process.state}' a 'data_loaded'")
+                    certification_process.state = 'data_loaded'
+                
+                # Generar el documento
+                _logger.info(f"Llamando a _create_move_from_dte_case para caso {self.case_number_raw}")
+                certification_process._create_move_from_dte_case(self)
+                _logger.info(f"Documento generado exitosamente para caso {self.case_number_raw}")
+                
+                # Verificar el estado del proceso de certificación
+                _logger.info("Verificando estado del proceso de certificación")
+                certification_process.check_certification_status()
             
             # Notificar éxito
             return {
@@ -164,6 +232,7 @@ class CertificationCaseDTE(models.Model):
                 }
             }
         except Exception as e:
+            _logger.error(f"Error al generar DTE para caso {self.case_number_raw}: {str(e)}", exc_info=True)
             # Registrar error y notificar
             self.write({
                 'generation_status': 'error',

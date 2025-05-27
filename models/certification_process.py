@@ -887,46 +887,71 @@ class CertificationProcess(models.Model):
 
         _logger.info("Generando DTE para Caso SII: %s", dte_case.case_number_raw)
 
-        partner = self._get_partner_for_dte(dte_case)
-        move_vals = self._prepare_move_vals(dte_case, partner)
-        
-        invoice_lines_vals = []
-        for item in dte_case.item_ids:
-            invoice_lines_vals.append((0, 0, self._prepare_move_line_vals(item, move_vals)))
-        move_vals['invoice_line_ids'] = invoice_lines_vals
+        try:
+            # Obtener partner
+            _logger.info("Obteniendo partner para DTE caso %s", dte_case.case_number_raw)
+            partner = self._get_partner_for_dte(dte_case)
+            _logger.info("Partner obtenido: %s (ID: %s)", partner.name if partner else 'None', partner.id if partner else 'None')
+            
+            # Preparar valores del move
+            _logger.info("Preparando valores del move para caso %s", dte_case.case_number_raw)
+            move_vals = self._prepare_move_vals(dte_case, partner)
+            _logger.info("Valores del move preparados: %s", move_vals)
+            
+            # Preparar líneas de factura
+            _logger.info("Preparando líneas de factura para caso %s (items: %d)", dte_case.case_number_raw, len(dte_case.item_ids))
+            invoice_lines_vals = []
+            for i, item in enumerate(dte_case.item_ids):
+                _logger.info("Procesando item %d: %s", i+1, item.name)
+                line_vals = self._prepare_move_line_vals(item, move_vals)
+                invoice_lines_vals.append((0, 0, line_vals))
+                _logger.info("Línea %d preparada: %s", i+1, line_vals)
+            
+            move_vals['invoice_line_ids'] = invoice_lines_vals
 
-        # Crear el documento sin aplicar aún descuentos globales
-        new_move = self.env['account.move'].create(move_vals)
-        
-        # Preparar referencias entre documentos
-        self._prepare_references_for_move(dte_case, new_move)
+            # Crear el documento sin aplicar aún descuentos globales
+            _logger.info("Creando account.move con valores: %s", move_vals)
+            new_move = self.env['account.move'].create(move_vals)
+            _logger.info("Account.move creado exitosamente: %s (ID: %s)", new_move.name, new_move.id)
+            
+            # Preparar referencias entre documentos
+            _logger.info("Preparando referencias para move %s", new_move.name)
+            self._prepare_references_for_move(dte_case, new_move)
 
-        # Para guías de despacho, configurar campos específicos
-        if dte_case.document_type_code == '52':
-            new_move.write({
-                'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(dte_case.dispatch_motive_raw),
-                'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(dte_case.dispatch_transport_type_raw),
+            # Para guías de despacho, configurar campos específicos
+            if dte_case.document_type_code == '52':
+                _logger.info("Configurando campos específicos para guía de despacho")
+                new_move.write({
+                    'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(dte_case.dispatch_motive_raw),
+                    'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(dte_case.dispatch_transport_type_raw),
+                })
+            
+            # Para documentos de exportación configurar campos específicos
+            if dte_case.document_type_code in ['110', '111', '112']:
+                _logger.info("Configurando campos específicos para documento de exportación")
+                new_move.write({
+                    # Aquí se agregarían campos específicos para exportación
+                })
+
+            # Aplicar descuento global si corresponde
+            if dte_case.global_discount_percent and dte_case.global_discount_percent > 0:
+                _logger.info("Aplicando descuento global de %s%% al move %s", dte_case.global_discount_percent, new_move.name)
+                self._apply_global_discount(new_move, dte_case.global_discount_percent)
+
+            # Actualizar el caso DTE con la referencia al documento generado
+            _logger.info("Actualizando caso DTE %s con referencia al move generado", dte_case.case_number_raw)
+            dte_case.write({
+                'generated_account_move_id': new_move.id,
+                'generation_status': 'generated',
+                'error_message': False
             })
-        
-        # Para documentos de exportación configurar campos específicos
-        if dte_case.document_type_code in ['110', '111', '112']:
-            new_move.write({
-                # Aquí se agregarían campos específicos para exportación
-            })
-
-        # Aplicar descuento global si corresponde
-        if dte_case.global_discount_percent and dte_case.global_discount_percent > 0:
-            self._apply_global_discount(new_move, dte_case.global_discount_percent)
-
-        # Actualizar el caso DTE con la referencia al documento generado
-        dte_case.write({
-            'generated_account_move_id': new_move.id,
-            'generation_status': 'generated',
-            'error_message': False
-        })
-        
-        _logger.info("DTE %s generado para Caso SII %s (ID: %s)", new_move.name, dte_case.case_number_raw, new_move.id)
-        return new_move
+            
+            _logger.info("DTE %s generado exitosamente para Caso SII %s (ID: %s)", new_move.name, dte_case.case_number_raw, new_move.id)
+            return new_move
+            
+        except Exception as e:
+            _logger.error("Error en _create_move_from_dte_case para caso %s: %s", dte_case.case_number_raw, str(e), exc_info=True)
+            raise
 
     def _map_dispatch_motive_to_code(self, motive_raw):
         if not motive_raw: return False
