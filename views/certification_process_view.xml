@@ -13,13 +13,17 @@
                     <header>
                         <button name="action_prepare_certification" string="1. Preparar Certificación"
                                 type="object" class="oe_highlight"
-                                invisible="state != 'draft'"/>
+                                invisible="state != 'preparation'"/>
+                        
+                        <button name="action_check_certification_status" string="🔍 Verificar Estado"
+                                type="object" class="btn-secondary"
+                                help="Verifica manualmente el estado del proceso"/>
                        
                         <button name="action_generate_dte_documents" string="3. Generar Documentos DTE"
                                 type="object" class="oe_highlight"
-                                invisible="state != 'data_loaded' or dte_case_to_generate_count == 0"
+                                invisible="state != 'generation' or dte_case_to_generate_count == 0"
                                 help="Genera los documentos DTE definidos a partir del XML cargado."/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,setup,data_loaded,generation,finished"/>
+                        <field name="state" widget="statusbar" statusbar_visible="preparation,configuration,generation"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -85,6 +89,20 @@
                                 <div class="alert alert-warning" role="alert" invisible="certification_journal_id and certification_partner_id">
                                     <strong>Atención:</strong> Debe ejecutar "Preparar Certificación" para crear automáticamente el diario y partner necesarios.
                                 </div>
+                                
+                                <group string="DEBUG - Estado de Validaciones" groups="base.group_no_one">
+                                    <group>
+                                        <field name="has_digital_signature" string="Firma Digital" readonly="1"/>
+                                        <field name="has_company_activities" string="Actividades Económicas" readonly="1"/>
+                                        <field name="dte_service_provider" string="Proveedor DTE" readonly="1"/>
+                                        <field name="dte_email" string="Email DTE" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="certification_journal_id" string="Diario Certificación" readonly="1"/>
+                                        <field name="certification_partner_id" string="Partner SII" readonly="1"/>
+                                        <field name="state" string="Estado Actual" readonly="1"/>
+                                    </group>
+                                </group>
                             </page>
                             <page string="Datos Set de Pruebas (XML)">
                                 <group>

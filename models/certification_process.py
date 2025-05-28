@@ -1144,34 +1144,77 @@ class CertificationProcess(models.Model):
         preparation_complete, preparation_details = self._check_preparation_complete()
         if not preparation_complete:
             self.state = 'preparation'
-            return {
+            result = {
                 'state': 'preparation',
                 'complete': False,
                 'missing': preparation_details,
                 'message': 'Complete la configuración básica para continuar'
             }
+            
+            # Si se llama desde la interfaz, mostrar notificación
+            if self.env.context.get('show_notification'):
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Estado: Preparación Inicial'),
+                        'message': _('Faltan: %s') % ', '.join(preparation_details),
+                        'type': 'warning',
+                        'sticky': True,
+                    }
+                }
+            return result
         
         # ETAPA 2: Verificar CONFIGURATION (Sets y CAFs)
         configuration_complete, configuration_details = self._check_configuration_complete()
         if not configuration_complete:
             self.state = 'configuration'
-            return {
+            result = {
                 'state': 'configuration', 
                 'complete': False,
                 'missing': configuration_details,
                 'message': 'Cargue sets de pruebas y verifique CAFs'
             }
+            
+            # Si se llama desde la interfaz, mostrar notificación
+            if self.env.context.get('show_notification'):
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Estado: Configuración'),
+                        'message': _('Faltan: %s') % ', '.join(configuration_details),
+                        'type': 'info',
+                        'sticky': True,
+                    }
+                }
+            return result
         
         # ETAPA 3: Está en GENERATION
         self.state = 'generation'
         generation_status = self._check_generation_status()
         
-        return {
+        result = {
             'state': 'generation',
             'complete': True,
             'generation_details': generation_status,
             'message': generation_status.get('message', 'Proceso de generación en curso')
         }
+        
+        # Si se llama desde la interfaz, mostrar notificación
+        if self.env.context.get('show_notification'):
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Estado: Generación'),
+                    'message': generation_status.get('message', 'Listo para generar documentos'),
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        
+        return result
 
     def _check_preparation_complete(self):
         """Verifica si la preparación inicial está completa."""
@@ -1179,7 +1222,7 @@ class CertificationProcess(models.Model):
             'company_data': self._validate_company_data(),
             'digital_signature': self._validate_digital_signature(), 
             'server_config': self._validate_server_configuration(),
-            'set_document_type': self._validate_set_document_type(),
+            'certification_resources': self._validate_certification_resources(),
         }
         
         missing = [key for key, value in checks.items() if not value]
@@ -1208,12 +1251,12 @@ class CertificationProcess(models.Model):
             bool(self.dte_email),
         ])
 
-    def _validate_set_document_type(self):
-        """Valida que exista el tipo de documento SET."""
-        return bool(self.env['l10n_latam.document.type'].search([
-            ('code', '=', 'SET'),
-            ('country_id.code', '=', 'CL')
-        ], limit=1))
+    def _validate_certification_resources(self):
+        """Valida que existan recursos necesarios para la certificación."""
+        return all([
+            bool(self.certification_journal_id),
+            bool(self.certification_partner_id),
+        ])
 
     def _check_configuration_complete(self):
         """Verifica sets cargados y CAFs correspondientes."""
@@ -1223,12 +1266,22 @@ class CertificationProcess(models.Model):
             return False, ['preparation_incomplete']
         
         checks = {
+            'set_document_type': self._validate_set_document_type(),
             'sets_loaded': bool(self.parsed_set_ids),
             'cafs_available': self._validate_required_cafs_dynamic(),
         }
         
         missing = [key for key, value in checks.items() if not value]
         return len(missing) == 0, missing
+
+    def _validate_set_document_type(self):
+        """Valida que el tipo de documento SET esté correctamente configurado."""
+        doc_type_set = self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        return bool(doc_type_set)
 
     def _validate_required_cafs_dynamic(self):
         """Valida CAFs para los tipos de documento específicos del set cargado."""
@@ -1286,3 +1339,7 @@ class CertificationProcess(models.Model):
             'generated': generated_cases_count,
             'pending': pending_cases_count
         }
+
+    def action_check_certification_status(self):
+        """Acción para verificar el estado desde la interfaz con notificaciones."""
+        return self.with_context(show_notification=True).check_certification_status()
