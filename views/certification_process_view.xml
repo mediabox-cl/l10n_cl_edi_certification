@@ -68,6 +68,24 @@
                                     </field>
                                 </group>
                             </page>
+                            <page string="Configuración Certificación">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Configuración Automática:</strong> Estos recursos se crean automáticamente durante la preparación del proceso de certificación.
+                                </div>
+                                <group>
+                                    <group string="RECURSOS AUTOMÁTICOS">
+                                        <field name="certification_journal_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="certification_partner_id" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                    <group string="CONFIGURACIÓN MANUAL">
+                                        <field name="default_tax_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="default_discount_product_id" options="{'no_create': True, 'no_open': True}"/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-warning" role="alert" invisible="certification_journal_id and certification_partner_id">
+                                    <strong>Atención:</strong> Debe ejecutar "Preparar Certificación" para crear automáticamente el diario y partner necesarios.
+                                </div>
+                            </page>
                             <page string="Datos Set de Pruebas (XML)">
                                 <group>
                                     <field name="set_prueba_file" string="Archivo XML Set de Pruebas" filename="set_prueba_filename"/>

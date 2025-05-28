@@ -43,7 +43,7 @@ class CertificationProcess(models.Model):
     # New field to link to parsed sets
     parsed_set_ids = fields.One2many(
         'l10n_cl_edi.certification.parsed_set', 'certification_process_id',  # Actualizado
-        string='Sets de Pruebas Definidos')
+        string='Sets de Pruebas Definidas')
     
     dte_case_to_generate_count = fields.Integer(
         compute='_compute_dte_case_to_generate_count',
@@ -81,6 +81,32 @@ class CertificationProcess(models.Model):
         'l10n_cl_edi.certification.case.dte',
         compute='_compute_related_dte_cases',
         string="Casos DTE del Set Seleccionado",
+    )
+
+    # Campos de configuración para certificación
+    certification_journal_id = fields.Many2one(
+        'account.journal',
+        string='Diario de Certificación',
+        readonly=True,
+        help='Diario creado automáticamente para el proceso de certificación'
+    )
+    certification_partner_id = fields.Many2one(
+        'res.partner',
+        string='Cliente SII (Certificación)',
+        readonly=True,
+        help='Partner del SII creado automáticamente para documentos de certificación'
+    )
+    default_tax_id = fields.Many2one(
+        'account.tax',
+        string='Impuesto IVA por Defecto',
+        domain="[('company_id', '=', company_id), ('type_tax_use', '=', 'sale'), ('amount_type', '=', 'percent'), ('amount', '=', 19)]",
+        help='Impuesto IVA al 19% que se aplicará a los items no exentos'
+    )
+    default_discount_product_id = fields.Many2one(
+        'product.product',
+        string='Producto de Descuento',
+        domain="[('type', '=', 'service')]",
+        help='Producto que se usará para aplicar descuentos globales'
     )
 
     _sql_constraints = [
@@ -282,12 +308,21 @@ class CertificationProcess(models.Model):
         # 2. Crear/configurar diario específico para certificación
         certification_journal = self._create_certification_journal()
         
-        # 3. Verificar estado automáticamente (no forzar estado)
+        # 3. Crear/configurar partner del SII para certificación
+        certification_partner = self._create_certification_partner()
+        
+        # 4. Asignar los recursos creados al proceso
+        self.write({
+            'certification_journal_id': certification_journal.id,
+            'certification_partner_id': certification_partner.id,
+        })
+        
+        # 5. Verificar estado automáticamente (no forzar estado)
         self.check_certification_status()
         
         msg = _('Se ha configurado el tipo de documento SET para referencias.')
-        if certification_journal:
-            msg += _(' Se ha configurado el diario "%s" para la certificación.') % certification_journal.name
+        msg += _(' Se ha configurado el diario "%s" para la certificación.') % certification_journal.name
+        msg += _(' Se ha creado el partner del SII "%s" para los documentos.') % certification_partner.name
         
         return {
             'type': 'ir.actions.client',
@@ -389,6 +424,87 @@ class CertificationProcess(models.Model):
             doc_type_set = self.env['l10n_latam.document.type'].create(vals)
         
         return doc_type_set
+    
+    def _create_certification_partner(self):
+        """
+        Crea o configura un partner del SII para el proceso de certificación.
+        
+        Este partner representa al SII como cliente para los documentos de certificación,
+        con todos los datos necesarios para la facturación electrónica.
+        
+        Returns:
+            El partner configurado para certificación
+        """
+        self.ensure_one()
+        company = self.company_id
+        
+        # RUT del SII: 60.803.000-K
+        sii_rut = '60803000'
+        sii_dv = 'K'
+        
+        # 1. Buscar si ya existe un partner del SII
+        certification_partner = self.env['res.partner'].search([
+            ('vat', '=', f'CL{sii_rut}{sii_dv}'),
+            ('company_id', 'in', [company.id, False])
+        ], limit=1)
+        
+        if certification_partner:
+            # Si ya existe, asegurar que esté correctamente configurado
+            certification_partner.write({
+                'is_company': True,
+                'customer_rank': 1,
+                'supplier_rank': 0,
+                'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
+                'l10n_cl_dte_email': 'intercambio@sii.cl',
+                'company_id': company.id,
+            })
+            return certification_partner
+        
+        # 2. Crear nuevo partner del SII
+        # Buscar la actividad económica del SII (Administración Pública)
+        sii_activity = self.env['l10n_cl.activity.description'].search([
+            ('code', '=', '751100')  # Administración del Estado
+        ], limit=1)
+        
+        # Buscar región metropolitana
+        region_metropolitana = self.env['res.country.state'].search([
+            ('country_id.code', '=', 'CL'),
+            ('code', '=', 'RM')
+        ], limit=1)
+        
+        # Buscar comuna de Santiago
+        comuna_santiago = self.env['res.city'].search([
+            ('state_id', '=', region_metropolitana.id),
+            ('name', 'ilike', 'Santiago')
+        ], limit=1)
+        
+        vals = {
+            'name': 'Servicio de Impuestos Internos',
+            'is_company': True,
+            'customer_rank': 1,
+            'supplier_rank': 0,
+            'vat': f'CL{sii_rut}{sii_dv}',
+            'country_id': self.env.ref('base.cl').id,
+            'state_id': region_metropolitana.id if region_metropolitana else False,
+            'city_id': comuna_santiago.id if comuna_santiago else False,
+            'street': 'Teatinos 120',
+            'zip': '8340456',
+            'phone': '+56 2 3003 9000',
+            'email': 'intercambio@sii.cl',
+            'website': 'https://www.sii.cl',
+            'company_id': company.id,
+            # Campos específicos de Chile
+            'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
+            'l10n_cl_dte_email': 'intercambio@sii.cl',
+            'l10n_cl_activity_description_ids': [(6, 0, [sii_activity.id])] if sii_activity else [],
+        }
+        
+        # Crear el partner
+        certification_partner = self.env['res.partner'].create(vals)
+        _logger.info("Creado partner del SII para certificación: %s (ID: %s)", 
+                     certification_partner.name, certification_partner.id)
+        
+        return certification_partner
     
     def action_create_demo_cafs(self):
         """Crea CAFs de demostración para los tipos de documento requeridos"""
@@ -637,14 +753,16 @@ class CertificationProcess(models.Model):
 
     def _get_partner_for_dte(self, dte_case):
         """ 
-        Placeholder: Get or create a partner for the DTE.
-        For certification, usually a generic partner (the company itself or a test partner) is used.
-        This method should be adapted based on actual requirements.
+        Obtiene el partner del SII para los documentos de certificación.
+        Usa el partner configurado automáticamente durante el setup.
         """
-        partner = self.company_id.partner_id
-        if not partner:
-            raise UserError(_("La compañía %s no tiene un partner asociado.") % self.company_id.name)
-        return partner
+        self.ensure_one()
+        
+        if not self.certification_partner_id:
+            raise UserError(_("No se ha configurado el partner del SII para certificación. "
+                            "Ejecute primero 'Preparar Certificación' desde el proceso."))
+        
+        return self.certification_partner_id
 
     def _get_product_for_dte_item(self, item_name):
         """
@@ -712,13 +830,12 @@ class CertificationProcess(models.Model):
         elif sii_doc_type.internal_type == 'credit_note':
              move_type = 'out_refund'
         
-        journal = self.env['account.journal'].search([
-            ('company_id', '=', self.company_id.id),
-            ('type', '=', 'sale'),
-            ('l10n_latam_use_documents', '=', True)
-        ], limit=1)
-        if not journal:
-            raise UserError(_("No se encontró un diario de ventas configurado para documentos LATAM en la compañía %s.") % self.company_id.name)
+        # Usar el diario de certificación configurado
+        if not self.certification_journal_id:
+            raise UserError(_("No se ha configurado el diario de certificación. "
+                            "Ejecute primero 'Preparar Certificación' desde el proceso."))
+        
+        journal = self.certification_journal_id
 
         move_vals = {
             'move_type': move_type,
@@ -749,13 +866,19 @@ class CertificationProcess(models.Model):
         if dte_item.is_exempt:
             line_vals['tax_ids'] = [(6, 0, [])]
         else:
-            iva_tax = self.env['account.tax'].search([
-                ('company_id', '=', self.company_id.id),
-                ('type_tax_use', '=', 'sale'),
-                ('amount_type', '=', 'percent'),
-                ('amount', '=', 19),
-                ('country_id.code', '=', 'CL')
-            ], limit=1)
+            # Usar el impuesto configurado por defecto si está disponible
+            if self.default_tax_id:
+                iva_tax = self.default_tax_id
+            else:
+                # Fallback a búsqueda automática
+                iva_tax = self.env['account.tax'].search([
+                    ('company_id', '=', self.company_id.id),
+                    ('type_tax_use', '=', 'sale'),
+                    ('amount_type', '=', 'percent'),
+                    ('amount', '=', 19),
+                    ('country_id.code', '=', 'CL')
+                ], limit=1)
+            
             if iva_tax:
                 line_vals['tax_ids'] = [(6, 0, [iva_tax.id])]
             else:
@@ -834,24 +957,28 @@ class CertificationProcess(models.Model):
         if discount_amount <= 0:
             return move
         
-        # Buscar el producto de descuento estándar de Odoo
-        discount_product = self.env['product.product'].search([
-            ('name', '=like', 'Descuento%')
-        ], limit=1)
-        
-        if not discount_product:
-            # Si no existe, usar un producto de servicio genérico
-            discount_product = self.env.ref('product.product_service_01', raise_if_not_found=False)
+        # Usar el producto de descuento configurado si está disponible
+        if self.default_discount_product_id:
+            discount_product = self.default_discount_product_id
+        else:
+            # Fallback a búsqueda automática
+            discount_product = self.env['product.product'].search([
+                ('name', '=like', 'Descuento%')
+            ], limit=1)
             
             if not discount_product:
-                # En caso extremo que no exista ninguno de los anteriores
-                discount_product = self.env['product.product'].create({
-                    'name': 'Descuento',
-                    'type': 'service',
-                    'invoice_policy': 'order',
-                    'purchase_ok': True,
-                    'sale_ok': True,
-                })
+                # Si no existe, usar un producto de servicio genérico
+                discount_product = self.env.ref('product.product_service_01', raise_if_not_found=False)
+                
+                if not discount_product:
+                    # En caso extremo que no exista ninguno de los anteriores
+                    discount_product = self.env['product.product'].create({
+                        'name': 'Descuento',
+                        'type': 'service',
+                        'invoice_policy': 'order',
+                        'purchase_ok': True,
+                        'sale_ok': True,
+                    })
         
         # Obtener la cuenta contable para descuentos
         # Normalmente se usa la misma cuenta que los productos afectos

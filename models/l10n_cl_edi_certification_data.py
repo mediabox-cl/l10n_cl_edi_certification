@@ -138,6 +138,7 @@ class CertificationCaseDTE(models.Model):
         _logger = logging.getLogger(__name__)
         
         errors = []
+        certification_process = self.parsed_set_id.certification_process_id
         
         # Validar que el caso tenga items
         if not self.item_ids:
@@ -155,27 +156,32 @@ class CertificationCaseDTE(models.Model):
             if not doc_type:
                 errors.append(_("Tipo de documento SII '%s' no encontrado en Odoo") % self.document_type_code)
         
-        # Validar que exista un diario de ventas configurado
-        journal = self.env['account.journal'].search([
-            ('company_id', '=', self.parsed_set_id.certification_process_id.company_id.id),
-            ('type', '=', 'sale'),
-            ('l10n_latam_use_documents', '=', True)
-        ], limit=1)
-        if not journal:
-            errors.append(_("No se encontró un diario de ventas configurado para documentos LATAM"))
+        # Validar que el diario de certificación esté configurado
+        if not certification_process.certification_journal_id:
+            errors.append(_("No se ha configurado el diario de certificación. Ejecute 'Preparar Certificación'"))
+        
+        # Validar que el partner del SII esté configurado
+        if not certification_process.certification_partner_id:
+            errors.append(_("No se ha configurado el partner del SII. Ejecute 'Preparar Certificación'"))
         
         # Validar que existan impuestos configurados (si hay items no exentos)
         non_exempt_items = self.item_ids.filtered(lambda i: not i.is_exempt)
         if non_exempt_items:
-            iva_tax = self.env['account.tax'].search([
-                ('company_id', '=', self.parsed_set_id.certification_process_id.company_id.id),
-                ('type_tax_use', '=', 'sale'),
-                ('amount_type', '=', 'percent'),
-                ('amount', '=', 19),
-                ('country_id.code', '=', 'CL')
-            ], limit=1)
-            if not iva_tax:
-                errors.append(_("No se encontró impuesto IVA al 19% para ventas en Chile"))
+            if certification_process.default_tax_id:
+                # Si hay impuesto configurado, verificar que sea válido
+                if not certification_process.default_tax_id.active:
+                    errors.append(_("El impuesto IVA configurado no está activo"))
+            else:
+                # Fallback: buscar impuesto automáticamente
+                iva_tax = self.env['account.tax'].search([
+                    ('company_id', '=', certification_process.company_id.id),
+                    ('type_tax_use', '=', 'sale'),
+                    ('amount_type', '=', 'percent'),
+                    ('amount', '=', 19),
+                    ('country_id.code', '=', 'CL')
+                ], limit=1)
+                if not iva_tax:
+                    errors.append(_("No se encontró impuesto IVA al 19% para ventas en Chile"))
         
         if errors:
             _logger.error(f"Errores de validación para caso {self.case_number_raw}: {errors}")
