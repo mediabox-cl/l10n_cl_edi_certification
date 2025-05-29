@@ -94,7 +94,7 @@ class CertificationProcess(models.Model):
         'res.partner',
         string='Cliente SII (Certificación)',
         readonly=True,
-        help='Partner del SII creado automáticamente para documentos de certificación'
+        help='Partner con RUT del SII creado automáticamente para documentos de certificación'
     )
     default_tax_id = fields.Many2one(
         'account.tax',
@@ -322,7 +322,7 @@ class CertificationProcess(models.Model):
         
         msg = _('Se ha configurado el tipo de documento SET para referencias.')
         msg += _(' Se ha configurado el diario "%s" para la certificación.') % certification_journal.name
-        msg += _(' Se ha creado el partner del SII "%s" para los documentos.') % certification_partner.name
+        msg += _(' Se ha creado el partner con RUT del SII "%s" para los documentos.') % certification_partner.name
         
         return {
             'type': 'ir.actions.client',
@@ -427,10 +427,10 @@ class CertificationProcess(models.Model):
     
     def _create_certification_partner(self):
         """
-        Crea o configura un partner del SII para el proceso de certificación.
+        Crea o configura un partner para el proceso de certificación.
         
-        Este partner representa al SII como cliente para los documentos de certificación,
-        con todos los datos necesarios para la facturación electrónica.
+        Usa el RUT real del SII (requisito obligatorio para certificación) pero con 
+        datos ficticios para el resto de la información del partner.
         
         Returns:
             El partner configurado para certificación
@@ -438,70 +438,86 @@ class CertificationProcess(models.Model):
         self.ensure_one()
         company = self.company_id
         
-        # RUT del SII: 60.803.000-K
+        # RUT del SII: 60.803.000-K (requisito obligatorio para certificación)
         sii_rut = '60803000'
         sii_dv = 'K'
         
-        # 1. Buscar si ya existe un partner del SII
+        # Buscar el tipo de identificación RUT
+        rut_identification_type = self.env['l10n_latam.identification.type'].search([
+            ('name', '=', 'RUT'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if not rut_identification_type:
+            # Fallback: buscar por cualquier criterio que contenga RUT
+            rut_identification_type = self.env['l10n_latam.identification.type'].search([
+                ('name', 'ilike', 'RUT'),
+                ('country_id.code', '=', 'CL')
+            ], limit=1)
+        
+        # 1. Buscar si ya existe nuestro partner específico de certificación
+        # Buscar por nombre específico Y RUT para evitar encontrar el SII precargado
         certification_partner = self.env['res.partner'].search([
+            ('name', '=', 'The John Doe\'s Foundation'),
             ('vat', '=', f'CL{sii_rut}{sii_dv}'),
             ('company_id', 'in', [company.id, False])
         ], limit=1)
         
         if certification_partner:
             # Si ya existe, asegurar que esté correctamente configurado
-            certification_partner.write({
+            update_vals = {
                 'is_company': True,
                 'customer_rank': 1,
                 'supplier_rank': 0,
                 'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
-                'l10n_cl_dte_email': 'intercambio@sii.cl',
+                'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
                 'company_id': company.id,
-            })
+            }
+            
+            # Agregar tipo de identificación si se encontró
+            if rut_identification_type:
+                update_vals['l10n_latam_identification_type_id'] = rut_identification_type.id
+            
+            certification_partner.write(update_vals)
             return certification_partner
         
-        # 2. Crear nuevo partner del SII
-        # Buscar la actividad económica del SII (Administración Pública)
-        sii_activity = self.env['l10n_cl.activity.description'].search([
-            ('code', '=', '751100')  # Administración del Estado
-        ], limit=1)
-        
-        # Buscar región metropolitana
+        # 2. Crear nuevo partner ficticio
+        # Buscar región metropolitana (opcional)
         region_metropolitana = self.env['res.country.state'].search([
             ('country_id.code', '=', 'CL'),
             ('code', '=', 'RM')
         ], limit=1)
         
-        # Buscar comuna de Santiago
-        comuna_santiago = self.env['res.city'].search([
-            ('state_id', '=', region_metropolitana.id),
-            ('name', 'ilike', 'Santiago')
-        ], limit=1)
-        
         vals = {
-            'name': 'Servicio de Impuestos Internos',
+            'name': 'The John Doe\'s Foundation',
             'is_company': True,
             'customer_rank': 1,
             'supplier_rank': 0,
             'vat': f'CL{sii_rut}{sii_dv}',
             'country_id': self.env.ref('base.cl').id,
             'state_id': region_metropolitana.id if region_metropolitana else False,
-            'city_id': comuna_santiago.id if comuna_santiago else False,
-            'street': 'Teatinos 120',
-            'zip': '8340456',
-            'phone': '+56 2 3003 9000',
-            'email': 'intercambio@sii.cl',
-            'website': 'https://www.sii.cl',
+            'street': 'Av. Ficticia 123, Oficina 456',
+            'city': 'Santiago',
+            'zip': '7500000',
+            'phone': '+56 2 2345 6789',
+            'email': 'contacto@johndoe.foundation',
+            'website': 'https://johndoe.foundation',
             'company_id': company.id,
             # Campos específicos de Chile
             'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
-            'l10n_cl_dte_email': 'intercambio@sii.cl',
-            'l10n_cl_activity_description_ids': [(6, 0, [sii_activity.id])] if sii_activity else [],
+            'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
+            'l10n_cl_activity_description': 'Servicios de consultoría y desarrollo tecnológico',
         }
+        
+        # Agregar tipo de identificación si se encontró
+        if rut_identification_type:
+            vals['l10n_latam_identification_type_id'] = rut_identification_type.id
+        else:
+            _logger.warning("No se encontró el tipo de identificación RUT para Chile. El partner se creará sin este campo.")
         
         # Crear el partner
         certification_partner = self.env['res.partner'].create(vals)
-        _logger.info("Creado partner del SII para certificación: %s (ID: %s)", 
+        _logger.info("Creado partner de certificación con RUT del SII: %s (ID: %s)", 
                      certification_partner.name, certification_partner.id)
         
         return certification_partner
@@ -753,13 +769,13 @@ class CertificationProcess(models.Model):
 
     def _get_partner_for_dte(self, dte_case):
         """ 
-        Obtiene el partner del SII para los documentos de certificación.
+        Obtiene el partner ficticio para los documentos de certificación.
         Usa el partner configurado automáticamente durante el setup.
         """
         self.ensure_one()
         
         if not self.certification_partner_id:
-            raise UserError(_("No se ha configurado el partner del SII para certificación. "
+            raise UserError(_("No se ha configurado el partner ficticio para certificación. "
                             "Ejecute primero 'Preparar Certificación' desde el proceso."))
         
         return self.certification_partner_id

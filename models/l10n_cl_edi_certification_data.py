@@ -160,9 +160,9 @@ class CertificationCaseDTE(models.Model):
         if not certification_process.certification_journal_id:
             errors.append(_("No se ha configurado el diario de certificación. Ejecute 'Preparar Certificación'"))
         
-        # Validar que el partner del SII esté configurado
+        # Validar que el partner ficticio esté configurado
         if not certification_process.certification_partner_id:
-            errors.append(_("No se ha configurado el partner del SII. Ejecute 'Preparar Certificación'"))
+            errors.append(_("No se ha configurado el partner ficticio. Ejecute 'Preparar Certificación'"))
         
         # Validar que existan impuestos configurados (si hay items no exentos)
         non_exempt_items = self.item_ids.filtered(lambda i: not i.is_exempt)

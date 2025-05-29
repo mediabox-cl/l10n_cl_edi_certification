@@ -568,16 +568,36 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # Si no existe, crear un partner específico para certificación
         if not partner:
-            partner = self.env['res.partner'].create({
+            # Buscar el tipo de identificación RUT
+            rut_identification_type = self.env['l10n_latam.identification.type'].search([
+                ('name', '=', 'RUT'),
+                ('country_id.code', '=', 'CL')
+            ], limit=1)
+            
+            if not rut_identification_type:
+                # Fallback: buscar por cualquier criterio que contenga RUT
+                rut_identification_type = self.env['l10n_latam.identification.type'].search([
+                    ('name', 'ilike', 'RUT'),
+                    ('country_id.code', '=', 'CL')
+                ], limit=1)
+            
+            partner_vals = {
                 'name': 'SII - Servicio de Impuestos Internos (Certificación)',
                 'vat': '60803000-K',
-                'l10n_latam_identification_type_id': self.env.ref('l10n_cl.it_RUT').id,
                 'country_id': self.env.ref('base.cl').id,
                 'company_type': 'company',
                 'industry_id': self.env.ref('l10n_cl.res_partner_activity_SII_844101_companies').id,
                 'l10n_cl_activity_description': 'Servicio de Impuestos Internos',
                 'company_id': self.certification_process_id.company_id.id,
-            })
+            }
+            
+            # Agregar tipo de identificación si se encontró
+            if rut_identification_type:
+                partner_vals['l10n_latam_identification_type_id'] = rut_identification_type.id
+            else:
+                _logger.warning("No se encontró el tipo de identificación RUT para Chile. El partner se creará sin este campo.")
+            
+            partner = self.env['res.partner'].create(partner_vals)
             _logger.info("Creado partner SII para certificación: %s", partner.name)
         
         return partner
