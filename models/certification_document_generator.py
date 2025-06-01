@@ -626,7 +626,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         )
         
         if not affected_lines:
-            move.message_post(body=_('No se pudo aplicar el descuento global: no hay líneas afectas'))
+            _logger.warning("No se pudo aplicar descuento global de %s%% al documento %s: no hay líneas afectas", 
+                          discount_percent, move.name)
             return move
         
         # Calcular el monto total de los ítems afectos
