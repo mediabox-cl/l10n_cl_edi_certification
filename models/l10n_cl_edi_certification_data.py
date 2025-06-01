@@ -209,22 +209,20 @@ class CertificationCaseDTE(models.Model):
             _logger.info(f"Validando requisitos para caso {self.case_number_raw}")
             self._validate_generation_requirements()
             
-            # Usar savepoint para manejar transacciones de forma segura
-            with self.env.cr.savepoint():
-                # Asegurarse que estamos en el estado correcto
-                _logger.info(f"Estado actual del proceso: {certification_process.state}")
-                if certification_process.state not in ['data_loaded', 'generation']:
-                    _logger.info(f"Cambiando estado del proceso de '{certification_process.state}' a 'data_loaded'")
-                    certification_process.state = 'data_loaded'
-                
-                # Generar el documento
-                _logger.info(f"Llamando a _create_move_from_dte_case para caso {self.case_number_raw}")
-                certification_process._create_move_from_dte_case(self)
-                _logger.info(f"Documento generado exitosamente para caso {self.case_number_raw}")
-                
-                # Verificar el estado del proceso de certificación
-                _logger.info("Verificando estado del proceso de certificación")
-                certification_process.check_certification_status()
+            # Asegurarse que estamos en el estado correcto
+            _logger.info(f"Estado actual del proceso: {certification_process.state}")
+            if certification_process.state not in ['data_loaded', 'generation']:
+                _logger.info(f"Cambiando estado del proceso de '{certification_process.state}' a 'data_loaded'")
+                certification_process.state = 'data_loaded'
+            
+            # Generar el documento (sin savepoint - Odoo maneja las transacciones automáticamente)
+            _logger.info(f"Llamando a _create_move_from_dte_case para caso {self.case_number_raw}")
+            certification_process._create_move_from_dte_case(self)
+            _logger.info(f"Documento generado exitosamente para caso {self.case_number_raw}")
+            
+            # Verificar el estado del proceso de certificación
+            _logger.info("Verificando estado del proceso de certificación")
+            certification_process.check_certification_status()
             
             # Notificar éxito
             return {
@@ -239,7 +237,7 @@ class CertificationCaseDTE(models.Model):
             }
         except Exception as e:
             _logger.error(f"Error al generar DTE para caso {self.case_number_raw}: {str(e)}", exc_info=True)
-            # Registrar error y notificar
+            # Registrar error y notificar (ahora sin problemas de transacción abortada)
             self.write({
                 'generation_status': 'error',
                 'error_message': str(e)
