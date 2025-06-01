@@ -441,6 +441,10 @@ class CertificationProcess(models.Model):
         # RUT del SII: 60.803.000-K (requisito obligatorio para certificación)
         sii_rut = '60803000'
         sii_dv = 'K'
+        target_name = 'The John Doe\'s Foundation'
+        target_vat = f'CL{sii_rut}{sii_dv}'
+        
+        _logger.info(f"Buscando/creando partner de certificación con RUT: {target_vat}")
         
         # Buscar el tipo de identificación RUT
         rut_identification_type = self.env['l10n_latam.identification.type'].search([
@@ -455,17 +459,29 @@ class CertificationProcess(models.Model):
                 ('country_id.code', '=', 'CL')
             ], limit=1)
         
-        # 1. Buscar si ya existe nuestro partner específico de certificación
-        # Buscar por nombre específico Y RUT para evitar encontrar el SII precargado
-        certification_partner = self.env['res.partner'].search([
-            ('name', '=', 'The John Doe\'s Foundation'),
-            ('vat', '=', f'CL{sii_rut}{sii_dv}'),
+        # 1. PRIMERA BÚSQUEDA: Por RUT exacto (más importante)
+        partners_with_rut = self.env['res.partner'].search([
+            ('vat', '=', target_vat),
             ('company_id', 'in', [company.id, False])
-        ], limit=1)
+        ])
         
-        if certification_partner:
-            # Si ya existe, asegurar que esté correctamente configurado
+        _logger.info(f"Partners encontrados con RUT {target_vat}: {len(partners_with_rut)}")
+        
+        if partners_with_rut:
+            # 2. VERIFICAR SI ALGUNO TIENE EL NOMBRE CORRECTO
+            exact_match = partners_with_rut.filtered(lambda p: p.name == target_name)
+            
+            if exact_match:
+                _logger.info(f"Partner exacto encontrado (RUT + nombre): {exact_match[0].name} (ID: {exact_match[0].id})")
+                certification_partner = exact_match[0]
+            else:
+                # 3. USAR EL PRIMER PARTNER CON EL RUT Y ACTUALIZAR SU NOMBRE
+                certification_partner = partners_with_rut[0]
+                _logger.info(f"Partner con RUT encontrado pero nombre diferente: '{certification_partner.name}' -> '{target_name}' (ID: {certification_partner.id})")
+            
+            # Asegurar que esté correctamente configurado
             update_vals = {
+                'name': target_name,  # Asegurar nombre correcto
                 'is_company': True,
                 'customer_rank': 1,
                 'supplier_rank': 0,
@@ -479,9 +495,12 @@ class CertificationProcess(models.Model):
                 update_vals['l10n_latam_identification_type_id'] = rut_identification_type.id
             
             certification_partner.write(update_vals)
+            _logger.info(f"Partner actualizado correctamente: {certification_partner.name} (ID: {certification_partner.id})")
             return certification_partner
         
-        # 2. Crear nuevo partner ficticio
+        # 4. NO EXISTE NINGÚN PARTNER CON ESE RUT - CREAR UNO NUEVO
+        _logger.info(f"No se encontró ningún partner con RUT {target_vat}. Creando uno nuevo...")
+        
         # Buscar región metropolitana (opcional)
         region_metropolitana = self.env['res.country.state'].search([
             ('country_id.code', '=', 'CL'),
@@ -489,11 +508,11 @@ class CertificationProcess(models.Model):
         ], limit=1)
         
         vals = {
-            'name': 'The John Doe\'s Foundation',
+            'name': target_name,
             'is_company': True,
             'customer_rank': 1,
             'supplier_rank': 0,
-            'vat': f'CL{sii_rut}{sii_dv}',
+            'vat': target_vat,
             'country_id': self.env.ref('base.cl').id,
             'state_id': region_metropolitana.id if region_metropolitana else False,
             'street': 'Av. Ficticia 123, Oficina 456',
@@ -1156,10 +1175,15 @@ class CertificationProcess(models.Model):
     def check_certification_status(self):
         """Verifica el estado general del proceso de certificación con lógica mejorada."""
         self.ensure_one()
+        _logger.info(f"=== INICIANDO CHECK CERTIFICATION STATUS para empresa {self.company_id.name} ===")
         
         # ETAPA 1: Verificar PREPARATION (Preparación Inicial)
+        _logger.info("Verificando etapa PREPARATION...")
         preparation_complete, preparation_details = self._check_preparation_complete()
+        _logger.info(f"Preparation complete: {preparation_complete}, detalles: {preparation_details}")
+        
         if not preparation_complete:
+            _logger.warning(f"Preparation incompleta. Manteniendo estado 'preparation'. Faltantes: {preparation_details}")
             self.state = 'preparation'
             result = {
                 'state': 'preparation',
@@ -1181,10 +1205,14 @@ class CertificationProcess(models.Model):
                     }
                 }
             return result
-        
+
         # ETAPA 2: Verificar CONFIGURATION (Sets y CAFs)
+        _logger.info("Preparation completa. Verificando etapa CONFIGURATION...")
         configuration_complete, configuration_details = self._check_configuration_complete()
+        _logger.info(f"Configuration complete: {configuration_complete}, detalles: {configuration_details}")
+        
         if not configuration_complete:
+            _logger.info(f"Configuration incompleta. Cambiando estado a 'configuration'. Faltantes: {configuration_details}")
             self.state = 'configuration'
             result = {
                 'state': 'configuration', 
@@ -1206,8 +1234,9 @@ class CertificationProcess(models.Model):
                     }
                 }
             return result
-        
+
         # ETAPA 3: Está en GENERATION
+        _logger.info("Configuration completa. Cambiando estado a 'generation'")
         self.state = 'generation'
         generation_status = self._check_generation_status()
         
@@ -1217,6 +1246,8 @@ class CertificationProcess(models.Model):
             'generation_details': generation_status,
             'message': generation_status.get('message', 'Proceso de generación en curso')
         }
+        
+        _logger.info(f"=== CHECK CERTIFICATION STATUS COMPLETADO. Estado final: {self.state} ===")
         
         # Si se llama desde la interfaz, mostrar notificación
         if self.env.context.get('show_notification'):
@@ -1235,6 +1266,8 @@ class CertificationProcess(models.Model):
 
     def _check_preparation_complete(self):
         """Verifica si la preparación inicial está completa."""
+        _logger.info("--- Verificando validaciones de preparation ---")
+        
         checks = {
             'company_data': self._validate_company_data(),
             'digital_signature': self._validate_digital_signature(), 
@@ -1242,38 +1275,69 @@ class CertificationProcess(models.Model):
             'certification_resources': self._validate_certification_resources(),
         }
         
+        for check_name, result in checks.items():
+            _logger.info(f"Validación {check_name}: {'✓ PASS' if result else '✗ FAIL'}")
+        
         missing = [key for key, value in checks.items() if not value]
+        _logger.info(f"Validaciones faltantes: {missing}")
         return len(missing) == 0, missing
 
     def _validate_company_data(self):
         """Valida que los datos de la empresa estén completos."""
-        return all([
-            bool(self.company_activity_ids),
-            bool(self.resolution_number),
-            bool(self.resolution_date), 
-            bool(self.sii_regional_office),
-        ])
+        _logger.info("--- Verificando datos de la empresa ---")
+        
+        checks = {
+            'company_activity_ids': bool(self.company_activity_ids),
+            'resolution_number': bool(self.resolution_number),
+            'resolution_date': bool(self.resolution_date),
+            'sii_regional_office': bool(self.sii_regional_office),
+        }
+        
+        for field, result in checks.items():
+            _logger.info(f"  {field}: {'✓' if result else '✗'} (valor: {getattr(self, field, 'N/A')})")
+        
+        return all(checks.values())
 
     def _validate_digital_signature(self):
         """Valida que exista una firma digital válida."""
-        return bool(self.env['certificate.certificate'].search([
+        _logger.info("Verificando firma digital...")
+        
+        cert_count = self.env['certificate.certificate'].search_count([
             ('company_id', '=', self.company_id.id),
             ('is_valid', '=', True)
-        ], limit=1))
+        ])
+        
+        _logger.info(f"  Certificados válidos encontrados: {cert_count}")
+        return cert_count > 0
 
     def _validate_server_configuration(self):
         """Valida configuración de servidores y email."""
-        return all([
-            bool(self.dte_service_provider),
-            bool(self.dte_email),
-        ])
+        _logger.info("Verificando configuración del servidor...")
+        
+        checks = {
+            'dte_service_provider': bool(self.dte_service_provider),
+            'dte_email': bool(self.dte_email),
+        }
+        
+        for field, result in checks.items():
+            _logger.info(f"  {field}: {'✓' if result else '✗'} (valor: {getattr(self, field, 'N/A')})")
+        
+        return all(checks.values())
 
     def _validate_certification_resources(self):
         """Valida que existan recursos necesarios para la certificación."""
-        return all([
-            bool(self.certification_journal_id),
-            bool(self.certification_partner_id),
-        ])
+        _logger.info("Verificando recursos de certificación...")
+        
+        checks = {
+            'certification_journal_id': bool(self.certification_journal_id),
+            'certification_partner_id': bool(self.certification_partner_id),
+        }
+        
+        for field, result in checks.items():
+            resource = getattr(self, field, None)
+            _logger.info(f"  {field}: {'✓' if result else '✗'} (ID: {resource.id if resource else 'None'})")
+        
+        return all(checks.values())
 
     def _check_configuration_complete(self):
         """Verifica sets cargados y CAFs correspondientes."""

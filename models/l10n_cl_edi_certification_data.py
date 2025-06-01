@@ -196,33 +196,46 @@ class CertificationCaseDTE(models.Model):
         _logger = logging.getLogger(__name__)
         
         self.ensure_one()
-        _logger.info(f"Iniciando generación de DTE para caso {self.case_number_raw} (ID: {self.id})")
+        _logger.info(f"=== INICIANDO GENERACIÓN DTE ===")
+        _logger.info(f"Caso: {self.case_number_raw} (ID: {self.id})")
+        _logger.info(f"Estado actual: {self.generation_status}")
         
         if self.generation_status != 'pending':
             raise UserError(_("Este documento ya ha sido procesado o está en error."))
         
         certification_process = self.parsed_set_id.certification_process_id
-        _logger.info(f"Proceso de certificación: {certification_process.name} (ID: {certification_process.id})")
+        _logger.info(f"Proceso de certificación: {certification_process.company_id.name} (ID: {certification_process.id})")
         
         try:
             # Validar requisitos previos
-            _logger.info(f"Validando requisitos para caso {self.case_number_raw}")
+            _logger.info(f"=== PASO 1: Validando requisitos ===")
             self._validate_generation_requirements()
+            _logger.info(f"✓ Validación de requisitos completada")
             
             # Asegurarse que estamos en el estado correcto
+            _logger.info(f"=== PASO 2: Verificando estado del proceso ===")
             _logger.info(f"Estado actual del proceso: {certification_process.state}")
             if certification_process.state not in ['data_loaded', 'generation']:
                 _logger.info(f"Cambiando estado del proceso de '{certification_process.state}' a 'data_loaded'")
                 certification_process.state = 'data_loaded'
+            _logger.info(f"✓ Estado del proceso verificado")
             
-            # Generar el documento (sin savepoint - Odoo maneja las transacciones automáticamente)
+            # Generar el documento
+            _logger.info(f"=== PASO 3: Generando documento account.move ===")
             _logger.info(f"Llamando a _create_move_from_dte_case para caso {self.case_number_raw}")
+            
+            # Verificar estado de la transacción antes de crear el move
+            _logger.info(f"Estado de la transacción antes de crear move: {self.env.cr.closed}")
+            
             certification_process._create_move_from_dte_case(self)
-            _logger.info(f"Documento generado exitosamente para caso {self.case_number_raw}")
+            _logger.info(f"✓ Documento generado exitosamente para caso {self.case_number_raw}")
             
             # Verificar el estado del proceso de certificación
-            _logger.info("Verificando estado del proceso de certificación")
+            _logger.info(f"=== PASO 4: Verificando estado final ===")
             certification_process.check_certification_status()
+            _logger.info(f"✓ Estado del proceso verificado")
+            
+            _logger.info(f"=== GENERACIÓN COMPLETADA EXITOSAMENTE ===")
             
             # Notificar éxito
             return {
@@ -236,12 +249,23 @@ class CertificationCaseDTE(models.Model):
                 }
             }
         except Exception as e:
-            _logger.error(f"Error al generar DTE para caso {self.case_number_raw}: {str(e)}", exc_info=True)
-            # Registrar error y notificar (ahora sin problemas de transacción abortada)
-            self.write({
-                'generation_status': 'error',
-                'error_message': str(e)
-            })
+            _logger.error(f"=== ERROR EN GENERACIÓN ===")
+            _logger.error(f"Caso: {self.case_number_raw}")
+            _logger.error(f"Error: {str(e)}")
+            _logger.error(f"Tipo de error: {type(e).__name__}")
+            _logger.error(f"Estado de la transacción: {self.env.cr.closed}")
+            _logger.error("Traceback completo:", exc_info=True)
+            
+            # Registrar error y notificar
+            try:
+                self.write({
+                    'generation_status': 'error',
+                    'error_message': str(e)
+                })
+                _logger.info(f"✓ Estado de error registrado correctamente")
+            except Exception as write_error:
+                _logger.error(f"Error adicional al escribir estado: {str(write_error)}")
+            
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
