@@ -38,7 +38,7 @@ class CertificationDocumentGenerator(models.TransientModel):
     def generate_document(self):
         """
         Método principal que genera documentos usando el flujo estándar de Odoo:
-        sale.order → confirm → create_invoice → post
+        sale.order → confirm → create_invoice (solo borrador)
         
         Este enfoque elimina problemas con rating mixin y usa el flujo nativo.
         """
@@ -87,10 +87,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             self._create_document_references_on_invoice(invoice)
             _logger.info("✓ Referencias creadas")
             
-            # 7. Validar la factura (esto generará el DTE automáticamente)
-            _logger.info("PASO 7: Validando factura (generará DTE automáticamente)")
-            invoice.action_post()
-            _logger.info("✓ Factura validada: %s", invoice.name)
+            # 7. MANTENER FACTURA EN BORRADOR (no hacer action_post)
+            _logger.info("PASO 7: Factura mantenida en borrador para revisión")
+            _logger.info("✓ Factura en borrador: %s", invoice.name)
             
             # 8. Actualizar el estado del caso DTE
             _logger.info("PASO 8: Actualizando estado del caso DTE")
@@ -102,7 +101,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info("✓ Estado del caso actualizado")
             
             _logger.info("=== GENERACIÓN COMPLETADA EXITOSAMENTE ===")
-            _logger.info("Factura final: %s (ID: %s)", invoice.name, invoice.id)
+            _logger.info("Factura en borrador: %s (ID: %s)", invoice.name, invoice.id)
             return invoice
             
         except Exception as e:
@@ -201,41 +200,37 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _get_product_for_dte_item(self, item_name):
         """
         Obtiene o crea un producto para el item del DTE.
-        Reutiliza productos existentes cuando es posible.
+        Crea productos únicos sin SKU genérico para evitar duplicados.
         """
-        # Buscar producto existente por nombre
+        # Buscar producto existente por nombre exacto
         product = self.env['product.product'].search([
             ('name', '=', item_name)
         ], limit=1)
         
         if product:
+            _logger.info("Producto existente encontrado: %s (ID: %s)", product.name, product.id)
             return product
         
-        # Buscar producto genérico de certificación
-        product = self.env['product.product'].search([
-            ('default_code', '=', 'CERTIF_PROD')
-        ], limit=1)
-        
-        if product:
-            return product
-        
-        # Crear producto genérico si no existe
+        # Crear producto único para este item (SIN default_code para evitar SKU en líneas)
+        _logger.info("Creando nuevo producto: %s", item_name)
         product = self.env['product.product'].create({
-            'name': item_name,
-            'default_code': 'CERTIF_PROD',
+            'name': item_name,  # Nombre exacto del item DTE
             'type': 'service',
             'invoice_policy': 'order',
             'list_price': 0,
             'standard_price': 0,
             'sale_ok': True,
             'purchase_ok': False,
+            # NO agregar default_code para evitar que aparezca SKU en las líneas
         })
         
+        _logger.info("✓ Producto creado: %s (ID: %s)", product.name, product.id)
         return product
 
     def _configure_dte_fields_on_invoice(self, invoice):
         """
         Configura campos específicos del DTE en la factura generada.
+        Incluye forzar el diario de certificación y logging para debug.
         """
         self.ensure_one()
         
@@ -248,12 +243,24 @@ class CertificationDocumentGenerator(models.TransientModel):
         if not doc_type:
             raise UserError(_("Tipo de documento SII '%s' no encontrado") % self.dte_case_id.document_type_code)
         
+        _logger.info("Tipo de documento encontrado: %s (%s)", doc_type.name, doc_type.code)
+        
         # Configurar valores específicos del DTE
         invoice_vals = {
             'l10n_latam_document_type_id': doc_type.id,
             'invoice_date': fields.Date.context_today(self),
             'ref': f'Caso SII {self.dte_case_id.case_number_raw}',
         }
+        
+        # FORZAR el uso del diario de certificación
+        journal = self.certification_process_id.certification_journal_id
+        if journal:
+            _logger.info("Configurando diario de certificación: %s (ID: %s)", journal.name, journal.id)
+            _logger.info("Diario usa documentos: %s", journal.l10n_latam_use_documents)
+            _logger.info("Diario tipo: %s", journal.type)
+            invoice_vals['journal_id'] = journal.id
+        else:
+            _logger.warning("⚠️  No hay diario de certificación configurado - usando diario por defecto")
         
         # Configurar campos específicos según el tipo de documento
         if self.dte_case_id.document_type_code == '52':  # Guía de despacho
@@ -262,8 +269,19 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(self.dte_case_id.dispatch_transport_type_raw),
             })
         
+        # Verificar configuración de la empresa
+        company = self.certification_process_id.company_id
+        _logger.info("Empresa: %s, País: %s", company.name, company.country_id.code)
+        
         # Aplicar los valores
         invoice.write(invoice_vals)
+        
+        # Verificar después de la configuración
+        _logger.info("✓ Factura configurada:")
+        _logger.info("  - Diario: %s (ID: %s)", invoice.journal_id.name, invoice.journal_id.id)
+        _logger.info("  - Tipo documento: %s (%s)", invoice.l10n_latam_document_type_id.name, invoice.l10n_latam_document_type_id.code)
+        _logger.info("  - Fecha: %s", invoice.invoice_date)
+        _logger.info("  - Referencia: %s", invoice.ref)
 
     def _apply_global_discount_to_invoice(self, invoice, discount_percent):
         """
