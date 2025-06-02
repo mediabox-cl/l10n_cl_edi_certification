@@ -337,7 +337,8 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'move_id': invoice.id,
                 'l10n_cl_reference_doc_type_id': set_doc_type.id,
                 'origin_doc_number': '',
-                'reason': f'CASO {self.dte_case_id.case_number_raw}'
+                'reason': f'CASO {self.dte_case_id.case_number_raw}',
+                'date': fields.Date.context_today(self),
             })
         
         # Agregar las demás referencias del caso DTE
@@ -352,7 +353,8 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'origin_doc_number': (referenced_move.l10n_latam_document_number 
                                     if referenced_move else f"REF-{ref.referenced_sii_case_number}"),
                 'reference_doc_code': ref.reference_code,
-                'reason': ref.reason_raw
+                'reason': ref.reason_raw,
+                'date': fields.Date.context_today(self),
             }
             references_to_create.append(reference_values)
         
