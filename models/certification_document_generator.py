@@ -276,12 +276,91 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Aplicar los valores
         invoice.write(invoice_vals)
         
+        # CORREGIR NÚMERO DE DOCUMENTO SI ES NECESARIO
+        self._fix_document_number_if_needed(invoice)
+        
         # Verificar después de la configuración
         _logger.info("✓ Factura configurada:")
         _logger.info("  - Diario: %s (ID: %s)", invoice.journal_id.name, invoice.journal_id.id)
         _logger.info("  - Tipo documento: %s (%s)", invoice.l10n_latam_document_type_id.name, invoice.l10n_latam_document_type_id.code)
         _logger.info("  - Fecha: %s", invoice.invoice_date)
         _logger.info("  - Referencia: %s", invoice.ref)
+        _logger.info("  - Número documento: %s", invoice.l10n_latam_document_number)
+
+    def _fix_document_number_if_needed(self, invoice):
+        """
+        Corrige el número de documento si tiene formato incorrecto (ej: INV/2025/00001).
+        Busca el CAF disponible y asigna el siguiente folio válido.
+        """
+        self.ensure_one()
+        
+        current_number = invoice.l10n_latam_document_number
+        _logger.info("Verificando número de documento actual: %s", current_number)
+        
+        # Verificar si el número tiene formato incorrecto (contiene letras o barras)
+        if current_number and ('/' in current_number or any(c.isalpha() for c in current_number)):
+            _logger.warning("⚠️  Número de documento con formato incorrecto: %s", current_number)
+            
+            # Buscar el siguiente folio disponible del CAF
+            next_folio = self._get_next_available_folio(invoice.l10n_latam_document_type_id)
+            
+            if next_folio:
+                # Asignar el folio correcto
+                invoice.write({'l10n_latam_document_number': str(next_folio).zfill(6)})
+                _logger.info("✓ Número de documento corregido: %s → %s", current_number, invoice.l10n_latam_document_number)
+            else:
+                _logger.error("❌ No se pudo obtener un folio válido del CAF")
+                raise UserError(_("No se pudo obtener un folio válido del CAF para el tipo de documento %s") % 
+                              invoice.l10n_latam_document_type_id.name)
+        else:
+            _logger.info("✓ Número de documento correcto: %s", current_number)
+
+    def _get_next_available_folio(self, document_type):
+        """
+        Obtiene el siguiente folio disponible del CAF para el tipo de documento.
+        """
+        self.ensure_one()
+        
+        company_id = self.certification_process_id.company_id.id
+        
+        # Buscar CAF disponible para este tipo de documento
+        caf = self.env['l10n_cl.dte.caf'].search([
+            ('l10n_latam_document_type_id', '=', document_type.id),
+            ('company_id', '=', company_id),
+            ('status', '=', 'in_use')
+        ], limit=1)
+        
+        if not caf:
+            _logger.error("No se encontró CAF disponible para tipo %s en empresa %s", 
+                         document_type.code, company_id)
+            return None
+        
+        _logger.info("CAF encontrado: %s (rango: %s-%s)", caf.filename, caf.start_nb, caf.final_nb)
+        
+        # Buscar el último folio usado para este tipo de documento
+        last_move = self.env['account.move'].search([
+            ('l10n_latam_document_type_id', '=', document_type.id),
+            ('company_id', '=', company_id),
+            ('state', '=', 'posted'),
+            ('l10n_latam_document_number', '!=', False)
+        ], order='l10n_latam_document_number desc', limit=1)
+        
+        if last_move and last_move.l10n_latam_document_number.isdigit():
+            # Siguiente folio después del último usado
+            next_folio = int(last_move.l10n_latam_document_number) + 1
+            _logger.info("Último folio usado: %s, siguiente: %s", last_move.l10n_latam_document_number, next_folio)
+        else:
+            # Primer folio del CAF
+            next_folio = caf.start_nb
+            _logger.info("No hay folios previos, usando primer folio del CAF: %s", next_folio)
+        
+        # Verificar que el folio esté dentro del rango del CAF
+        if next_folio > caf.final_nb:
+            _logger.error("Folio %s excede el rango del CAF (%s-%s)", next_folio, caf.start_nb, caf.final_nb)
+            return None
+        
+        _logger.info("✓ Siguiente folio disponible: %s", next_folio)
+        return next_folio
 
     def _apply_global_discount_to_invoice(self, invoice, discount_percent):
         """
