@@ -237,16 +237,13 @@ class CertificationCaseDTE(models.Model):
             
             _logger.info(f"=== GENERACIÓN COMPLETADA EXITOSAMENTE ===")
             
-            # Notificar éxito
+            # Recargar la vista para mostrar los cambios
             return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('DTE generado'),
-                    'message': _('El documento %s ha sido generado correctamente.') % self.case_number_raw,
-                    'type': 'success',
-                    'sticky': False,
-                }
+                'type': 'ir.actions.act_window',
+                'res_model': 'l10n_cl_edi.certification.process',
+                'view_mode': 'form',
+                'res_id': certification_process.id,
+                'target': 'current',
             }
         except Exception as e:
             _logger.error(f"=== ERROR EN GENERACIÓN ===")

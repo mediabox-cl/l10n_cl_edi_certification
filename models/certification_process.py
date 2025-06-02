@@ -320,19 +320,13 @@ class CertificationProcess(models.Model):
         # 5. Verificar estado automáticamente (no forzar estado)
         self.check_certification_status()
         
-        msg = _('Se ha configurado el tipo de documento SET para referencias.')
-        msg += _(' Se ha configurado el diario "%s" para la certificación.') % certification_journal.name
-        msg += _(' Se ha creado el partner con RUT del SII "%s" para los documentos.') % certification_partner.name
-        
+        # 6. Retornar acción que recarga la vista actual
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Base de datos preparada'),
-                'message': msg,
-                'type': 'success',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.process',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
         }
         
     def _create_certification_journal(self):
@@ -680,21 +674,20 @@ class CertificationProcess(models.Model):
                 })
 
         self.check_certification_status()
+        
+        # Retornar acción que recarga la vista actual
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Set de Pruebas XML procesado'),
-                'message': _('Se han cargado las definiciones de los sets y casos desde el archivo XML.'),
-                'type': 'success',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.process',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
         }
 
     def action_generate_dte_documents(self):
         """
         Genera todos los documentos tributarios electrónicos pendientes.
-        Versión refactorizada que usa el nuevo generador por caso.
+        Usa el nuevo flujo sale.order → invoice para evitar problemas con rating mixin.
         """
         self.ensure_one()
         if self.state != 'generation':
@@ -714,10 +707,9 @@ class CertificationProcess(models.Model):
             self.state = 'data_loaded'
             raise UserError(_("No hay casos DTE pendientes de generación."))
 
-        # Generar documentos usando el nuevo método por caso
+        # Generar documentos usando el nuevo generador
         generated_count = 0
         error_count = 0
-        not_implemented_count = 0
         
         for dte_case in cases_to_generate:
             try:
@@ -727,23 +719,14 @@ class CertificationProcess(models.Model):
                     'certification_process_id': self.id
                 })
                 
-                # Intentar generar el documento
-                generator.generate_document()
+                # Generar el documento usando el nuevo flujo
+                invoice = generator.generate_document()
                 generated_count += 1
-                _logger.info("Documento generado exitosamente para caso %s", dte_case.case_number_raw)
-                
-            except NotImplementedError as e:
-                # Tipo de documento no implementado aún
-                _logger.warning("Tipo de documento no implementado para caso %s: %s", 
-                               dte_case.case_number_raw, str(e))
-                dte_case.write({
-                    'generation_status': 'error',
-                    'error_message': f"No implementado: {str(e)}"
-                })
-                not_implemented_count += 1
+                _logger.info("Documento generado exitosamente para caso %s: %s", 
+                           dte_case.case_number_raw, invoice.name)
                 
             except Exception as e:
-                # Error real en la generación
+                # Error en la generación
                 _logger.error("Error generando DTE para caso %s: %s", dte_case.case_number_raw, str(e))
                 dte_case.write({
                     'generation_status': 'error',
@@ -757,23 +740,17 @@ class CertificationProcess(models.Model):
         # Actualizar estado del proceso
         self.check_certification_status()
         
-        # Construir mensaje más detallado
+        # Construir mensaje
         message_parts = []
         if generated_count > 0:
             message_parts.append(_("%s DTEs generados exitosamente") % generated_count)
-        if not_implemented_count > 0:
-            message_parts.append(_("%s tipos de documento pendientes de implementar") % not_implemented_count)
         if error_count > 0:
             message_parts.append(_("%s DTEs con error") % error_count)
             
         message = ". ".join(message_parts) + "."
         
         # Determinar tipo de notificación
-        notification_type = 'success'
-        if error_count > 0:
-            notification_type = 'danger'
-        elif not_implemented_count > 0:
-            notification_type = 'warning'
+        notification_type = 'success' if error_count == 0 else 'warning'
         
         return {
             'type': 'ir.actions.client',
@@ -785,358 +762,6 @@ class CertificationProcess(models.Model):
                 'sticky': True,
             }
         }
-
-    def _get_partner_for_dte(self, dte_case):
-        """ 
-        Obtiene el partner ficticio para los documentos de certificación.
-        Usa el partner configurado automáticamente durante el setup.
-        """
-        self.ensure_one()
-        
-        if not self.certification_partner_id:
-            raise UserError(_("No se ha configurado el partner ficticio para certificación. "
-                            "Ejecute primero 'Preparar Certificación' desde el proceso."))
-        
-        return self.certification_partner_id
-
-    def _get_product_for_dte_item(self, item_name):
-        """
-        Placeholder: Get or create a product for the DTE line.
-        For certification, generic products are often used.
-        """
-        product_model = self.env['product.product']
-        product = product_model.search([('name', 'ilike', item_name)], limit=1)
-        if not product:
-            product = product_model.search([('default_code', '=', 'CERTIF_PROD')], limit=1)
-            if not product:
-                product = product_model.create({
-                    'name': item_name,
-                    'default_code': 'CERTIF_PROD' if item_name != 'Producto Certificación' else 'CERTIF_PROD_GENERIC',
-                    'type': 'service',
-                    'invoice_policy': 'order',
-                    'list_price': 0,
-                    'standard_price': 0,
-                    'taxes_id': False,
-                })
-        return product
-
-    def _get_referenced_move(self, referenced_sii_case_number):
-        """Finds a generated account.move based on the SII case number of the reference."""
-        self.ensure_one()
-        if not referenced_sii_case_number:
-            return self.env['account.move']
-        
-        referenced_dte_case = self.env['l10n_cl_edi.certification.case.dte'].search([  # Actualizado
-            ('parsed_set_id.certification_process_id', '=', self.id),
-            ('case_number_raw', '=', referenced_sii_case_number),
-            ('generated_account_move_id', '!=', False)
-        ], limit=1)
-        return referenced_dte_case.generated_account_move_id
-
-    def _prepare_move_vals(self, dte_case, partner):
-        """Prepares the main values for creating an account.move from a DTE case."""
-        self.ensure_one()
-        dte_case.ensure_one()
-
-        doc_type_model = self.env['l10n_latam.document.type']
-        sii_doc_type = doc_type_model.search([
-            ('code', '=', dte_case.document_type_code),
-            ('country_id.code', '=', 'CL')
-        ], limit=1)
-        if not sii_doc_type:
-            raise UserError(_("Tipo de documento SII '%s' no encontrado en Odoo para el caso %s.") % 
-                            (dte_case.document_type_code, dte_case.case_number_raw))
-
-        move_type_map = {
-            '33': 'out_invoice',
-            '34': 'out_invoice',
-            '56': 'out_refund',
-            '61': 'out_refund',
-            '52': 'out_invoice',
-            '110': 'out_invoice',
-            '111': 'out_refund',
-            '112': 'out_refund',
-        }
-        move_type = move_type_map.get(dte_case.document_type_code, 'out_invoice')
-        if sii_doc_type.internal_type == 'debit_note':
-             move_type = 'out_refund'
-        elif sii_doc_type.internal_type == 'invoice' and dte_case.document_type_code == '34':
-            move_type = 'out_invoice'
-        elif sii_doc_type.internal_type == 'credit_note':
-             move_type = 'out_refund'
-        
-        # Usar el diario de certificación configurado
-        if not self.certification_journal_id:
-            raise UserError(_("No se ha configurado el diario de certificación. "
-                            "Ejecute primero 'Preparar Certificación' desde el proceso."))
-        
-        journal = self.certification_journal_id
-
-        move_vals = {
-            'move_type': move_type,
-            'partner_id': partner.id,
-            'journal_id': journal.id,
-            'company_id': self.company_id.id,
-            'l10n_latam_document_type_id': sii_doc_type.id,
-            'invoice_date': fields.Date.context_today(self),
-            'l10n_cl_edi_certification_id': self.id, 
-        }
-        return move_vals
-
-    def _prepare_move_line_vals(self, dte_item, move_vals):
-        """Prepares values for an account.move.line from a DTE case item."""
-        product = self._get_product_for_dte_item(dte_item.name)
-        price_unit = dte_item.price_unit
-        if move_vals.get('move_type') == 'out_refund':
-            pass
-
-        line_vals = {
-            'product_id': product.id,
-            'name': dte_item.name,
-            'quantity': dte_item.quantity,
-            'price_unit': price_unit,
-            'product_uom_id': product.uom_id.id,
-            'discount': dte_item.discount_percent or 0.0,
-        }
-        if dte_item.is_exempt:
-            line_vals['tax_ids'] = [(6, 0, [])]
-        else:
-            # Usar el impuesto configurado por defecto si está disponible
-            if self.default_tax_id:
-                iva_tax = self.default_tax_id
-            else:
-                # Fallback a búsqueda automática
-                iva_tax = self.env['account.tax'].search([
-                    ('company_id', '=', self.company_id.id),
-                    ('type_tax_use', '=', 'sale'),
-                    ('amount_type', '=', 'percent'),
-                    ('amount', '=', 19),
-                    ('country_id.code', '=', 'CL')
-                ], limit=1)
-            
-            if iva_tax:
-                line_vals['tax_ids'] = [(6, 0, [iva_tax.id])]
-            else:
-                _logger.warning("No se encontró impuesto IVA al 19%% para ventas en Chile. Línea para '%s' sin impuesto.", dte_item.name)
-
-        return line_vals
-
-    def _prepare_references_for_move(self, dte_case, new_move):
-        """
-        Prepara las referencias para el documento account.move basado en el caso DTE.
-        """
-        references_to_create = []
-        
-        # Agregar la referencia obligatoria al SET primero
-        set_doc_type = self.env['l10n_latam.document.type'].search([
-            ('code', '=', 'SET'),
-            ('country_id.code', '=', 'CL')
-        ], limit=1)
-        
-        if set_doc_type:
-            references_to_create.append({
-                'move_id': new_move.id,
-                'l10n_cl_reference_doc_type_id': set_doc_type.id,
-                'origin_doc_number': '',
-                'reason': f'CASO {dte_case.case_number_raw}'
-            })
-        
-        # Agregar las demás referencias (si existen)
-        for ref in dte_case.reference_ids:
-            # Buscar el documento referenciado si ya existe
-            referenced_move = self._get_referenced_move(ref.referenced_sii_case_number)
-            
-            reference_values = {
-                'move_id': new_move.id,
-                'l10n_cl_reference_doc_type_id': (referenced_move.l10n_latam_document_type_id.id 
-                                                if referenced_move else False),
-                'origin_doc_number': (referenced_move.l10n_latam_document_number 
-                                    if referenced_move else f"REF-{ref.referenced_sii_case_number}"),
-                'reference_doc_code': ref.reference_code,  # Usar directamente el código de la referencia
-                'reason': ref.reason_raw
-            }
-            references_to_create.append(reference_values)
-        
-        # Crear todas las referencias de una vez
-        references = self.env['l10n_cl.account.invoice.reference'].create(references_to_create)
-        
-        return references
-
-    def _apply_global_discount(self, move, discount_percent):
-        """
-        Aplica un descuento global al documento usando el producto de descuento estándar de Odoo.
-        
-        Args:
-            move: Documento account.move al que aplicar el descuento
-            discount_percent: Porcentaje de descuento a aplicar
-        
-        Returns:
-            El documento modificado
-        """
-        if not move or not discount_percent or discount_percent <= 0:
-            return move
-        
-        # Solo aplicar a líneas afectas (no exentas)
-        affected_lines = move.invoice_line_ids.filtered(lambda l: l.tax_ids and not l.l10n_latam_vat_exempt)
-        
-        if not affected_lines:
-            _logger.warning("No se pudo aplicar descuento global de %s%% al documento %s: no hay líneas afectas", 
-                          discount_percent, move.name)
-            return move
-        
-        # Calcular el monto total de los ítems afectos
-        total_affected = sum(line.price_subtotal for line in affected_lines)
-        
-        # Calcular el monto del descuento
-        discount_amount = total_affected * (discount_percent / 100.0)
-        
-        if discount_amount <= 0:
-            return move
-        
-        # Usar el producto de descuento configurado si está disponible
-        if self.default_discount_product_id:
-            discount_product = self.default_discount_product_id
-        else:
-            # Fallback a búsqueda automática
-            discount_product = self.env['product.product'].search([
-                ('name', '=like', 'Descuento%')
-            ], limit=1)
-            
-            if not discount_product:
-                # Si no existe, usar un producto de servicio genérico
-                discount_product = self.env.ref('product.product_service_01', raise_if_not_found=False)
-                
-                if not discount_product:
-                    # En caso extremo que no exista ninguno de los anteriores
-                    discount_product = self.env['product.product'].create({
-                        'name': 'Descuento',
-                        'type': 'service',
-                        'invoice_policy': 'order',
-                        'purchase_ok': True,
-                        'sale_ok': True,
-                    })
-        
-        # Obtener la cuenta contable para descuentos
-        # Normalmente se usa la misma cuenta que los productos afectos
-        account_id = affected_lines[0].account_id.id if affected_lines else False
-        
-        # Obtener los impuestos de las líneas afectas
-        # El descuento debe llevar los mismos impuestos que los productos afectos
-        tax_ids = [(6, 0, affected_lines[0].tax_ids.ids)] if affected_lines and affected_lines[0].tax_ids else []
-        
-        # Crear la línea de descuento
-        discount_line_vals = {
-            'product_id': discount_product.id,
-            'name': f'Descuento Global {discount_percent}%',
-            'price_unit': -discount_amount,  # Monto negativo
-            'quantity': 1.0,
-            'account_id': account_id,
-            'tax_ids': tax_ids,
-            'move_id': move.id,
-        }
-        
-        # Crear la línea directamente
-        discount_line = self.env['account.move.line'].create(discount_line_vals)
-        
-        # Actualizar totales del documento
-        move._recompute_dynamic_lines()
-        
-        return move
-
-    def _create_move_from_dte_case(self, dte_case):
-        """Crea un registro account.move a partir de un registro l10n_cl_edi.certification.case.dte."""
-        self.ensure_one()
-        dte_case.ensure_one()
-
-        _logger.info("Generando DTE para Caso SII: %s", dte_case.case_number_raw)
-
-        try:
-            # Obtener partner
-            _logger.info("Obteniendo partner para DTE caso %s", dte_case.case_number_raw)
-            partner = self._get_partner_for_dte(dte_case)
-            _logger.info("Partner obtenido: %s (ID: %s)", partner.name if partner else 'None', partner.id if partner else 'None')
-            
-            # Preparar valores del move
-            _logger.info("Preparando valores del move para caso %s", dte_case.case_number_raw)
-            move_vals = self._prepare_move_vals(dte_case, partner)
-            _logger.info("Valores del move preparados: %s", move_vals)
-            
-            # Preparar líneas de factura
-            _logger.info("Preparando líneas de factura para caso %s (items: %d)", dte_case.case_number_raw, len(dte_case.item_ids))
-            invoice_lines_vals = []
-            for i, item in enumerate(dte_case.item_ids):
-                _logger.info("Procesando item %d: %s", i+1, item.name)
-                line_vals = self._prepare_move_line_vals(item, move_vals)
-                invoice_lines_vals.append((0, 0, line_vals))
-                _logger.info("Línea %d preparada: %s", i+1, line_vals)
-            
-            move_vals['invoice_line_ids'] = invoice_lines_vals
-
-            # Crear el documento sin aplicar aún descuentos globales
-            _logger.info("Creando account.move con valores: %s", move_vals)
-            new_move = self.env['account.move'].create(move_vals)
-            _logger.info("Account.move creado exitosamente: %s (ID: %s)", new_move.name, new_move.id)
-            
-            # Preparar referencias entre documentos
-            _logger.info("Preparando referencias para move %s", new_move.name)
-            self._prepare_references_for_move(dte_case, new_move)
-
-            # Para guías de despacho, configurar campos específicos
-            if dte_case.document_type_code == '52':
-                _logger.info("Configurando campos específicos para guía de despacho")
-                new_move.write({
-                    'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(dte_case.dispatch_motive_raw),
-                    'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(dte_case.dispatch_transport_type_raw),
-                })
-            
-            # Para documentos de exportación configurar campos específicos
-            if dte_case.document_type_code in ['110', '111', '112']:
-                _logger.info("Configurando campos específicos para documento de exportación")
-                new_move.write({
-                    # Aquí se agregarían campos específicos para exportación
-                })
-
-            # Aplicar descuento global si corresponde
-            if dte_case.global_discount_percent and dte_case.global_discount_percent > 0:
-                _logger.info("Aplicando descuento global de %s%% al move %s", dte_case.global_discount_percent, new_move.name)
-                self._apply_global_discount(new_move, dte_case.global_discount_percent)
-
-            # Actualizar el caso DTE con la referencia al documento generado
-            _logger.info("Actualizando caso DTE %s con referencia al move generado", dte_case.case_number_raw)
-            dte_case.write({
-                'generated_account_move_id': new_move.id,
-                'generation_status': 'generated',
-                'error_message': False
-            })
-            
-            _logger.info("DTE %s generado exitosamente para Caso SII %s (ID: %s)", new_move.name, dte_case.case_number_raw, new_move.id)
-            return new_move
-            
-        except Exception as e:
-            _logger.error("Error en _create_move_from_dte_case para caso %s: %s", dte_case.case_number_raw, str(e), exc_info=True)
-            raise
-
-    def _map_dispatch_motive_to_code(self, motive_raw):
-        if not motive_raw: return False
-        motive_upper = motive_raw.upper()
-        if 'VENTA' in motive_upper: return '1'
-        if 'COMPRA' in motive_upper: return '2'
-        if 'CONSIGNACION' in motive_upper and 'A' in motive_upper: return '3'
-        if 'CONSIGNACION' in motive_upper and 'DE' in motive_upper: return '4'
-        if 'TRASLADO INTERNO' in motive_upper: return '5'
-        if 'OTROS TRASLADOS NO VENTA' in motive_upper: return '6'
-        if 'GUIA DE DEVOLUCION' in motive_upper: return '7'
-        if 'TRASLADO PARA EXPORTACION' in motive_upper: return '8'
-        if 'VENTA PARA EXPORTACION' in motive_upper: return '9'
-        return False
-
-    def _map_dispatch_transport_to_code(self, transport_raw):
-        if not transport_raw: return False
-        transport_upper = transport_raw.upper()
-        if 'EMISOR' in transport_upper: return '1'
-        if 'CLIENTE' in transport_upper and 'CUENTA' in transport_upper : return '2'
-        if 'TERCEROS' in transport_upper: return '3'
-        return False
 
     def action_view_cafs(self):
         self.ensure_one()
@@ -1423,4 +1048,13 @@ class CertificationProcess(models.Model):
 
     def action_check_certification_status(self):
         """Acción para verificar el estado desde la interfaz con notificaciones."""
-        return self.with_context(show_notification=True).check_certification_status()
+        self.check_certification_status()
+        
+        # Retornar acción que recarga la vista actual
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.process',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+        }
