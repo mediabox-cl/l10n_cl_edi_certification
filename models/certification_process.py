@@ -472,108 +472,44 @@ class CertificationProcess(models.Model):
             El partner configurado para certificación
         """
         self.ensure_one()
-        company = self.company_id
         
         # RUT del SII: 60.803.000-K (requisito obligatorio para certificación)
-        sii_rut = '60803000'
-        sii_dv = 'K'
         target_name = 'The John Doe\'s Foundation'
-        target_vat = f'CL{sii_rut}{sii_dv}'
+        target_vat = 'CL60803000K'
         
-        _logger.info(f"Buscando/creando partner de certificación con RUT: {target_vat}")
-        
-        # Buscar el tipo de identificación RUT
-        rut_identification_type = self.env['l10n_latam.identification.type'].search([
-            ('name', '=', 'RUT'),
-            ('country_id.code', '=', 'CL')
+        # Buscar partner existente con el mismo nombre Y RUT
+        existing_partner = self.env['res.partner'].search([
+            ('name', '=', target_name),
+            ('vat', '=', target_vat)
         ], limit=1)
         
-        if not rut_identification_type:
-            # Fallback: buscar por cualquier criterio que contenga RUT
-            rut_identification_type = self.env['l10n_latam.identification.type'].search([
-                ('name', 'ilike', 'RUT'),
-                ('country_id.code', '=', 'CL')
-            ], limit=1)
+        if existing_partner:
+            _logger.info(f"Partner existente encontrado: {existing_partner.name} (ID: {existing_partner.id})")
+            return existing_partner
         
-        # 1. PRIMERA BÚSQUEDA: Por RUT exacto (más importante)
-        partners_with_rut = self.env['res.partner'].search([
-            ('vat', '=', target_vat),
-            ('company_id', 'in', [company.id, False])
-        ])
-        
-        _logger.info(f"Partners encontrados con RUT {target_vat}: {len(partners_with_rut)}")
-        
-        if partners_with_rut:
-            # 2. VERIFICAR SI ALGUNO TIENE EL NOMBRE CORRECTO
-            exact_match = partners_with_rut.filtered(lambda p: p.name == target_name)
-            
-            if exact_match:
-                _logger.info(f"Partner exacto encontrado (RUT + nombre): {exact_match[0].name} (ID: {exact_match[0].id})")
-                certification_partner = exact_match[0]
-            else:
-                # 3. USAR EL PRIMER PARTNER CON EL RUT Y ACTUALIZAR SU NOMBRE
-                certification_partner = partners_with_rut[0]
-                _logger.info(f"Partner con RUT encontrado pero nombre diferente: '{certification_partner.name}' -> '{target_name}' (ID: {certification_partner.id})")
-            
-            # Asegurar que esté correctamente configurado
-            update_vals = {
-                'name': target_name,  # Asegurar nombre correcto
-                'is_company': True,
-                'customer_rank': 1,
-                'supplier_rank': 0,
-                'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
-                'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
-                'company_id': company.id,
-            }
-            
-            # Agregar tipo de identificación si se encontró
-            if rut_identification_type:
-                update_vals['l10n_latam_identification_type_id'] = rut_identification_type.id
-            
-            certification_partner.write(update_vals)
-            _logger.info(f"Partner actualizado correctamente: {certification_partner.name} (ID: {certification_partner.id})")
-            return certification_partner
-        
-        # 4. NO EXISTE NINGÚN PARTNER CON ESE RUT - CREAR UNO NUEVO
-        _logger.info(f"No se encontró ningún partner con RUT {target_vat}. Creando uno nuevo...")
-        
-        # Buscar región metropolitana (opcional)
-        region_metropolitana = self.env['res.country.state'].search([
-            ('country_id.code', '=', 'CL'),
-            ('code', '=', 'RM')
-        ], limit=1)
+        # No existe, crear uno nuevo
+        _logger.info(f"Creando nuevo partner con nombre: {target_name} y RUT: {target_vat}")
         
         vals = {
             'name': target_name,
+            'vat': target_vat,
             'is_company': True,
             'customer_rank': 1,
             'supplier_rank': 0,
-            'vat': target_vat,
             'country_id': self.env.ref('base.cl').id,
-            'state_id': region_metropolitana.id if region_metropolitana else False,
             'street': 'Av. Ficticia 123, Oficina 456',
             'city': 'Santiago',
             'zip': '7500000',
             'phone': '+56 2 2345 6789',
             'email': 'contacto@johndoe.foundation',
             'website': 'https://johndoe.foundation',
-            'company_id': company.id,
-            # Campos específicos de Chile
-            'l10n_cl_sii_taxpayer_type': '1',  # Contribuyente de 1ra categoría
+            'l10n_cl_sii_taxpayer_type': '1',
             'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
             'l10n_cl_activity_description': 'Servicios de consultoría y desarrollo tecnológico',
         }
         
-        # Agregar tipo de identificación si se encontró
-        if rut_identification_type:
-            vals['l10n_latam_identification_type_id'] = rut_identification_type.id
-        else:
-            _logger.warning("No se encontró el tipo de identificación RUT para Chile. El partner se creará sin este campo.")
-        
-        # Crear el partner
         certification_partner = self.env['res.partner'].create(vals)
-        _logger.info("Creado partner de certificación con RUT del SII: %s (ID: %s)", 
-                     certification_partner.name, certification_partner.id)
+        _logger.info(f"Partner creado: {certification_partner.name} (ID: {certification_partner.id})")
         
         return certification_partner
     
