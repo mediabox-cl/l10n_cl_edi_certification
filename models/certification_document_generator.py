@@ -37,36 +37,36 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def generate_document(self):
         """Generate invoice from DTE case using sale.order flow"""
-        _logger.info(f"=== INICIANDO GENERACIÓN DE DOCUMENTO PARA CASO {self.id} ===")
+        _logger.info(f"=== INICIANDO GENERACIÓN DE DOCUMENTO PARA CASO {self.dte_case_id.id} ===")
         
         # **NUEVA VERIFICACIÓN: Comprobar si ya existe una factura vinculada**
-        if self.generated_account_move_id:
-            _logger.info(f"Caso {self.id} ya tiene factura vinculada: {self.generated_account_move_id.name}")
-            if self.generated_account_move_id.state == 'draft':
+        if self.dte_case_id.generated_account_move_id:
+            _logger.info(f"Caso {self.dte_case_id.id} ya tiene factura vinculada: {self.dte_case_id.generated_account_move_id.name}")
+            if self.dte_case_id.generated_account_move_id.state == 'draft':
                 _logger.info("La factura existente está en borrador, se puede continuar editando")
                 return {
                     'type': 'ir.actions.act_window',
                     'name': 'Factura Existente',
                     'res_model': 'account.move',
-                    'res_id': self.generated_account_move_id.id,
+                    'res_id': self.dte_case_id.generated_account_move_id.id,
                     'view_mode': 'form',
                     'target': 'current',
                 }
             else:
-                _logger.info(f"La factura existente está en estado: {self.generated_account_move_id.state}")
-                raise UserError(f"Este caso DTE ya tiene una factura generada: {self.generated_account_move_id.name} (Estado: {self.generated_account_move_id.state})")
+                _logger.info(f"La factura existente está en estado: {self.dte_case_id.generated_account_move_id.state}")
+                raise UserError(f"Este caso DTE ya tiene una factura generada: {self.dte_case_id.generated_account_move_id.name} (Estado: {self.dte_case_id.generated_account_move_id.state})")
         
         # **NUEVA VERIFICACIÓN: Buscar facturas duplicadas por referencia**
         existing_moves = self.env['account.move'].search([
-            ('ref', '=', f'Certificación DTE - Caso {self.id}'),
+            ('ref', '=', f'Certificación DTE - Caso {self.dte_case_id.id}'),
             ('state', '!=', 'cancel')
         ])
         if existing_moves:
-            _logger.warning(f"Encontradas facturas existentes con referencia del caso {self.id}: {existing_moves.mapped('name')}")
+            _logger.warning(f"Encontradas facturas existentes con referencia del caso {self.dte_case_id.id}: {existing_moves.mapped('name')}")
             # Vincular la primera factura encontrada si no hay vinculación
-            if not self.generated_account_move_id and existing_moves:
-                self.generated_account_move_id = existing_moves[0]
-                _logger.info(f"Vinculada factura existente {existing_moves[0].name} al caso {self.id}")
+            if not self.dte_case_id.generated_account_move_id and existing_moves:
+                self.dte_case_id.generated_account_move_id = existing_moves[0]
+                _logger.info(f"Vinculada factura existente {existing_moves[0].name} al caso {self.dte_case_id.id}")
                 return {
                     'type': 'ir.actions.act_window',
                     'name': 'Factura Recuperada',
@@ -97,19 +97,19 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
             
             # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
-            self.generated_account_move_id = invoice.id
-            self.state = 'generated'
-            _logger.info(f"=== CASO {self.id} VINCULADO A FACTURA {invoice.name} ===")
+            self.dte_case_id.generated_account_move_id = invoice.id
+            self.dte_case_id.generation_status = 'generated'
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
             
             # Agregar mensaje en el caso DTE
-            self.message_post(
+            self.dte_case_id.message_post(
                 body=f"Factura generada exitosamente: <a href='/web#id={invoice.id}&model=account.move'>{invoice.name}</a>",
                 subject="Factura Generada"
             )
             
             # Agregar mensaje en la factura
             invoice.message_post(
-                body=f"Generada desde caso de certificación DTE: <a href='/web#id={self.id}&model=l10n_cl_edi.certification.case.dte'>Caso {self.id}</a>",
+                body=f"Generada desde caso de certificación DTE: <a href='/web#id={self.dte_case_id.id}&model=l10n_cl_edi.certification.case.dte'>Caso {self.dte_case_id.id}</a>",
                 subject="Origen: Certificación DTE"
             )
             
@@ -123,9 +123,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             }
             
         except Exception as e:
-            _logger.error(f"Error generando documento para caso {self.id}: {str(e)}")
+            _logger.error(f"Error generando documento para caso {self.dte_case_id.id}: {str(e)}")
             # **MEJORAR MANEJO DE ERRORES: No cambiar estado si hay error**
-            self.message_post(
+            self.dte_case_id.message_post(
                 body=f"Error al generar factura: {str(e)}",
                 subject="Error en Generación"
             )
@@ -156,11 +156,11 @@ class CertificationDocumentGenerator(models.TransientModel):
             'company_id': self.env.company.id,
             'currency_id': self.env.company.currency_id.id,
             'pricelist_id': partner.property_product_pricelist.id or self.env.company.currency_id.id,
-            'l10n_cl_edi_certification_id': self.id,  # Referencia al caso de certificación
-            'note': f'Orden generada desde caso de certificación DTE {self.id}',
+            'l10n_cl_edi_certification_id': self.dte_case_id.id,  # Referencia al caso de certificación
+            'note': f'Orden generada desde caso de certificación DTE {self.dte_case_id.id}',
             'order_line': [(0, 0, {
                 'product_id': product.id,
-                'name': f'Certificación DTE - Caso {self.id}',
+                'name': f'Certificación DTE - Caso {self.dte_case_id.id}',
                 'product_uom_qty': 1,
                 'price_unit': 1000.0,  # Precio base para certificación
                 'product_uom': product.uom_id.id,
@@ -178,7 +178,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         invoice = invoices[0]
         
         # Agregar referencia al caso DTE
-        invoice.ref = f'Certificación DTE - Caso {self.id}'
+        invoice.ref = f'Certificación DTE - Caso {self.dte_case_id.id}'
         
         return invoice
 

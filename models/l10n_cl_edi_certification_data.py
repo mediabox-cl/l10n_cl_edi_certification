@@ -17,6 +17,16 @@ class CertificationParsedSet(models.Model):
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
 
+    # Partner asociado (del proceso de certificación)
+    partner_id = fields.Many2one(
+        'res.partner',
+        string='Cliente',
+        related='certification_process_id.certification_partner_id',
+        store=True,
+        readonly=True,
+        help='Partner asociado al proceso de certificación'
+    )
+
     name = fields.Char(string='Nombre del Set', compute='_compute_name', store=True)
     set_type_raw = fields.Char(string='Tipo de Set (Raw)')
     set_type_normalized = fields.Selection([

@@ -15,7 +15,7 @@ class CertificationCaseDte(models.Model):
     case_number_raw = fields.Char(string='Número de Caso (Raw)', required=True)
     case_number_display = fields.Char(string='Número de Caso', compute='_compute_case_number_display', store=True)
     document_type_code = fields.Char(string='Código Tipo Documento', required=True)
-    document_type_name = fields.Char(string='Nombre Tipo Documento')
+    document_type_name = fields.Char(string='Nombre Tipo Documento', compute='_compute_document_type_name', store=True)
     
     # Relaciones
     parsed_set_id = fields.Many2one(
@@ -24,7 +24,13 @@ class CertificationCaseDte(models.Model):
         required=True,
         ondelete='cascade'
     )
-    partner_id = fields.Many2one('res.partner', string='Cliente', required=True)
+    partner_id = fields.Many2one(
+        'res.partner', 
+        string='Cliente',
+        compute='_compute_partner_id',
+        store=True,
+        help='Partner asociado al proceso de certificación'
+    )
     
     # Estado de generación
     generation_status = fields.Selection([
@@ -59,6 +65,31 @@ class CertificationCaseDte(models.Model):
                 record.case_number_display = f"Caso {record.case_number_raw}"
             else:
                 record.case_number_display = "Sin número"
+
+    @api.depends('document_type_code')
+    def _compute_document_type_name(self):
+        for record in self:
+            if record.document_type_code:
+                # Buscar el tipo de documento en Odoo
+                doc_type = self.env['l10n_latam.document.type'].search([
+                    ('code', '=', record.document_type_code),
+                    ('country_id.code', '=', 'CL')
+                ], limit=1)
+                
+                if doc_type:
+                    record.document_type_name = doc_type.name
+                else:
+                    record.document_type_name = f"Tipo {record.document_type_code}"
+            else:
+                record.document_type_name = "Sin tipo"
+
+    @api.depends('parsed_set_id')
+    def _compute_partner_id(self):
+        for record in self:
+            if record.parsed_set_id:
+                record.partner_id = record.parsed_set_id.partner_id
+            else:
+                record.partner_id = False
 
     def action_reset_case(self):
         """
