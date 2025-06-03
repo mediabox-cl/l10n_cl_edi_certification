@@ -413,19 +413,10 @@ class CertificationProcess(models.Model):
             return certification_journal
         
         # 2. Si no existe un diario específico, crear uno nuevo
-        sequence = self.env['ir.sequence'].create({
-            'name': 'Diario de Certificación SII',
-            'padding': 6,
-            'code': 'account.journal.certification.sequence',
-            'company_id': company.id,
-        })
-        
         vals = {
             'name': 'Certificación SII',
             'code': 'CERT',
             'type': 'sale',
-            'sequence': 10,
-            'sequence_id': sequence.id,
             'company_id': company.id,
             'l10n_latam_use_documents': True,
             'l10n_cl_point_of_sale_type': 'online',
