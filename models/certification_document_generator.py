@@ -146,7 +146,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             'company_id': self.env.company.id,
             'currency_id': self.env.company.currency_id.id,
             'pricelist_id': partner.property_product_pricelist.id or self.env.company.currency_id.id,
-            'l10n_cl_edi_certification_id': self.dte_case_id.id,  # Referencia al caso de certificación
+            'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Referencia al proceso de certificación
             'note': f'Orden generada desde caso de certificación DTE {self.dte_case_id.id}',
             # NO crear líneas genéricas aquí - se crearán desde los items del DTE
         }

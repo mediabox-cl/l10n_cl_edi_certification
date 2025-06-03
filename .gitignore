@@ -2,6 +2,7 @@
 # Python
 reference_modules/
 examples/
+generatedDTEs/
 __pycache__/
 *.py[cod]
 *$py.class
