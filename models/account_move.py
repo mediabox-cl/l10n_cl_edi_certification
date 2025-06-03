@@ -16,6 +16,8 @@ class AccountMove(models.Model):
     def _l10n_cl_create_dte_envelope(self, receiver_rut='60803000-K'):
         """
         Override para corregir problemas de encoding en XML DTE.
+        Aplica correcciones selectivas: entidades HTML para productos, 
+        normalización para campos específicos.
         """
         # Llamar al método original
         dte_signed, file_name = super()._l10n_cl_create_dte_envelope(receiver_rut)
@@ -24,7 +26,7 @@ class AccountMove(models.Model):
         if hasattr(self, 'l10n_cl_edi_certification_id') or self._context.get('l10n_cl_edi_certification'):
             _logger.info("Aplicando correcciones para certificación DTE")
             
-            # Corregir caracteres especiales
+            # Corregir caracteres especiales EN LÍNEAS DE PRODUCTOS (mantener entidades HTML)
             dte_signed = self._fix_encoding_issues_for_dte(dte_signed)
             
             # Corregir longitudes de campos
@@ -34,8 +36,9 @@ class AccountMove(models.Model):
 
     def _fix_encoding_issues_for_dte(self, xml_content):
         """
-        Corrige problemas de encoding en el XML DTE.
-        Convierte caracteres especiales a entidades HTML estándar.
+        Corrige problemas de encoding en el XML DTE de forma selectiva:
+        - Entidades HTML para líneas de productos (NmbItem, DscItem)
+        - Normalización para otros campos (GiroEmis, RznSoc, etc.)
         
         Las entidades HTML son la forma correcta de manejar caracteres especiales
         en XML según el estándar, y el SII las procesa correctamente.
@@ -62,16 +65,55 @@ class AccountMove(models.Model):
             '°': '&deg;',
         }
         
-        # Aplicar reemplazos
+        # Campos donde aplicar entidades HTML (principalmente productos)
+        html_entity_fields = ['NmbItem', 'DscItem']
+        
+        # Aplicar entidades HTML solo en campos de productos
         original_content = xml_content
-        for char, replacement in char_replacements.items():
-            xml_content = xml_content.replace(char, replacement)
+        for field in html_entity_fields:
+            xml_content = self._apply_html_entities_to_field(xml_content, field, char_replacements)
+        
+        # Normalizar campos específicos (giros, razones sociales)
+        normalization_fields = ['GiroEmis', 'GiroRecep', 'RznSoc', 'RznSocRecep']
+        for field in normalization_fields:
+            xml_content = self._normalize_field_content(xml_content, field)
         
         # Log solo si hubo cambios
         if xml_content != original_content:
-            _logger.info("✓ Caracteres especiales convertidos a entidades HTML estándar")
+            _logger.info("✓ Entidades HTML aplicadas a campos de productos y normalización aplicada a otros campos")
             
         return xml_content
+    
+    def _apply_html_entities_to_field(self, xml_content, field_name, char_replacements):
+        """
+        Aplica entidades HTML a un campo específico del XML.
+        """
+        import re
+        
+        pattern = f'<{field_name}>(.*?)</{field_name}>'
+        
+        def replace_chars_in_match(match):
+            content = match.group(1)
+            for char, replacement in char_replacements.items():
+                content = content.replace(char, replacement)
+            return f'<{field_name}>{content}</{field_name}>'
+        
+        return re.sub(pattern, replace_chars_in_match, xml_content, flags=re.DOTALL)
+    
+    def _normalize_field_content(self, xml_content, field_name):
+        """
+        Normaliza el contenido de un campo específico del XML usando normalize_giro_for_sii.
+        """
+        import re
+        
+        pattern = f'<{field_name}>(.*?)</{field_name}>'
+        
+        def normalize_match(match):
+            content = match.group(1)
+            normalized_content = self.normalize_giro_for_sii(content)
+            return f'<{field_name}>{normalized_content}</{field_name}>'
+        
+        return re.sub(pattern, normalize_match, xml_content, flags=re.DOTALL)
 
     def _fix_field_lengths_for_dte(self, xml_content):
         """
@@ -157,7 +199,7 @@ class AccountMove(models.Model):
     def normalize_giro_for_sii(self, giro_text):
         """
         Normaliza un giro para cumplir con los estándares del SII:
-        - Convierte a mayúsculas
+        - MANTIENE mayúsculas y minúsculas originales
         - Elimina tildes y caracteres especiales
         - Cambia Ñ por N
         - Limita a 40 caracteres máximo
@@ -166,7 +208,7 @@ class AccountMove(models.Model):
         if not giro_text:
             return giro_text
         
-        # Mapeo de caracteres especiales a caracteres básicos
+        # Mapeo de caracteres especiales a caracteres básicos (MANTENIENDO CASO)
         char_map = {
             'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a',
             'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e',
@@ -187,15 +229,15 @@ class AccountMove(models.Model):
         # Aplicar normalizaciones
         normalized = giro_text
         
-        # 1. Reemplazar caracteres especiales
+        # 1. Reemplazar caracteres especiales (MANTENIENDO MAYÚSCULAS/MINÚSCULAS)
         for special_char, basic_char in char_map.items():
             normalized = normalized.replace(special_char, basic_char)
         
-        # 2. Convertir a mayúsculas
-        normalized = normalized.upper()
+        # 2. NO convertir a mayúsculas - mantener formato original
         
         # 3. Limpiar caracteres no alfanuméricos (excepto espacios y puntos)
-        normalized = re.sub(r'[^A-Z0-9\s\.]', '', normalized)
+        # Permitir mayúsculas, minúsculas, números, espacios y puntos
+        normalized = re.sub(r'[^A-Za-z0-9\s\.]', '', normalized)
         
         # 4. Limpiar espacios múltiples
         normalized = re.sub(r'\s+', ' ', normalized).strip()
@@ -213,7 +255,7 @@ class AccountMove(models.Model):
                     break
             
             normalized = ' '.join(truncated_words)
-            if len(normalized) < len(giro_text.upper()):
+            if len(normalized) < len(giro_text):
                 normalized += '...'
         
         return normalized

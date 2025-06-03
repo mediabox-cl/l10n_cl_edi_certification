@@ -488,7 +488,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             references_to_create.append({
                 'move_id': invoice.id,
                 'l10n_cl_reference_doc_type_id': set_doc_type.id,
-                'origin_doc_number': '',
+                'origin_doc_number': self.dte_case_id.case_number_raw,
                 'reason': f'CASO {self.dte_case_id.case_number_raw}',
                 'date': fields.Date.context_today(self),
             })
