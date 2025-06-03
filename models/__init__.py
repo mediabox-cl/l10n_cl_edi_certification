@@ -7,3 +7,4 @@ from . import certification_document_generator
 from . import account_move
 from . import sale_order
 from . import l10n_cl_edi_util
+from . import res_partner
