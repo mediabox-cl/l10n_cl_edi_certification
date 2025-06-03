@@ -96,6 +96,10 @@ class CertificationDocumentGenerator(models.TransientModel):
             self._configure_dte_fields_on_invoice(invoice)
             _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
             
+            # Crear referencias de documentos
+            self._create_document_references_on_invoice(invoice)
+            _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
+            
             # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
             self.dte_case_id.generated_account_move_id = invoice.id
             self.dte_case_id.generation_status = 'generated'
@@ -437,6 +441,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         """
         self.ensure_one()
         
+        _logger.info(f"=== CREANDO REFERENCIAS PARA FACTURA {invoice.name} ===")
+        
         references_to_create = []
         
         # Agregar la referencia obligatoria al SET
@@ -446,6 +452,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         ], limit=1)
         
         if set_doc_type:
+            _logger.info(f"Creando referencia obligatoria al SET: {set_doc_type.name}")
             references_to_create.append({
                 'move_id': invoice.id,
                 'l10n_cl_reference_doc_type_id': set_doc_type.id,
@@ -453,11 +460,23 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'reason': f'CASO {self.dte_case_id.case_number_raw}',
                 'date': fields.Date.context_today(self),
             })
+        else:
+            _logger.warning("No se encontró tipo de documento SET")
+        
+        # Verificar si hay referencias en el caso DTE
+        _logger.info(f"Caso DTE {self.dte_case_id.id} tiene {len(self.dte_case_id.reference_ids)} referencias")
         
         # Agregar las demás referencias del caso DTE
         for ref in self.dte_case_id.reference_ids:
+            _logger.info(f"Procesando referencia: {ref.reference_document_text_raw} -> {ref.referenced_sii_case_number}")
+            
             # Buscar el documento referenciado si existe
             referenced_move = self._get_referenced_move(ref.referenced_sii_case_number)
+            
+            if referenced_move:
+                _logger.info(f"Documento referenciado encontrado: {referenced_move.name}")
+            else:
+                _logger.info(f"Documento referenciado NO encontrado para caso: {ref.referenced_sii_case_number}")
             
             reference_values = {
                 'move_id': invoice.id,
@@ -470,10 +489,19 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'date': fields.Date.context_today(self),
             }
             references_to_create.append(reference_values)
+            _logger.info(f"Referencia agregada: {reference_values}")
         
         # Crear todas las referencias
         if references_to_create:
-            self.env['l10n_cl.account.invoice.reference'].create(references_to_create)
+            _logger.info(f"Creando {len(references_to_create)} referencias")
+            try:
+                created_refs = self.env['l10n_cl.account.invoice.reference'].create(references_to_create)
+                _logger.info(f"✓ Referencias creadas exitosamente: {len(created_refs)} registros")
+            except Exception as e:
+                _logger.error(f"❌ Error creando referencias: {str(e)}")
+                raise
+        else:
+            _logger.warning("No hay referencias para crear")
 
     def _get_referenced_move(self, referenced_sii_case_number):
         """Busca un documento generado basado en el número de caso SII de la referencia."""

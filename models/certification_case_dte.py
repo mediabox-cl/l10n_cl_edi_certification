@@ -153,19 +153,13 @@ class CertificationCaseDte(models.Model):
                 # Si la factura está validada o cancelada, solo desvincular
                 self.generated_account_move_id = False
                 self.generation_status = 'pending'
-                self.message_post(
-                    body=f"Caso reseteado. Factura {invoice.name} desvinculada (estado: {invoice.state})",
-                    subject="Caso Reseteado"
-                )
+                _logger.info(f"Caso {self.id} reseteado. Factura {invoice.name} desvinculada (estado: {invoice.state})")
             else:
                 raise UserError(f"No se puede resetear: la factura {invoice.name} está en estado {invoice.state}")
         else:
             # Si no hay factura vinculada, simplemente resetear estado
             self.generation_status = 'pending'
-            self.message_post(
-                body="Caso reseteado a estado 'pending'",
-                subject="Caso Reseteado"
-            )
+            _logger.info(f"Caso {self.id} reseteado a estado 'pending'")
         
         return True
 
