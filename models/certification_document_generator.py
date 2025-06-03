@@ -135,9 +135,6 @@ class CertificationDocumentGenerator(models.TransientModel):
         """Create sale.order from DTE case"""
         partner = self.dte_case_id.partner_id
         
-        # Buscar o crear producto para certificación
-        product = self._get_or_create_certification_product()
-        
         sale_order_vals = {
             'partner_id': partner.id,
             'partner_invoice_id': partner.id,
@@ -147,16 +144,15 @@ class CertificationDocumentGenerator(models.TransientModel):
             'pricelist_id': partner.property_product_pricelist.id or self.env.company.currency_id.id,
             'l10n_cl_edi_certification_id': self.dte_case_id.id,  # Referencia al caso de certificación
             'note': f'Orden generada desde caso de certificación DTE {self.dte_case_id.id}',
-            'order_line': [(0, 0, {
-                'product_id': product.id,
-                'name': f'Certificación DTE - Caso {self.dte_case_id.id}',
-                'product_uom_qty': 1,
-                'price_unit': 1000.0,  # Precio base para certificación
-                'product_uom': product.uom_id.id,
-            })]
+            # NO crear líneas genéricas aquí - se crearán desde los items del DTE
         }
         
-        return self.env['sale.order'].create(sale_order_vals)
+        sale_order = self.env['sale.order'].create(sale_order_vals)
+        
+        # Crear las líneas reales basadas en los items del DTE
+        self._create_sale_order_lines(sale_order)
+        
+        return sale_order
 
     def _create_invoice_from_sale_order(self, sale_order):
         """Create invoice from sale.order"""
@@ -170,27 +166,6 @@ class CertificationDocumentGenerator(models.TransientModel):
         invoice.ref = f'Certificación DTE - Caso {self.dte_case_id.id}'
         
         return invoice
-
-    def _get_or_create_certification_product(self):
-        """Get or create product for certification"""
-        product = self.env['product.product'].search([
-            ('default_code', '=', 'CERT_DTE'),
-            ('company_id', 'in', [False, self.env.company.id])
-        ], limit=1)
-        
-        if not product:
-            product = self.env['product.product'].create({
-                'name': 'Certificación DTE',
-                'default_code': 'CERT_DTE',
-                'type': 'service',
-                'list_price': 1000.0,
-                'standard_price': 1000.0,
-                'sale_ok': True,
-                'purchase_ok': False,
-                'company_id': False,  # Disponible para todas las compañías
-            })
-        
-        return product
 
     def _create_sale_order_lines(self, sale_order):
         """
