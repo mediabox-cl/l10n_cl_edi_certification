@@ -67,6 +67,22 @@ class CertificationCaseDte(models.Model):
         readonly=True
     )
     
+    # Campo computado para mostrar estado completo
+    status_display = fields.Char(
+        string='Estado',
+        compute='_compute_status_display',
+        store=False,
+        help='Estado completo del caso DTE'
+    )
+    
+    # Campo computado para mostrar información de la factura
+    invoice_info = fields.Char(
+        string='Factura',
+        compute='_compute_invoice_info',
+        store=False,
+        help='Información de la factura generada'
+    )
+    
     # Campos adicionales para diferentes tipos de documentos
     global_discount_percent = fields.Float(string='Descuento Global (%)')
     
@@ -123,6 +139,65 @@ class CertificationCaseDte(models.Model):
                 record.partner_id = record.parsed_set_id.partner_id
             else:
                 record.partner_id = False
+
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """
+        Override search_read to automatically sync DTE case statuses when loading data.
+        """
+        # Ejecutar búsqueda estándar
+        result = super().search_read(domain, fields, offset, limit, order)
+        
+        # Sincronizar estados automáticamente
+        try:
+            # Obtener IDs de los registros cargados
+            record_ids = [r['id'] for r in result if 'id' in r]
+            if record_ids:
+                records = self.browse(record_ids)
+                records._sync_generation_status()
+        except Exception as e:
+            _logger.warning(f"Error sincronizando estados DTE: {str(e)}")
+        
+        return result
+
+    def _sync_generation_status(self):
+        """
+        Sincroniza el estado de generación de los casos DTE con las facturas existentes.
+        """
+        for record in self:
+            try:
+                # Verificar si hay factura vinculada
+                if record.generated_account_move_id:
+                    # Si hay factura vinculada, verificar que exista y esté activa
+                    if record.generated_account_move_id.exists() and record.generated_account_move_id.state != 'cancel':
+                        # Factura existe y está activa
+                        if record.generation_status != 'generated':
+                            record.generation_status = 'generated'
+                            _logger.info(f"Sincronizado caso {record.id}: estado → 'generated'")
+                    else:
+                        # Factura no existe o está cancelada, desvincular
+                        record.generated_account_move_id = False
+                        record.generation_status = 'pending'
+                        _logger.info(f"Sincronizado caso {record.id}: factura inexistente, estado → 'pending'")
+                else:
+                    # No hay factura vinculada, buscar si existe una factura relacionada
+                    potential_invoice = self.env['account.move'].search([
+                        ('ref', '=', f'Certificación DTE - Caso {record.id}'),
+                        ('state', '!=', 'cancel')
+                    ], limit=1)
+                    
+                    if potential_invoice:
+                        # Encontrada factura relacionada, vincular
+                        record.generated_account_move_id = potential_invoice
+                        record.generation_status = 'generated'
+                        _logger.info(f"Sincronizado caso {record.id}: factura encontrada {potential_invoice.name}, estado → 'generated'")
+                    else:
+                        # No hay factura relacionada
+                        if record.generation_status == 'generated':
+                            record.generation_status = 'pending'
+                            _logger.info(f"Sincronizado caso {record.id}: sin factura, estado → 'pending'")
+            except Exception as e:
+                _logger.warning(f"Error sincronizando caso {record.id}: {str(e)}")
 
     def action_reset_case(self):
         """
@@ -190,3 +265,21 @@ class CertificationCaseDte(models.Model):
         })
         
         return generator.generate_document() 
+
+    @api.depends('generation_status')
+    def _compute_status_display(self):
+        for record in self:
+            if record.generation_status == 'pending':
+                record.status_display = 'Pendiente'
+            elif record.generation_status == 'generated':
+                record.status_display = 'Generado'
+            else:
+                record.status_display = 'Error'
+
+    @api.depends('generated_account_move_id')
+    def _compute_invoice_info(self):
+        for record in self:
+            if record.generated_account_move_id:
+                record.invoice_info = f"{record.generated_account_move_id.name} ({record.generated_account_move_id.state})"
+            else:
+                record.invoice_info = 'Sin factura' 

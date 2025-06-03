@@ -203,6 +203,18 @@ class CertificationProcess(models.Model):
         # Asegurar que solo haya un registro por compañía
         res = super(CertificationProcess, self).default_get(fields_list)
         res['company_id'] = self.env.company.id
+        
+        # Verificar si ya existe un registro para esta compañía
+        existing_record = self.search([('company_id', '=', self.env.company.id)], limit=1)
+        if existing_record:
+            # Si existe, sincronizar automáticamente
+            try:
+                existing_record._sync_all_dte_cases()
+                existing_record.check_certification_status()
+                _logger.info(f"Estado sincronizado en default_get para proceso {existing_record.id}")
+            except Exception as e:
+                _logger.warning(f"Error en sincronización default_get: {str(e)}")
+        
         return res
         
     def open(self):
@@ -216,6 +228,9 @@ class CertificationProcess(models.Model):
         try:
             # Recuperar relaciones perdidas
             self._recover_lost_relationships()
+            
+            # Sincronizar estados de casos DTE
+            self._sync_all_dte_cases()
             
             # Verificar estado
             result = self.check_certification_status()
@@ -231,7 +246,39 @@ class CertificationProcess(models.Model):
             'res_id': self.id,
             'target': 'current',
         }
-    
+
+    def read(self, fields=None, load='_classic_read'):
+        """
+        Override read method to automatically sync status when loading form data.
+        """
+        result = super().read(fields, load)
+        
+        # Solo ejecutar sincronización si se está leyendo un registro específico
+        if len(self) == 1:
+            try:
+                self._sync_all_dte_cases()
+                self.check_certification_status()
+                _logger.info(f"Estado sincronizado automáticamente para proceso {self.id}")
+            except Exception as e:
+                _logger.warning(f"Error en sincronización automática: {str(e)}")
+        
+        return result
+
+    def _sync_all_dte_cases(self):
+        """
+        Sincroniza todos los casos DTE del proceso de certificación.
+        """
+        self.ensure_one()
+        
+        # Obtener todos los casos DTE del proceso
+        all_dte_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.id)
+        ])
+        
+        if all_dte_cases:
+            _logger.info(f"Sincronizando {len(all_dte_cases)} casos DTE del proceso {self.id}")
+            all_dte_cases._sync_generation_status()
+        
     def _compute_caf_count(self):
         for record in self:
             record.caf_count = self.env['l10n_cl.dte.caf'].search_count([
