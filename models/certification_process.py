@@ -433,8 +433,7 @@ class CertificationProcess(models.Model):
         
         # Buscar cuenta de ingresos para asignar al diario
         income_account = self.env['account.account'].search([
-            ('company_id', '=', company.id),
-            ('account_type', '=like', 'income%'),
+            ('account_type', 'in', ['income', 'income_other']),
         ], limit=1)
         
         if income_account:
