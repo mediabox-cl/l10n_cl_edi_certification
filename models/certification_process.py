@@ -16,7 +16,8 @@ class CertificationProcess(models.Model):
     company_id = fields.Many2one('res.company', string='Empresa', required=True, default=lambda self: self.env.company)
     state = fields.Selection([
         ('preparation', 'Preparación'),
-        ('in_progress', 'En Progreso'),
+        ('configuration', 'Configuración'),
+        ('generation', 'Generación'),
         ('completed', 'Completado'),
         ('error', 'Error')
     ], string='Estado', default='preparation', track_visibility='onchange')
@@ -374,13 +375,10 @@ class CertificationProcess(models.Model):
         # 5. Verificar estado automáticamente (no forzar estado)
         self.check_certification_status()
         
-        # 6. Retornar acción que recarga la vista actual
+        # 6. Recargar la vista
         return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'l10n_cl_edi.certification.process',
-            'view_mode': 'form',
-            'res_id': self.id,
-            'target': 'current',
+            'type': 'ir.actions.client',
+            'tag': 'reload',
         }
         
     def _create_certification_journal(self):
