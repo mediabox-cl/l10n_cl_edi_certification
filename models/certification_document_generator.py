@@ -101,17 +101,8 @@ class CertificationDocumentGenerator(models.TransientModel):
             self.dte_case_id.generation_status = 'generated'
             _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
             
-            # Agregar mensaje en el caso DTE
-            self.dte_case_id.message_post(
-                body=f"Factura generada exitosamente: <a href='/web#id={invoice.id}&model=account.move'>{invoice.name}</a>",
-                subject="Factura Generada"
-            )
-            
-            # Agregar mensaje en la factura
-            invoice.message_post(
-                body=f"Generada desde caso de certificación DTE: <a href='/web#id={self.dte_case_id.id}&model=l10n_cl_edi.certification.case.dte'>Caso {self.dte_case_id.id}</a>",
-                subject="Origen: Certificación DTE"
-            )
+            # Log de éxito
+            _logger.info(f"Factura generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
             
             return {
                 'type': 'ir.actions.act_window',
@@ -124,11 +115,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             
         except Exception as e:
             _logger.error(f"Error generando documento para caso {self.dte_case_id.id}: {str(e)}")
-            # **MEJORAR MANEJO DE ERRORES: No cambiar estado si hay error**
-            self.dte_case_id.message_post(
-                body=f"Error al generar factura: {str(e)}",
-                subject="Error en Generación"
-            )
+            # Actualizar estado de error
+            self.dte_case_id.generation_status = 'error'
+            self.dte_case_id.error_message = str(e)
             raise UserError(f"Error al generar documento: {str(e)}")
 
     def _validate_required_data(self):
