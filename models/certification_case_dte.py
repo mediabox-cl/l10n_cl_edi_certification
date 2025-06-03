@@ -16,6 +16,7 @@ class CertificationCaseDte(models.Model):
     case_number_display = fields.Char(string='Número de Caso', compute='_compute_case_number_display', store=True)
     document_type_code = fields.Char(string='Código Tipo Documento', required=True)
     document_type_name = fields.Char(string='Nombre Tipo Documento', compute='_compute_document_type_name', store=True)
+    document_type_raw = fields.Char(string='Tipo Documento (Raw)')
     
     # Relaciones
     parsed_set_id = fields.Many2one(
@@ -47,6 +48,14 @@ class CertificationCaseDte(models.Model):
         help='Factura generada desde este caso DTE'
     )
     
+    # Relaciones con items y referencias
+    item_ids = fields.One2many(
+        'l10n_cl_edi.certification.case.dte.item', 'case_dte_id',
+        string='Ítems del Documento')
+    reference_ids = fields.One2many(
+        'l10n_cl_edi.certification.case.dte.reference', 'case_dte_id',
+        string='Referencias del Documento')
+    
     # Campos adicionales
     error_message = fields.Text(string='Mensaje de Error')
     notes = fields.Text(string='Notas')
@@ -57,6 +66,30 @@ class CertificationCaseDte(models.Model):
         string='Estado Factura',
         readonly=True
     )
+    
+    # Campos adicionales para diferentes tipos de documentos
+    global_discount_percent = fields.Float(string='Descuento Global (%)')
+    
+    # Guía de Despacho específicos
+    dispatch_motive_raw = fields.Text(string='Motivo Traslado (Raw)')
+    dispatch_transport_type_raw = fields.Text(string='Tipo de Traslado (Raw)')
+    
+    # Documentos de Exportación específicos
+    export_reference_text = fields.Text(string='Texto Referencia Exportación')
+    export_currency_raw = fields.Char(string='Moneda Operación (Raw)')
+    export_payment_terms_raw = fields.Char(string='Forma de Pago Exportación (Raw)')
+    export_sale_modality_raw = fields.Text(string='Modalidad de Venta (Raw)')
+    export_sale_clause_raw = fields.Char(string='Cláusula de Venta (Raw)')
+    export_total_sale_clause_amount = fields.Float(string='Total Cláusula Venta')
+    export_transport_way_raw = fields.Char(string='Vía de Transporte (Raw)')
+    export_loading_port_raw = fields.Char(string='Puerto Embarque (Raw)')
+    export_unloading_port_raw = fields.Char(string='Puerto Desembarque (Raw)')
+    export_tare_uom_raw = fields.Char(string='Unidad Medida Tara (Raw)')
+    export_gross_weight_uom_raw = fields.Char(string='Unidad Peso Bruto (Raw)')
+    export_net_weight_uom_raw = fields.Char(string='Unidad Peso Neto (Raw)')
+    
+    # Texto original
+    raw_text_block = fields.Text(string='Bloque de Texto Original del Caso')
     
     @api.depends('case_number_raw')
     def _compute_case_number_display(self):
