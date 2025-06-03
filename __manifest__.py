@@ -26,7 +26,6 @@
         'views/certification_process_view.xml',
         'views/test_set_views.xml',
         'wizard/certification_reset_wizard_view.xml',
-        'data/ir_sequence_data.xml',
         'data/l10n_cl_edi_certification_data.xml',
         'data/l10n_cl_edi_certification_basic_set.xml',
     ],
