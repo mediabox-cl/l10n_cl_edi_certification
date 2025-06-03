@@ -192,6 +192,7 @@ class CertificationCaseDte(models.Model):
         # Crear el generador y ejecutar
         generator = self.env['l10n_cl_edi.certification.document.generator'].create({
             'dte_case_id': self.id,
+            'certification_process_id': self.parsed_set_id.certification_process_id.id,
         })
         
         return generator.generate_document() 
