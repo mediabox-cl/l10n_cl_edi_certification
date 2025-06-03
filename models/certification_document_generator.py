@@ -440,9 +440,6 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         self.env['account.move.line'].create(discount_line_vals)
         
-        # Recalcular totales
-        invoice._recompute_dynamic_lines()
-        
         _logger.info(f"✓ Descuento global aplicado: {discount_percent}% sobre ${total_amount:,.0f} = ${discount_amount:,.0f}")
 
     def _create_document_references_on_invoice(self, invoice):
