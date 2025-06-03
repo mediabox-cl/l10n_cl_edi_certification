@@ -104,7 +104,7 @@
                 <form string="Caso DTE para Certificación">
                     <header>
                         <field name="generation_status" widget="statusbar" statusbar_visible="pending,generated,error"/>
-                        <button name="action_generate_single_document" string="Generar Documento" type="object"
+                        <button name="action_generate_document" string="Generar Documento" type="object"
                                 class="oe_highlight" invisible="generation_status != 'pending'"/>
                     </header>
                     <sheet>
