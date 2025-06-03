@@ -126,16 +126,30 @@
                                         decoration-danger="generation_status == 'error'" 
                                         decoration-info="generation_status == 'pending'">
                                         <field name="case_number_raw" string="Número"/>
-                                        <field name="document_type_raw" string="Tipo de Documento"/>
-                                        <field name="parsed_set_id" invisible="1"/>
+                                        <field name="document_type_code" string="Tipo Doc"/>
+                                        <field name="document_type_name" string="Nombre Tipo"/>
+                                        <field name="partner_id" string="Cliente"/>
                                         <field name="generation_status" string="Estado"/>
-                                        <field name="error_message" string="Mensaje de Error" invisible="1"/>
-                                        <button name="action_view_case_detail" type="object" string="Ver Detalle" icon="fa-search"/>
-                                        <button name="action_generate_document" string="Generar Documento" type="object"
-                                            class="oe_highlight" invisible="generation_status != 'pending'"/>
-                                        <button name="action_reset_error_state" string="Resetear Estado" type="object"
-                                            class="btn btn-warning" confirm="¿Está seguro de resetear el estado? Si hay un documento generado, se desvinculará del caso."
-                                            invisible="generation_status not in ['error', 'generated']"/>
+                                        <field name="generated_account_move_id" string="Factura" widget="many2one_button"/>
+                                        <field name="invoice_state" string="Estado Factura"/>
+                                        <field name="error_message" string="Error" invisible="generation_status != 'error'"/>
+                                        
+                                        <!-- Botones de acción -->
+                                        <button name="action_generate_document" string="Generar" type="object"
+                                            class="btn-primary" icon="fa-plus"
+                                            invisible="generation_status != 'pending'"
+                                            help="Generar factura desde este caso DTE"/>
+                                            
+                                        <button name="action_view_invoice" string="Ver Factura" type="object"
+                                            class="btn-info" icon="fa-external-link"
+                                            invisible="not generated_account_move_id"
+                                            help="Abrir la factura vinculada"/>
+                                            
+                                        <button name="action_reset_case" string="Reset" type="object"
+                                            class="btn-warning" icon="fa-refresh"
+                                            invisible="generation_status == 'pending'"
+                                            confirm="¿Está seguro de resetear este caso? Se desvinculará la factura si existe."
+                                            help="Resetear caso para regenerar"/>
                                     </list>
                                 </field>
 

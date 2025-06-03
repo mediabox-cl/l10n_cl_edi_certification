@@ -141,9 +141,13 @@ class CertificationProcess(models.Model):
             # Obtener el registro existente
             record = self.search([('company_id', '=', company_id)], limit=1)
         
-        # 2. VERIFICAR ESTADO AUTOMÁTICAMENTE
+        # 2. **MEJORAR VERIFICACIÓN AUTOMÁTICA DE ESTADO**
         if record:
             try:
+                # Verificar y recuperar relaciones perdidas
+                record._recover_lost_relationships()
+                
+                # Verificar estado automáticamente
                 record.check_certification_status()
                 _logger.info("Estado verificado automáticamente para proceso %s: %s", record.id, record.state)
             except Exception as e:
@@ -151,7 +155,47 @@ class CertificationProcess(models.Model):
     
         # 3. Comportamiento estándar de search_read
         return super(CertificationProcess, self).search_read(domain, fields, offset, limit, order)
-    
+
+    def _recover_lost_relationships(self):
+        """
+        Método para recuperar relaciones perdidas entre casos DTE y facturas
+        después de actualizaciones de módulo o problemas de sincronización.
+        """
+        self.ensure_one()
+        _logger.info(f"=== INICIANDO RECUPERACIÓN DE RELACIONES PERDIDAS ===")
+        
+        # Buscar casos DTE sin factura vinculada pero que podrían tener una
+        unlinked_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+            ('generated_account_move_id', '=', False),
+            ('generation_status', '=', 'generated')  # Casos que dicen estar generados pero sin factura
+        ])
+        
+        recovered_count = 0
+        for case in unlinked_cases:
+            # Buscar facturas que podrían estar relacionadas con este caso
+            potential_invoices = self.env['account.move'].search([
+                ('ref', '=', f'Certificación DTE - Caso {case.id}'),
+                ('state', '!=', 'cancel')
+            ])
+            
+            if potential_invoices:
+                # Vincular la primera factura encontrada
+                case.generated_account_move_id = potential_invoices[0]
+                _logger.info(f"Recuperada relación: Caso {case.id} → Factura {potential_invoices[0].name}")
+                recovered_count += 1
+            else:
+                # Si no hay factura pero el estado dice 'generated', resetear a 'pending'
+                case.generation_status = 'pending'
+                _logger.info(f"Reseteado estado del caso {case.id} a 'pending' (no se encontró factura)")
+        
+        if recovered_count > 0:
+            _logger.info(f"=== RECUPERADAS {recovered_count} RELACIONES PERDIDAS ===")
+            self.message_post(
+                body=f"Se recuperaron {recovered_count} relaciones perdidas entre casos DTE y facturas",
+                subject="Recuperación de Relaciones"
+            )
+
     @api.model
     def default_get(self, fields_list):
         # Asegurar que solo haya un registro por compañía
@@ -165,8 +209,17 @@ class CertificationProcess(models.Model):
         Verifica automáticamente el estado del proceso al abrir el formulario.
         """
         self.ensure_one()
-        result = self.check_certification_status()
-        _logger.info("Abierto registro de certificación %s, estado verificado: %s", self.id, self.state)
+        
+        # **MEJORAR APERTURA DE FORMULARIO**
+        try:
+            # Recuperar relaciones perdidas
+            self._recover_lost_relationships()
+            
+            # Verificar estado
+            result = self.check_certification_status()
+            _logger.info("Abierto registro de certificación %s, estado verificado: %s", self.id, self.state)
+        except Exception as e:
+            _logger.warning("Error en verificación al abrir formulario: %s", str(e))
         
         # Redirigir a la vista del formulario
         return {

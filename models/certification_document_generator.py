@@ -36,120 +36,172 @@ class CertificationDocumentGenerator(models.TransientModel):
     )
 
     def generate_document(self):
-        """
-        Método principal que genera documentos usando el flujo estándar de Odoo:
-        sale.order → confirm → create_invoice (solo borrador)
+        """Generate invoice from DTE case using sale.order flow"""
+        _logger.info(f"=== INICIANDO GENERACIÓN DE DOCUMENTO PARA CASO {self.id} ===")
         
-        Este enfoque elimina problemas con rating mixin y usa el flujo nativo.
-        """
-        self.ensure_one()
+        # **NUEVA VERIFICACIÓN: Comprobar si ya existe una factura vinculada**
+        if self.generated_account_move_id:
+            _logger.info(f"Caso {self.id} ya tiene factura vinculada: {self.generated_account_move_id.name}")
+            if self.generated_account_move_id.state == 'draft':
+                _logger.info("La factura existente está en borrador, se puede continuar editando")
+                return {
+                    'type': 'ir.actions.act_window',
+                    'name': 'Factura Existente',
+                    'res_model': 'account.move',
+                    'res_id': self.generated_account_move_id.id,
+                    'view_mode': 'form',
+                    'target': 'current',
+                }
+            else:
+                _logger.info(f"La factura existente está en estado: {self.generated_account_move_id.state}")
+                raise UserError(f"Este caso DTE ya tiene una factura generada: {self.generated_account_move_id.name} (Estado: {self.generated_account_move_id.state})")
         
-        # Verificar que el caso esté en estado correcto
-        if self.dte_case_id.generation_status != 'pending':
-            raise UserError(_("El caso DTE ya ha sido procesado"))
-        
-        _logger.info("=== INICIANDO GENERACIÓN CON FLUJO SALE.ORDER ===")
-        _logger.info("Caso: %s, Tipo: %s", self.dte_case_id.case_number_raw, self.dte_case_id.document_type_code)
-        
+        # **NUEVA VERIFICACIÓN: Buscar facturas duplicadas por referencia**
+        existing_moves = self.env['account.move'].search([
+            ('ref', '=', f'Certificación DTE - Caso {self.id}'),
+            ('state', '!=', 'cancel')
+        ])
+        if existing_moves:
+            _logger.warning(f"Encontradas facturas existentes con referencia del caso {self.id}: {existing_moves.mapped('name')}")
+            # Vincular la primera factura encontrada si no hay vinculación
+            if not self.generated_account_move_id and existing_moves:
+                self.generated_account_move_id = existing_moves[0]
+                _logger.info(f"Vinculada factura existente {existing_moves[0].name} al caso {self.id}")
+                return {
+                    'type': 'ir.actions.act_window',
+                    'name': 'Factura Recuperada',
+                    'res_model': 'account.move',
+                    'res_id': existing_moves[0].id,
+                    'view_mode': 'form',
+                    'target': 'current',
+                }
+
         try:
-            # 1. Crear sale.order desde el caso DTE
-            _logger.info("PASO 1: Creando sale.order desde caso DTE")
-            sale_order = self._create_sale_order_from_dte_case()
-            _logger.info("✓ Sale.order creado: %s (ID: %s)", sale_order.name, sale_order.id)
+            # Validar datos requeridos
+            self._validate_required_data()
             
-            # 2. Confirmar el sale.order
-            _logger.info("PASO 2: Confirmando sale.order")
+            # Crear sale.order
+            sale_order = self._create_sale_order()
+            _logger.info(f"Sale Order creada: {sale_order.name}")
+            
+            # Confirmar sale.order
             sale_order.action_confirm()
-            _logger.info("✓ Sale.order confirmado: %s", sale_order.name)
+            _logger.info(f"Sale Order confirmada: {sale_order.name}")
             
-            # 3. Crear factura desde sale.order
-            _logger.info("PASO 3: Creando factura desde sale.order")
-            invoices = sale_order._create_invoices(final=False)  # Crear en borrador
-            if not invoices:
-                raise UserError(_("No se pudo crear la factura desde el pedido de venta"))
+            # Crear factura (en borrador)
+            invoice = self._create_invoice_from_sale_order(sale_order)
+            _logger.info(f"Factura creada en borrador: {invoice.name}")
             
-            invoice = invoices[0]
-            _logger.info("✓ Factura creada en borrador: %s (ID: %s)", invoice.name, invoice.id)
-            
-            # 4. Configurar campos específicos del DTE en la factura
-            _logger.info("PASO 4: Configurando campos específicos del DTE")
+            # Configurar campos específicos de DTE
             self._configure_dte_fields_on_invoice(invoice)
-            _logger.info("✓ Campos DTE configurados")
+            _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
             
-            # 5. Aplicar descuentos globales si corresponde
-            if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
-                _logger.info("PASO 5: Aplicando descuento global de %s%%", self.dte_case_id.global_discount_percent)
-                self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
-                _logger.info("✓ Descuento global aplicado")
+            # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
+            self.generated_account_move_id = invoice.id
+            self.state = 'generated'
+            _logger.info(f"=== CASO {self.id} VINCULADO A FACTURA {invoice.name} ===")
             
-            # 6. Crear referencias entre documentos
-            _logger.info("PASO 6: Creando referencias entre documentos")
-            self._create_document_references_on_invoice(invoice)
-            _logger.info("✓ Referencias creadas")
+            # Agregar mensaje en el caso DTE
+            self.message_post(
+                body=f"Factura generada exitosamente: <a href='/web#id={invoice.id}&model=account.move'>{invoice.name}</a>",
+                subject="Factura Generada"
+            )
             
-            # 7. MANTENER FACTURA EN BORRADOR (no hacer action_post)
-            _logger.info("PASO 7: Factura mantenida en borrador para revisión")
-            _logger.info("✓ Factura en borrador: %s", invoice.name)
+            # Agregar mensaje en la factura
+            invoice.message_post(
+                body=f"Generada desde caso de certificación DTE: <a href='/web#id={self.id}&model=l10n_cl_edi.certification.case.dte'>Caso {self.id}</a>",
+                subject="Origen: Certificación DTE"
+            )
             
-            # 8. Actualizar el estado del caso DTE
-            _logger.info("PASO 8: Actualizando estado del caso DTE")
-            self.dte_case_id.write({
-                'generated_account_move_id': invoice.id,
-                'generation_status': 'generated',
-                'error_message': False
-            })
-            _logger.info("✓ Estado del caso actualizado")
-            
-            _logger.info("=== GENERACIÓN COMPLETADA EXITOSAMENTE ===")
-            _logger.info("Factura en borrador: %s (ID: %s)", invoice.name, invoice.id)
-            return invoice
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Factura Generada',
+                'res_model': 'account.move',
+                'res_id': invoice.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
             
         except Exception as e:
-            _logger.error("=== ERROR EN GENERACIÓN ===")
-            _logger.error("Caso: %s", self.dte_case_id.case_number_raw)
-            _logger.error("Error: %s", str(e))
-            _logger.error("Tipo de error: %s", type(e).__name__)
-            
-            # Marcar el caso como error
-            self.dte_case_id.write({
-                'generation_status': 'error',
-                'error_message': str(e)
-            })
-            raise
+            _logger.error(f"Error generando documento para caso {self.id}: {str(e)}")
+            # **MEJORAR MANEJO DE ERRORES: No cambiar estado si hay error**
+            self.message_post(
+                body=f"Error al generar factura: {str(e)}",
+                subject="Error en Generación"
+            )
+            raise UserError(f"Error al generar documento: {str(e)}")
 
-    def _create_sale_order_from_dte_case(self):
-        """
-        Crea un sale.order a partir del caso DTE.
-        Sigue el patrón del conector de Shopify.
-        """
-        self.ensure_one()
+    def _validate_required_data(self):
+        """Validate that all required data is present"""
+        if not self.dte_case_id:
+            raise UserError("No hay caso DTE asociado")
         
-        # Obtener partner ficticio para certificación
-        partner = self.certification_process_id.certification_partner_id
-        if not partner:
-            raise UserError(_("No se ha configurado el partner ficticio para certificación"))
+        if not self.dte_case_id.partner_id:
+            raise UserError("El caso DTE debe tener un partner asociado")
         
-        # Preparar valores del sale.order
-        order_vals = {
+        if not self.dte_case_id.document_type_code:
+            raise UserError("El caso DTE debe tener un tipo de documento")
+
+    def _create_sale_order(self):
+        """Create sale.order from DTE case"""
+        partner = self.dte_case_id.partner_id
+        
+        # Buscar o crear producto para certificación
+        product = self._get_or_create_certification_product()
+        
+        sale_order_vals = {
             'partner_id': partner.id,
             'partner_invoice_id': partner.id,
             'partner_shipping_id': partner.id,
-            'company_id': self.certification_process_id.company_id.id,
-            'date_order': fields.Datetime.now(),
-            'user_id': self.env.user.id,
-            'team_id': False,  # Sin equipo de ventas específico
-            'note': f'Documento de certificación SII - Caso {self.dte_case_id.case_number_raw}',
-            # Campos específicos para certificación
-            'l10n_cl_edi_certification_id': self.certification_process_id.id,
+            'company_id': self.env.company.id,
+            'currency_id': self.env.company.currency_id.id,
+            'pricelist_id': partner.property_product_pricelist.id or self.env.company.currency_id.id,
+            'l10n_cl_edi_certification_id': self.id,  # Referencia al caso de certificación
+            'note': f'Orden generada desde caso de certificación DTE {self.id}',
+            'order_line': [(0, 0, {
+                'product_id': product.id,
+                'name': f'Certificación DTE - Caso {self.id}',
+                'product_uom_qty': 1,
+                'price_unit': 1000.0,  # Precio base para certificación
+                'product_uom': product.uom_id.id,
+            })]
         }
         
-        # Crear el sale.order
-        sale_order = self.env['sale.order'].create(order_vals)
+        return self.env['sale.order'].create(sale_order_vals)
+
+    def _create_invoice_from_sale_order(self, sale_order):
+        """Create invoice from sale.order"""
+        invoices = sale_order._create_invoices(final=False)  # Crear en borrador
+        if not invoices:
+            raise UserError("No se pudo crear la factura desde el pedido de venta")
         
-        # Crear las líneas del pedido
-        self._create_sale_order_lines(sale_order)
+        invoice = invoices[0]
         
-        return sale_order
+        # Agregar referencia al caso DTE
+        invoice.ref = f'Certificación DTE - Caso {self.id}'
+        
+        return invoice
+
+    def _get_or_create_certification_product(self):
+        """Get or create product for certification"""
+        product = self.env['product.product'].search([
+            ('default_code', '=', 'CERT_DTE'),
+            ('company_id', 'in', [False, self.env.company.id])
+        ], limit=1)
+        
+        if not product:
+            product = self.env['product.product'].create({
+                'name': 'Certificación DTE',
+                'default_code': 'CERT_DTE',
+                'type': 'service',
+                'list_price': 1000.0,
+                'standard_price': 1000.0,
+                'sale_ok': True,
+                'purchase_ok': False,
+                'company_id': False,  # Disponible para todas las compañías
+            })
+        
+        return product
 
     def _create_sale_order_lines(self, sale_order):
         """

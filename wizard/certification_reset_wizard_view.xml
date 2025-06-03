@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Reset Wizard Form View -->
+        <record id="view_certification_reset_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.reset.wizard.form</field>
+            <field name="model">l10n_cl_edi.certification.reset.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Confirmar Reset de Caso DTE">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>¿Está seguro de resetear este caso DTE?</strong>
+                        <p>Esta acción cambiará el estado del caso a 'Pendiente' y manejará la factura vinculada según su elección.</p>
+                    </div>
+                    
+                    <group>
+                        <field name="case_id" readonly="1"/>
+                        <field name="invoice_name" readonly="1" invisible="not invoice_id"/>
+                        <field name="invoice_state" readonly="1" invisible="not invoice_id"/>
+                    </group>
+                    
+                    <group string="Acción a realizar" invisible="not invoice_id">
+                        <field name="action" widget="radio"/>
+                    </group>
+                    
+                    <div class="alert alert-info" role="alert" invisible="action != 'delete_draft' or invoice_state != 'draft'">
+                        <strong>Eliminar factura en borrador:</strong> La factura será eliminada permanentemente.
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="action != 'unlink_only'">
+                        <strong>Solo desvincular:</strong> La factura se mantendrá en el sistema pero no estará vinculada al caso.
+                    </div>
+                    
+                    <footer>
+                        <button name="action_confirm_reset" string="Confirmar Reset" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo> 
