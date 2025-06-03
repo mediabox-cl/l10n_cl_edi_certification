@@ -61,27 +61,8 @@ class CertificationCaseDte(models.Model):
     notes = fields.Text(string='Notas')
     
     # Campos computados
-    invoice_state = fields.Selection(
-        related='generated_account_move_id.state',
-        string='Estado Factura',
-        readonly=True
-    )
-    
     # Campo computado para mostrar estado completo
-    status_display = fields.Char(
-        string='Estado',
-        compute='_compute_status_display',
-        store=False,
-        help='Estado completo del caso DTE'
-    )
-    
     # Campo computado para mostrar información de la factura
-    invoice_info = fields.Char(
-        string='Factura',
-        compute='_compute_invoice_info',
-        store=False,
-        help='Información de la factura generada'
-    )
     
     # Campos adicionales para diferentes tipos de documentos
     global_discount_percent = fields.Float(string='Descuento Global (%)')
@@ -266,20 +247,4 @@ class CertificationCaseDte(models.Model):
         
         return generator.generate_document() 
 
-    @api.depends('generation_status')
-    def _compute_status_display(self):
-        for record in self:
-            if record.generation_status == 'pending':
-                record.status_display = 'Pendiente'
-            elif record.generation_status == 'generated':
-                record.status_display = 'Generado'
-            else:
-                record.status_display = 'Error'
-
-    @api.depends('generated_account_move_id')
-    def _compute_invoice_info(self):
-        for record in self:
-            if record.generated_account_move_id:
-                record.invoice_info = f"{record.generated_account_move_id.name} ({record.generated_account_move_id.state})"
-            else:
-                record.invoice_info = 'Sin factura' 
+    # Métodos computados eliminados - ya no se usan en la vista simplificada 

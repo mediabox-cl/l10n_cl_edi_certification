@@ -95,7 +95,13 @@ class CertificationDocumentGenerator(models.TransientModel):
             # Configurar campos específicos de DTE
             self._configure_dte_fields_on_invoice(invoice)
             _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
-            
+
+            # Aplicar descuento global si existe
+            if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
+                _logger.info(f"Aplicando descuento global: {self.dte_case_id.global_discount_percent}%")
+                self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
+                _logger.info(f"Descuento global aplicado en factura: {invoice.name}")
+
             # Crear referencias de documentos
             self._create_document_references_on_invoice(invoice)
             _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")

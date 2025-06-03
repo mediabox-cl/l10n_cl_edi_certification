@@ -129,14 +129,9 @@
                                         <field name="document_type_code" string="Tipo Doc"/>
                                         <field name="document_type_name" string="Nombre Tipo"/>
                                         <field name="partner_id" string="Cliente"/>
-                                        <field name="status_display" string="Estado"/>
-                                        <field name="invoice_info" string="Factura"/>
+                                        <field name="generation_status" string="Estado"/>
+                                        <field name="generated_account_move_id" string="Factura"/>
                                         <field name="error_message" string="Error" invisible="generation_status != 'error'"/>
-                                        
-                                        <!-- Campos ocultos para condiciones -->
-                                        <field name="generation_status" invisible="1"/>
-                                        <field name="generated_account_move_id" invisible="1"/>
-                                        <field name="invoice_state" invisible="1"/>
                                         
                                         <!-- Botones de acción -->
                                         <button name="action_generate_document" string="Generar" type="object"
