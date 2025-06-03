@@ -175,6 +175,9 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Agregar referencia al caso DTE
         invoice.ref = f'Certificación DTE - Caso {self.dte_case_id.id}'
         
+        # Establecer contexto de certificación para corrección de encoding
+        invoice = invoice.with_context(l10n_cl_edi_certification=True)
+        
         return invoice
 
     def _create_sale_order_lines(self, sale_order):
@@ -584,3 +587,37 @@ class CertificationDocumentGenerator(models.TransientModel):
         if 'TERCEROS' in transport_upper:
             return '3'
         return False
+
+    def _fix_encoding_issues(self, xml_content):
+        """
+        Corrige problemas de encoding en el XML DTE.
+        Convierte caracteres especiales problemáticos para ISO-8859-1.
+        """
+        if not xml_content:
+            return xml_content
+        
+        # Mapeo de caracteres problemáticos comunes en Chile
+        char_replacements = {
+            'ñ': '&ntilde;',
+            'Ñ': '&Ntilde;',
+            'á': '&aacute;',
+            'é': '&eacute;',
+            'í': '&iacute;',
+            'ó': '&oacute;',
+            'ú': '&uacute;',
+            'Á': '&Aacute;',
+            'É': '&Eacute;',
+            'Í': '&Iacute;',
+            'Ó': '&Oacute;',
+            'Ú': '&Uacute;',
+            'ü': '&uuml;',
+            'Ü': '&Uuml;',
+            '°': '&deg;',
+        }
+        
+        # Aplicar reemplazos
+        for char, replacement in char_replacements.items():
+            xml_content = xml_content.replace(char, replacement)
+        
+        _logger.info("✓ Caracteres especiales corregidos en XML DTE")
+        return xml_content
