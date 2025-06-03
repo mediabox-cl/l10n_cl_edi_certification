@@ -391,20 +391,21 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _apply_global_discount_to_invoice(self, invoice, discount_percent):
         """
         Aplica un descuento global a la factura usando el producto de descuento.
+        El descuento se aplica a TODAS las líneas de producto (afectas y exentas).
         """
         if not discount_percent or discount_percent <= 0:
             return
         
-        # Solo aplicar a líneas afectas (no exentas)
-        affected_lines = invoice.invoice_line_ids.filtered(lambda l: l.tax_ids and not l.l10n_latam_vat_exempt)
+        # Aplicar a TODAS las líneas de producto (afectas y exentas)
+        product_lines = invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note'))
         
-        if not affected_lines:
-            _logger.warning("No se pudo aplicar descuento global: no hay líneas afectas")
+        if not product_lines:
+            _logger.warning("No se pudo aplicar descuento global: no hay líneas de producto")
             return
         
-        # Calcular el monto total de los ítems afectos
-        total_affected = sum(line.price_subtotal for line in affected_lines)
-        discount_amount = total_affected * (discount_percent / 100.0)
+        # Calcular el monto total de TODAS las líneas de producto
+        total_amount = sum(line.price_subtotal for line in product_lines)
+        discount_amount = total_amount * (discount_percent / 100.0)
         
         if discount_amount <= 0:
             return
@@ -423,8 +424,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             })
             self.certification_process_id.default_discount_product_id = discount_product.id
         
-        # Obtener los impuestos de las líneas afectas
-        tax_ids = affected_lines[0].tax_ids.ids if affected_lines and affected_lines[0].tax_ids else []
+        # Para la línea de descuento, usar impuestos de las líneas afectas (si las hay)
+        lines_with_taxes = product_lines.filtered(lambda l: l.tax_ids)
+        tax_ids = lines_with_taxes[0].tax_ids.ids if lines_with_taxes else []
         
         # Crear la línea de descuento
         discount_line_vals = {
@@ -440,6 +442,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # Recalcular totales
         invoice._recompute_dynamic_lines()
+        
+        _logger.info(f"✓ Descuento global aplicado: {discount_percent}% sobre ${total_amount:,.0f} = ${discount_amount:,.0f}")
 
     def _create_document_references_on_invoice(self, invoice):
         """
