@@ -391,23 +391,38 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _apply_global_discount_to_invoice(self, invoice, discount_percent):
         """
         Aplica un descuento global a la factura usando el producto de descuento.
-        El descuento se aplica a TODAS las líneas de producto (afectas y exentas).
+        
+        Por defecto, el descuento se aplica solo a ITEMS AFECTOS (líneas con impuestos),
+        que es lo que aparece en los sets de pruebas del SII.
+        
+        TODO: Agregar campo al modelo para especificar el tipo de descuento si se necesita
         """
         if not discount_percent or discount_percent <= 0:
             return
         
-        # Aplicar a TODAS las líneas de producto (afectas y exentas)
+        # Obtener líneas de producto (excluyendo secciones y notas)
         product_lines = invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note'))
         
         if not product_lines:
             _logger.warning("No se pudo aplicar descuento global: no hay líneas de producto")
             return
         
-        # Calcular el monto total de TODAS las líneas de producto
-        total_amount = sum(line.price_subtotal for line in product_lines)
+        # APLICAR SOLO A ITEMS AFECTOS (líneas con impuestos)
+        # Esto coincide con los sets de pruebas del SII que dicen "DESCUENTO GLOBAL ITEMES AFECTOS"
+        lines_with_taxes = product_lines.filtered(lambda l: l.tax_ids)
+        
+        if not lines_with_taxes:
+            _logger.warning("No se pudo aplicar descuento global: no hay líneas afectas (con impuestos)")
+            return
+        
+        _logger.info(f"Aplicando descuento global solo a {len(lines_with_taxes)} líneas afectas (de {len(product_lines)} total)")
+        
+        # Calcular el monto total solo de las líneas afectas
+        total_amount = sum(line.price_subtotal for line in lines_with_taxes)
         discount_amount = total_amount * (discount_percent / 100.0)
         
         if discount_amount <= 0:
+            _logger.warning(f"Monto de descuento calculado es 0 o negativo: {discount_amount}")
             return
         
         # Usar el producto de descuento configurado
@@ -424,23 +439,30 @@ class CertificationDocumentGenerator(models.TransientModel):
             })
             self.certification_process_id.default_discount_product_id = discount_product.id
         
-        # Para la línea de descuento, usar impuestos de las líneas afectas (si las hay)
-        lines_with_taxes = product_lines.filtered(lambda l: l.tax_ids)
-        tax_ids = lines_with_taxes[0].tax_ids.ids if lines_with_taxes else []
+        # La línea de descuento debe llevar los mismos impuestos que las líneas afectas
+        # Usar los impuestos de la primera línea afecta como referencia
+        tax_ids = lines_with_taxes[0].tax_ids.ids
         
         # Crear la línea de descuento
         discount_line_vals = {
             'product_id': discount_product.id,
-            'name': f'Descuento Global {discount_percent}%',
+            'name': f'Descuento Global {discount_percent}% - ITEMS AFECTOS',
             'price_unit': -discount_amount,
             'quantity': 1.0,
             'tax_ids': [(6, 0, tax_ids)],
             'move_id': invoice.id,
         }
         
-        self.env['account.move.line'].create(discount_line_vals)
+        discount_line = self.env['account.move.line'].create(discount_line_vals)
         
-        _logger.info(f"✓ Descuento global aplicado: {discount_percent}% sobre ${total_amount:,.0f} = ${discount_amount:,.0f}")
+        _logger.info(f"✓ Descuento global aplicado:")
+        _logger.info(f"  - Tipo: ITEMS AFECTOS únicamente")
+        _logger.info(f"  - Porcentaje: {discount_percent}%")
+        _logger.info(f"  - Base (solo afectas): ${total_amount:,.0f}")
+        _logger.info(f"  - Descuento: ${discount_amount:,.0f}")
+        _logger.info(f"  - Líneas incluidas: {len(lines_with_taxes)} de {len(product_lines)}")
+        _logger.info(f"  - Impuestos en descuento: {len(tax_ids)} impuestos")
+        _logger.info(f"  - IndExeDR esperado en XML: 2 (descuento sobre items afectos)")
 
     def _create_document_references_on_invoice(self, invoice):
         """
