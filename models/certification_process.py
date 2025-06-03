@@ -193,10 +193,7 @@ class CertificationProcess(models.Model):
         
         if recovered_count > 0:
             _logger.info(f"=== RECUPERADAS {recovered_count} RELACIONES PERDIDAS ===")
-            self.message_post(
-                body=f"Se recuperaron {recovered_count} relaciones perdidas entre casos DTE y facturas",
-                subject="Recuperación de Relaciones"
-            )
+            _logger.info(f"Se recuperaron {recovered_count} relaciones perdidas entre casos DTE y facturas")
 
     @api.model
     def default_get(self, fields_list):

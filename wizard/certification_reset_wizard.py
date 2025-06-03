@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class CertificationResetWizard(models.TransientModel):
@@ -30,17 +33,11 @@ class CertificationResetWizard(models.TransientModel):
             invoice.unlink()
             case.generated_account_move_id = False
             case.generation_status = 'pending'
-            case.message_post(
-                body=f"Caso reseteado. Factura {invoice_name} eliminada.",
-                subject="Caso Reseteado - Factura Eliminada"
-            )
+            _logger.info(f"Caso {case.id} reseteado. Factura {invoice_name} eliminada.")
         else:
             # Solo desvincular
             case.generated_account_move_id = False
             case.generation_status = 'pending'
-            case.message_post(
-                body=f"Caso reseteado. Factura {invoice.name if invoice else 'N/A'} desvinculada.",
-                subject="Caso Reseteado - Factura Desvinculada"
-            )
+            _logger.info(f"Caso {case.id} reseteado. Factura {invoice.name if invoice else 'N/A'} desvinculada.")
         
         return {'type': 'ir.actions.act_window_close'} 
