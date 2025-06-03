@@ -38,7 +38,7 @@ class CertificationCaseDte(models.Model):
         ('pending', 'Pendiente'),
         ('generated', 'Generado'),
         ('error', 'Error')
-    ], string='Estado Generación', default='pending', tracking=True)
+    ], string='Estado Generación', default='pending', track_visibility='onchange')
     
     # Factura generada
     generated_account_move_id = fields.Many2one(

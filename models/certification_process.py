@@ -15,10 +15,11 @@ class CertificationProcess(models.Model):
     
     company_id = fields.Many2one('res.company', string='Empresa', required=True, default=lambda self: self.env.company)
     state = fields.Selection([
-        ('preparation', 'Preparación Inicial'),
-        ('configuration', 'Configuración Sets y CAFs'),
-        ('generation', 'Generación DTEs'),
-    ], string='Estado', default='preparation', tracking=True)
+        ('preparation', 'Preparación'),
+        ('in_progress', 'En Progreso'),
+        ('completed', 'Completado'),
+        ('error', 'Error')
+    ], string='Estado', default='preparation', track_visibility='onchange')
     
     # Información de certificación
     dte_email = fields.Char(related='company_id.l10n_cl_dte_email', readonly=False, string='Email DTE')
