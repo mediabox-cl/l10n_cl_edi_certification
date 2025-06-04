@@ -590,34 +590,16 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _fix_encoding_issues(self, xml_content):
         """
-        Corrige problemas de encoding en el XML DTE aplicando normalización
-        simple a TODO el contenido XML.
+        NORMALIZACIÓN DESHABILITADA - Solo mantiene el XML original.
         
-        Reemplaza solo caracteres problemáticos con equivalentes seguros.
+        Anteriormente aplicaba normalización de caracteres especiales,
+        pero se deshabilitó para probar si el SII acepta caracteres originales.
         """
         if not xml_content:
             return xml_content
         
-        # Reemplazos directos de caracteres problemáticos
-        char_replacements = {
-            # Vocales acentuadas - ESTOS sí pueden causar problemas de encoding
-            'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
-            'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U',
-            # Eñes - ESTOS sí pueden causar problemas de encoding
-            'ñ': 'n', 'Ñ': 'N',
-            # Solo caracteres que realmente causen problemas de encoding
-            '°': 'o',  # Símbolo de grado puede ser problemático
-            # MANTENER apóstrofe - es ASCII básico y válido: "'"
-            # MANTENER otros caracteres ASCII básicos como espacios, puntos, comas, etc.
-        }
+        # NORMALIZACIÓN DESHABILITADA
+        # No aplicar reemplazos de caracteres especiales
+        _logger.info("⚠️  Normalización de caracteres DESHABILITADA en generador - manteniendo caracteres originales")
         
-        # Aplicar reemplazos a TODO el contenido XML
-        original_content = xml_content
-        for char, replacement in char_replacements.items():
-            xml_content = xml_content.replace(char, replacement)
-        
-        # Log solo si hubo cambios
-        if xml_content != original_content:
-            _logger.info("✓ Normalización simple aplicada a todo el XML DTE")
-            
         return xml_content
