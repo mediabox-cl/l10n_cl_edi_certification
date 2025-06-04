@@ -590,34 +590,34 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _fix_encoding_issues(self, xml_content):
         """
-        Corrige problemas de encoding en el XML DTE.
-        Convierte caracteres especiales problemáticos para ISO-8859-1.
+        Corrige problemas de encoding en el XML DTE aplicando normalización
+        simple a TODO el contenido XML.
+        
+        Reemplaza solo caracteres problemáticos con equivalentes seguros.
         """
         if not xml_content:
             return xml_content
         
-        # Mapeo de caracteres problemáticos comunes en Chile
+        # Reemplazos directos de caracteres problemáticos
         char_replacements = {
-            'ñ': '&ntilde;',
-            'Ñ': '&Ntilde;',
-            'á': '&aacute;',
-            'é': '&eacute;',
-            'í': '&iacute;',
-            'ó': '&oacute;',
-            'ú': '&uacute;',
-            'Á': '&Aacute;',
-            'É': '&Eacute;',
-            'Í': '&Iacute;',
-            'Ó': '&Oacute;',
-            'Ú': '&Uacute;',
-            'ü': '&uuml;',
-            'Ü': '&Uuml;',
-            '°': '&deg;',
+            # Vocales acentuadas - ESTOS sí pueden causar problemas de encoding
+            'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+            'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U',
+            # Eñes - ESTOS sí pueden causar problemas de encoding
+            'ñ': 'n', 'Ñ': 'N',
+            # Solo caracteres que realmente causen problemas de encoding
+            '°': 'o',  # Símbolo de grado puede ser problemático
+            # MANTENER apóstrofe - es ASCII básico y válido: "'"
+            # MANTENER otros caracteres ASCII básicos como espacios, puntos, comas, etc.
         }
         
-        # Aplicar reemplazos
+        # Aplicar reemplazos a TODO el contenido XML
+        original_content = xml_content
         for char, replacement in char_replacements.items():
             xml_content = xml_content.replace(char, replacement)
         
-        _logger.info("✓ Caracteres especiales corregidos en XML DTE")
+        # Log solo si hubo cambios
+        if xml_content != original_content:
+            _logger.info("✓ Normalización simple aplicada a todo el XML DTE")
+            
         return xml_content

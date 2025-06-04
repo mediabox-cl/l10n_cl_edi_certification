@@ -36,84 +36,37 @@ class AccountMove(models.Model):
 
     def _fix_encoding_issues_for_dte(self, xml_content):
         """
-        Corrige problemas de encoding en el XML DTE de forma selectiva:
-        - Entidades HTML para líneas de productos (NmbItem, DscItem)
-        - Normalización para otros campos (GiroEmis, RznSoc, etc.)
+        Corrige problemas de encoding en el XML DTE aplicando normalización
+        simple a TODO el contenido XML.
         
-        Las entidades HTML son la forma correcta de manejar caracteres especiales
-        en XML según el estándar, y el SII las procesa correctamente.
+        Reemplaza solo caracteres problemáticos con equivalentes seguros.
         """
         if not xml_content:
             return xml_content
         
-        # Mapeo de caracteres especiales a entidades HTML estándar
+        # Reemplazos directos de caracteres problemáticos
         char_replacements = {
-            'ñ': '&ntilde;',
-            'Ñ': '&Ntilde;',
-            'á': '&aacute;',
-            'é': '&eacute;',
-            'í': '&iacute;',
-            'ó': '&oacute;',
-            'ú': '&uacute;',
-            'Á': '&Aacute;',
-            'É': '&Eacute;',
-            'Í': '&Iacute;',
-            'Ó': '&Oacute;',
-            'Ú': '&Uacute;',
-            'ü': '&uuml;',
-            'Ü': '&Uuml;',
-            '°': '&deg;',
+            # Vocales acentuadas - ESTOS sí pueden causar problemas de encoding
+            'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ü': 'u',
+            'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'Ü': 'U',
+            # Eñes - ESTOS sí pueden causar problemas de encoding
+            'ñ': 'n', 'Ñ': 'N',
+            # Solo caracteres que realmente causen problemas de encoding
+            '°': 'o',  # Símbolo de grado puede ser problemático
+            # MANTENER apóstrofe - es ASCII básico y válido: "'"
+            # MANTENER otros caracteres ASCII básicos como espacios, puntos, comas, etc.
         }
         
-        # Campos donde aplicar entidades HTML (principalmente productos)
-        html_entity_fields = ['NmbItem', 'DscItem']
-        
-        # Aplicar entidades HTML solo en campos de productos
+        # Aplicar reemplazos a TODO el contenido XML
         original_content = xml_content
-        for field in html_entity_fields:
-            xml_content = self._apply_html_entities_to_field(xml_content, field, char_replacements)
-        
-        # Normalizar campos específicos (giros, razones sociales)
-        normalization_fields = ['GiroEmis', 'GiroRecep', 'RznSoc', 'RznSocRecep']
-        for field in normalization_fields:
-            xml_content = self._normalize_field_content(xml_content, field)
+        for char, replacement in char_replacements.items():
+            xml_content = xml_content.replace(char, replacement)
         
         # Log solo si hubo cambios
         if xml_content != original_content:
-            _logger.info("✓ Entidades HTML aplicadas a campos de productos y normalización aplicada a otros campos")
+            _logger.info("✓ Normalización simple aplicada a todo el XML DTE")
             
         return xml_content
-    
-    def _apply_html_entities_to_field(self, xml_content, field_name, char_replacements):
-        """
-        Aplica entidades HTML a un campo específico del XML.
-        """
-        import re
-        
-        pattern = f'<{field_name}>(.*?)</{field_name}>'
-        
-        def replace_chars_in_match(match):
-            content = match.group(1)
-            for char, replacement in char_replacements.items():
-                content = content.replace(char, replacement)
-            return f'<{field_name}>{content}</{field_name}>'
-        
-        return re.sub(pattern, replace_chars_in_match, xml_content, flags=re.DOTALL)
-    
-    def _normalize_field_content(self, xml_content, field_name):
-        """
-        Normaliza el contenido de un campo específico del XML usando normalize_giro_for_sii.
-        """
-        import re
-        
-        pattern = f'<{field_name}>(.*?)</{field_name}>'
-        
-        def normalize_match(match):
-            content = match.group(1)
-            normalized_content = self.normalize_giro_for_sii(content)
-            return f'<{field_name}>{normalized_content}</{field_name}>'
-        
-        return re.sub(pattern, normalize_match, xml_content, flags=re.DOTALL)
 
     def _fix_field_lengths_for_dte(self, xml_content):
         """
