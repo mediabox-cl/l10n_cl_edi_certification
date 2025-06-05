@@ -745,22 +745,6 @@ class CertificationDocumentGenerator(models.TransientModel):
             credit_note.l10n_cl_reference_ids.unlink()
             _logger.info("✓ Referencias automáticas eliminadas")
         
-        # 4. Configurar el tipo de documento correcto
-        _logger.info("4. Configurando tipo de documento")
-        doc_type = self.env['l10n_latam.document.type'].search([
-            ('code', '=', case_dte.document_type_code),
-            ('country_id.code', '=', 'CL')
-        ], limit=1)
-        
-        if not doc_type:
-            raise UserError(f"Tipo de documento '{case_dte.document_type_code}' no encontrado")
-        
-        credit_note.write({
-            'l10n_latam_document_type_id': doc_type.id,
-            'ref': f'Caso SII {case_dte.case_number_raw}',
-        })
-        _logger.info(f"✓ Tipo de documento configurado: {doc_type.name} ({doc_type.code})")
-        
         # 5. Crear referencias en el orden correcto (SET primero, luego documento original)
         _logger.info("5. Creando referencias en orden correcto")
         references_to_create = []
@@ -833,7 +817,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         _logger.info(f"✅ NOTA DE CRÉDITO GENERADA EXITOSAMENTE")
         _logger.info(f"   Documento: {credit_note.name}")
-        _logger.info(f"   Tipo: {doc_type.name} ({doc_type.code})")
+        _logger.info(f"   Tipo: {case_dte.document_type_raw}")
         _logger.info(f"   Referencias: {len(references_to_create)}")
         _logger.info(f"   Caso marcado como generado")
         
