@@ -36,40 +36,40 @@ class CertificationDocumentGenerator(models.TransientModel):
     )
 
     def generate_document(self):
-        """Generate invoice from DTE case using sale.order flow"""
+        """Generate invoice, credit note or debit note from DTE case"""
         _logger.info(f"=== INICIANDO GENERACIÓN DE DOCUMENTO PARA CASO {self.dte_case_id.id} ===")
         
         # **NUEVA VERIFICACIÓN: Comprobar si ya existe una factura vinculada**
         if self.dte_case_id.generated_account_move_id:
-            _logger.info(f"Caso {self.dte_case_id.id} ya tiene factura vinculada: {self.dte_case_id.generated_account_move_id.name}")
+            _logger.info(f"Caso {self.dte_case_id.id} ya tiene documento vinculado: {self.dte_case_id.generated_account_move_id.name}")
             if self.dte_case_id.generated_account_move_id.state == 'draft':
-                _logger.info("La factura existente está en borrador, se puede continuar editando")
+                _logger.info("El documento existente está en borrador, se puede continuar editando")
                 return {
                     'type': 'ir.actions.act_window',
-                    'name': 'Factura Existente',
+                    'name': 'Documento Existente',
                     'res_model': 'account.move',
                     'res_id': self.dte_case_id.generated_account_move_id.id,
                     'view_mode': 'form',
                     'target': 'current',
                 }
             else:
-                _logger.info(f"La factura existente está en estado: {self.dte_case_id.generated_account_move_id.state}")
-                raise UserError(f"Este caso DTE ya tiene una factura generada: {self.dte_case_id.generated_account_move_id.name} (Estado: {self.dte_case_id.generated_account_move_id.state})")
+                _logger.info(f"El documento existente está en estado: {self.dte_case_id.generated_account_move_id.state}")
+                raise UserError(f"Este caso DTE ya tiene un documento generado: {self.dte_case_id.generated_account_move_id.name} (Estado: {self.dte_case_id.generated_account_move_id.state})")
         
-        # **NUEVA VERIFICACIÓN: Buscar facturas duplicadas por referencia**
+        # **NUEVA VERIFICACIÓN: Buscar documentos duplicados por referencia**
         existing_moves = self.env['account.move'].search([
             ('ref', '=', f'Certificación DTE - Caso {self.dte_case_id.id}'),
             ('state', '!=', 'cancel')
         ])
         if existing_moves:
-            _logger.warning(f"Encontradas facturas existentes con referencia del caso {self.dte_case_id.id}: {existing_moves.mapped('name')}")
-            # Vincular la primera factura encontrada si no hay vinculación
+            _logger.warning(f"Encontrados documentos existentes con referencia del caso {self.dte_case_id.id}: {existing_moves.mapped('name')}")
+            # Vincular el primer documento encontrado si no hay vinculación
             if not self.dte_case_id.generated_account_move_id and existing_moves:
                 self.dte_case_id.generated_account_move_id = existing_moves[0]
-                _logger.info(f"Vinculada factura existente {existing_moves[0].name} al caso {self.dte_case_id.id}")
+                _logger.info(f"Vinculado documento existente {existing_moves[0].name} al caso {self.dte_case_id.id}")
                 return {
                     'type': 'ir.actions.act_window',
-                    'name': 'Factura Recuperada',
+                    'name': 'Documento Recuperado',
                     'res_model': 'account.move',
                     'res_id': existing_moves[0].id,
                     'view_mode': 'form',
@@ -80,66 +80,125 @@ class CertificationDocumentGenerator(models.TransientModel):
             # Validar datos requeridos
             self._validate_required_data()
             
-            # Crear sale.order
-            sale_order = self._create_sale_order()
-            _logger.info(f"Sale Order creada: {sale_order.name}")
+            # **NUEVO: Detectar tipo de documento y usar flujo correspondiente**
+            document_type = self.dte_case_id.document_type_code
             
-            # Confirmar sale.order
-            sale_order.action_confirm()
-            _logger.info(f"Sale Order confirmada: {sale_order.name}")
-            
-            # Crear factura (en borrador)
-            invoice = self._create_invoice_from_sale_order(sale_order)
-            _logger.info(f"Factura creada en borrador: {invoice.name}")
-            
-            # Configurar campos específicos de DTE
-            self._configure_dte_fields_on_invoice(invoice)
-            _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
-
-            # Aplicar descuento global si existe
-            if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
-                _logger.info(f"Aplicando descuento global: {self.dte_case_id.global_discount_percent}%")
-                self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
-                _logger.info(f"Descuento global aplicado en factura: {invoice.name}")
-
-            # Crear referencias de documentos
-            self._create_document_references_on_invoice(invoice)
-            _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
-            
-            # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
-            self.dte_case_id.generated_account_move_id = invoice.id
-            self.dte_case_id.generation_status = 'generated'
-            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
-            
-            # Log de éxito
-            _logger.info(f"Factura generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
-            
-            # Verificar después de la configuración
-            _logger.info("✓ Factura configurada:")
-            _logger.info("  - Diario: %s (ID: %s)", invoice.journal_id.name, invoice.journal_id.id)
-            _logger.info("  - Tipo documento: %s (%s)", invoice.l10n_latam_document_type_id.name, invoice.l10n_latam_document_type_id.code)
-            _logger.info("  - Fecha: %s", invoice.invoice_date)
-            _logger.info("  - Referencia: %s", invoice.ref)
-            _logger.info("  - Número documento: %s", invoice.l10n_latam_document_number)
-
-            # APLICAR GIRO ALTERNATIVO SI ES NECESARIO
-            self._apply_alternative_giro_if_needed(invoice)
-            
-            return {
-                'type': 'ir.actions.act_window',
-                'name': 'Factura Generada',
-                'res_model': 'account.move',
-                'res_id': invoice.id,
-                'view_mode': 'form',
-                'target': 'current',
-            }
-            
+            if document_type in ['61', '56']:  # Nota de crédito o débito
+                return self._generate_credit_or_debit_note()
+            else:  # Factura u otro documento original
+                return self._generate_original_document()
+                
         except Exception as e:
             _logger.error(f"Error generando documento para caso {self.dte_case_id.id}: {str(e)}")
             # Actualizar estado de error
             self.dte_case_id.generation_status = 'error'
             self.dte_case_id.error_message = str(e)
             raise UserError(f"Error al generar documento: {str(e)}")
+
+    def _generate_original_document(self):
+        """Genera facturas u otros documentos originales usando el flujo sale.order"""
+        _logger.info(f"Generando documento original (tipo {self.dte_case_id.document_type_code})")
+        
+        # Crear sale.order
+        sale_order = self._create_sale_order()
+        _logger.info(f"Sale Order creada: {sale_order.name}")
+        
+        # Confirmar sale.order
+        sale_order.action_confirm()
+        _logger.info(f"Sale Order confirmada: {sale_order.name}")
+        
+        # Crear factura (en borrador)
+        invoice = self._create_invoice_from_sale_order(sale_order)
+        _logger.info(f"Factura creada en borrador: {invoice.name}")
+        
+        # Configurar campos específicos de DTE
+        self._configure_dte_fields_on_invoice(invoice)
+        _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
+
+        # Aplicar descuento global si existe
+        if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
+            _logger.info(f"Aplicando descuento global: {self.dte_case_id.global_discount_percent}%")
+            self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
+            _logger.info(f"Descuento global aplicado en factura: {invoice.name}")
+
+        # Crear referencias de documentos
+        self._create_document_references_on_invoice(invoice)
+        _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
+        
+        # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
+        self.dte_case_id.generated_account_move_id = invoice.id
+        self.dte_case_id.generation_status = 'generated'
+        _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
+        
+        # Log de éxito
+        _logger.info(f"Factura generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
+        
+        # Verificar después de la configuración
+        _logger.info("✓ Factura configurada:")
+        _logger.info("  - Diario: %s (ID: %s)", invoice.journal_id.name, invoice.journal_id.id)
+        _logger.info("  - Tipo documento: %s (%s)", invoice.l10n_latam_document_type_id.name, invoice.l10n_latam_document_type_id.code)
+        _logger.info("  - Fecha: %s", invoice.invoice_date)
+        _logger.info("  - Referencia: %s", invoice.ref)
+        _logger.info("  - Número documento: %s", invoice.l10n_latam_document_number)
+
+        # APLICAR GIRO ALTERNATIVO SI ES NECESARIO
+        self._apply_alternative_giro_if_needed(invoice)
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Factura Generada',
+            'res_model': 'account.move',
+            'res_id': invoice.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def _generate_credit_or_debit_note(self):
+        """Genera nota de crédito o débito desde documento referenciado"""
+        _logger.info(f"Generando nota de crédito/débito (tipo {self.dte_case_id.document_type_code})")
+        
+        # Buscar el documento original referenciado
+        if not self.dte_case_id.reference_ids:
+            raise UserError(f"La nota de crédito/débito {self.dte_case_id.case_number_raw} debe tener referencias al documento original")
+        
+        # Obtener la primera referencia (documento original)
+        ref = self.dte_case_id.reference_ids[0]
+        
+        # Buscar el documento original generado
+        original_invoice = self._get_referenced_move(ref.referenced_sii_case_number)
+        
+        if not original_invoice:
+            # Si no existe, sugerir generarlo primero
+            referenced_case = self.env['l10n_cl_edi.certification.case.dte'].search([
+                ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
+                ('case_number_raw', '=', ref.referenced_sii_case_number)
+            ], limit=1)
+            
+            if referenced_case:
+                error_msg = f"El documento original (caso {ref.referenced_sii_case_number}) aún no ha sido generado. "
+                error_msg += f"Debe generar primero el caso '{referenced_case.case_number_raw} - {referenced_case.document_type_raw}' "
+                error_msg += f"antes de crear esta nota de crédito/débito."
+                raise UserError(error_msg)
+            else:
+                raise UserError(f"No se encontró el caso DTE referenciado: {ref.referenced_sii_case_number}")
+        
+        # Validar que el documento original esté confirmado
+        if original_invoice.state not in ['posted']:
+            raise UserError(f"El documento original {original_invoice.name} debe estar confirmado antes de crear la nota de crédito/débito (estado actual: {original_invoice.state})")
+        
+        _logger.info(f"Documento original encontrado: {original_invoice.name} (estado: {original_invoice.state})")
+        
+        # Generar la nota de crédito/débito
+        credit_note = self._generate_credit_note_from_case(original_invoice, self.dte_case_id)
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Nota de {"Crédito" if self.dte_case_id.document_type_code == "61" else "Débito"} Generada',
+            'res_model': 'account.move',
+            'res_id': credit_note.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def _validate_required_data(self):
         """Validate that all required data is present"""
@@ -627,3 +686,325 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"   Motivo: CORRIGE GIRO DEL RECEPTOR")
         else:
             _logger.info(f"✓ Giro normal mantenido para caso {case_number}")
+
+    def _generate_credit_note_from_case(self, invoice, case_dte):
+        """
+        Genera nota de crédito desde caso de certificación siguiendo procesos nativos de Odoo.
+        
+        Args:
+            invoice (account.move): Factura original desde la cual crear la NC
+            case_dte (l10n_cl_edi.certification.case.dte): Caso DTE de la nota de crédito
+            
+        Returns:
+            account.move: Nota de crédito generada
+        """
+        self.ensure_one()
+        
+        _logger.info(f"=== GENERANDO NOTA DE CRÉDITO ===")
+        _logger.info(f"Factura original: {invoice.name} (ID: {invoice.id})")
+        _logger.info(f"Caso DTE: {case_dte.case_number_raw} - {case_dte.document_type_raw}")
+        
+        # Validar que es una nota de crédito o débito
+        if case_dte.document_type_code not in ['61', '56']:
+            raise UserError(f"El caso {case_dte.case_number_raw} no es una nota de crédito/débito (tipo: {case_dte.document_type_code})")
+        
+        # 1. Crear la NC/ND usando el método nativo de Odoo
+        _logger.info("1. Creando documento usando método nativo _reverse_moves()")
+        
+        try:
+            # Llamar al método nativo de reversión
+            reversed_moves = invoice._reverse_moves()
+            if not reversed_moves:
+                raise UserError("No se pudo crear la nota de crédito/débito")
+            
+            credit_note = reversed_moves[0]
+            _logger.info(f"✓ Documento creado: {credit_note.name} (ID: {credit_note.id})")
+            
+        except Exception as e:
+            _logger.error(f"❌ Error creando documento nativo: {str(e)}")
+            raise UserError(f"Error al crear nota de crédito/débito: {str(e)}")
+        
+        # 2. ANTES de limpiar, almacenar la referencia automática para consistencia
+        _logger.info("2. Almacenando referencia automática antes de limpiar")
+        automatic_ref_data = None
+        
+        if credit_note.l10n_cl_reference_ids:
+            auto_ref = credit_note.l10n_cl_reference_ids[0]
+            automatic_ref_data = {
+                'l10n_cl_reference_doc_type_id': auto_ref.l10n_cl_reference_doc_type_id.id,
+                'origin_doc_number': auto_ref.origin_doc_number,
+                'date': auto_ref.date,
+            }
+            _logger.info(f"✓ Referencia automática almacenada: {auto_ref.origin_doc_number}")
+        else:
+            _logger.warning("⚠️  No se encontró referencia automática")
+        
+        # 3. Limpiar referencias automáticas para crear las correctas
+        _logger.info("3. Limpiando referencias automáticas")
+        if credit_note.l10n_cl_reference_ids:
+            credit_note.l10n_cl_reference_ids.unlink()
+            _logger.info("✓ Referencias automáticas eliminadas")
+        
+        # 4. Configurar el tipo de documento correcto
+        _logger.info("4. Configurando tipo de documento")
+        doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', case_dte.document_type_code),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if not doc_type:
+            raise UserError(f"Tipo de documento '{case_dte.document_type_code}' no encontrado")
+        
+        credit_note.write({
+            'l10n_latam_document_type_id': doc_type.id,
+            'ref': f'Caso SII {case_dte.case_number_raw}',
+        })
+        _logger.info(f"✓ Tipo de documento configurado: {doc_type.name} ({doc_type.code})")
+        
+        # 5. Crear referencias en el orden correcto (SET primero, luego documento original)
+        _logger.info("5. Creando referencias en orden correcto")
+        references_to_create = []
+        
+        # PRIMERA REFERENCIA: SET (obligatoria para certificación SII)
+        set_doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if set_doc_type:
+            set_reference = {
+                'move_id': credit_note.id,
+                'l10n_cl_reference_doc_type_id': set_doc_type.id,
+                'origin_doc_number': case_dte.case_number_raw,           # ej: "4267228-5"
+                'reason': f'CASO {case_dte.case_number_raw}',            # ej: "CASO 4267228-5"
+                'date': fields.Date.context_today(self),
+            }
+            references_to_create.append(set_reference)
+            _logger.info(f"✓ Referencia SET agregada: {case_dte.case_number_raw}")
+        else:
+            _logger.error("❌ No se encontró tipo de documento SET")
+            raise UserError("No se encontró tipo de documento SET para referencias")
+        
+        # SEGUNDA REFERENCIA: Documento original (usando datos automáticos + datos del caso)
+        if automatic_ref_data and case_dte.reference_ids:
+            ref_case = case_dte.reference_ids[0]  # Primera referencia del caso DTE
+            
+            document_reference = {
+                'move_id': credit_note.id,
+                'l10n_cl_reference_doc_type_id': automatic_ref_data['l10n_cl_reference_doc_type_id'],
+                'origin_doc_number': automatic_ref_data['origin_doc_number'],
+                'date': automatic_ref_data['date'],
+                'reference_doc_code': ref_case.reference_code,           # Del modelo: '1', '2', '3'
+                'reason': ref_case.reason_raw,                          # Del modelo: razón específica
+            }
+            references_to_create.append(document_reference)
+            _logger.info(f"✓ Referencia documento agregada: {automatic_ref_data['origin_doc_number']}")
+            _logger.info(f"  - Código: {ref_case.reference_code}")
+            _logger.info(f"  - Razón: {ref_case.reason_raw}")
+        else:
+            _logger.warning("⚠️  No se pudo crear referencia al documento original")
+        
+        # 6. Crear todas las referencias
+        if references_to_create:
+            _logger.info(f"6. Creando {len(references_to_create)} referencias")
+            try:
+                created_refs = self.env['l10n_cl.account.invoice.reference'].create(references_to_create)
+                _logger.info(f"✓ Referencias creadas exitosamente: {len(created_refs)} registros")
+                
+                # Log detalle de referencias creadas
+                for i, ref in enumerate(created_refs, 1):
+                    _logger.info(f"  Ref {i}: {ref.origin_doc_number} - {ref.reason}")
+                    
+            except Exception as e:
+                _logger.error(f"❌ Error creando referencias: {str(e)}")
+                raise UserError(f"Error al crear referencias: {str(e)}")
+        else:
+            _logger.warning("⚠️  No hay referencias para crear")
+        
+        # 7. Ajustar líneas según el tipo de nota de crédito (si es necesario)
+        _logger.info("7. Ajustando líneas del documento")
+        self._adjust_credit_note_lines(credit_note, case_dte)
+        
+        # 8. Marcar el caso como generado
+        case_dte.write({
+            'generation_status': 'generated',
+            'generated_account_move_id': credit_note.id,
+        })
+        
+        _logger.info(f"✅ NOTA DE CRÉDITO GENERADA EXITOSAMENTE")
+        _logger.info(f"   Documento: {credit_note.name}")
+        _logger.info(f"   Tipo: {doc_type.name} ({doc_type.code})")
+        _logger.info(f"   Referencias: {len(references_to_create)}")
+        _logger.info(f"   Caso marcado como generado")
+        
+        return credit_note
+    
+    def _adjust_credit_note_lines(self, credit_note, case_dte):
+        """
+        Ajusta las líneas de la nota de crédito según el tipo de operación.
+        Delega a métodos específicos para cada tipo de corrección.
+        """
+        self.ensure_one()
+        
+        if not case_dte.reference_ids:
+            _logger.info("No hay referencias en el caso, manteniendo líneas originales")
+            return
+        
+        ref_code = case_dte.reference_ids[0].reference_code
+        _logger.info(f"Procesando nota de crédito con código de referencia: {ref_code}")
+        
+        if ref_code == '2':  # Corrección de texto/giro
+            self._apply_text_correction_nc(credit_note, case_dte)
+        elif ref_code == '3':  # Devolución de mercaderías
+            self._apply_partial_return_nc(credit_note, case_dte)
+        elif ref_code == '1':  # Anulación completa
+            self._apply_full_cancellation_nc(credit_note, case_dte)
+        else:
+            _logger.warning(f"Código de referencia no reconocido: {ref_code}. Manteniendo líneas originales.")
+
+    def _apply_text_correction_nc(self, credit_note, case_dte):
+        """
+        Aplica corrección de texto/giro (código 2).
+        Crea una línea con monto $0 para informar la corrección.
+        """
+        _logger.info("=== APLICANDO CORRECCIÓN DE TEXTO/GIRO (Código 2) ===")
+        
+        # Eliminar líneas existentes (excepto líneas de impuestos)
+        product_lines = credit_note.invoice_line_ids.filtered(
+            lambda l: l.display_type not in ('line_section', 'line_note') and not l.tax_line_id
+        )
+        
+        if product_lines:
+            _logger.info(f"Eliminando {len(product_lines)} líneas originales")
+            product_lines.unlink()
+        
+        # Crear línea de corrección con monto 0
+        correction_text = case_dte.reference_ids[0].reason_raw or "Corrección de texto"
+        
+        correction_line_vals = {
+            'move_id': credit_note.id,
+            'name': f'CORRECCIÓN: {correction_text}',
+            'quantity': 1.0,
+            'price_unit': 0.0,  # ← MONTO CERO según regulación SII
+            'account_id': credit_note.journal_id.default_account_id.id,
+        }
+        
+        correction_line = self.env['account.move.line'].create(correction_line_vals)
+        _logger.info("✓ Línea de corrección creada con monto $0")
+        _logger.info(f"  Descripción: {correction_line.name}")
+        _logger.info("  → Esta NC solo informa la corrección, no afecta montos")
+
+    def _apply_partial_return_nc(self, credit_note, case_dte):
+        """
+        Aplica devolución parcial de mercaderías (código 3).
+        Ajusta cantidades según los ítems específicos del caso DTE.
+        """
+        _logger.info("=== APLICANDO DEVOLUCIÓN PARCIAL (Código 3) ===")
+        
+        if not case_dte.item_ids:
+            _logger.warning("No hay ítems específicos en el caso DTE. Manteniendo líneas originales.")
+            return
+        
+        _logger.info(f"Ajustando cantidades según {len(case_dte.item_ids)} ítems del caso")
+        
+        # Mapear ítems del caso por nombre para facilitar búsqueda
+        case_items_by_name = {item.name: item for item in case_dte.item_ids}
+        
+        # Obtener líneas de productos (sin líneas de impuestos ni descriptivas)
+        product_lines = credit_note.invoice_line_ids.filtered(
+            lambda l: l.product_id and l.display_type not in ('line_section', 'line_note') and not l.tax_line_id
+        )
+        
+        lines_matched = 0
+        lines_to_remove = []
+        
+        for line in product_lines:
+            # Buscar ítem correspondiente en el caso por nombre
+            matching_item = None
+            for item_name, item in case_items_by_name.items():
+                # Búsqueda flexible: comparar nombres normalizados
+                if (item_name.upper().strip() in line.name.upper().strip() or 
+                    line.name.upper().strip() in item_name.upper().strip()):
+                    matching_item = item
+                    break
+            
+            if matching_item:
+                # Actualizar cantidad según el caso DTE (mantener precio unitario original)
+                old_qty = line.quantity
+                line.write({
+                    'quantity': matching_item.quantity,
+                    # Mantener price_unit original para consistencia
+                })
+                _logger.info(f"✓ Línea actualizada: '{line.name}'")
+                _logger.info(f"  Cantidad: {old_qty} → {matching_item.quantity}")
+                _logger.info(f"  Precio unitario: ${line.price_unit:,.0f} (mantenido)")
+                lines_matched += 1
+            else:
+                # Si no hay ítem correspondiente, marcar para eliminar
+                # (solo devolver productos específicamente mencionados en el caso)
+                lines_to_remove.append(line)
+                _logger.info(f"⚠️  Línea sin ítem correspondiente (se eliminará): '{line.name}'")
+        
+        # Eliminar líneas que no tienen ítems correspondientes en la devolución
+        if lines_to_remove:
+            lines_to_remove_names = [l.name for l in lines_to_remove]
+            for line in lines_to_remove:
+                line.unlink()
+            _logger.info(f"✓ Eliminadas {len(lines_to_remove)} líneas no incluidas en devolución")
+            for name in lines_to_remove_names:
+                _logger.info(f"  - {name}")
+        
+        _logger.info(f"✅ DEVOLUCIÓN PARCIAL COMPLETADA:")
+        _logger.info(f"  - Líneas ajustadas: {lines_matched}")
+        _logger.info(f"  - Líneas eliminadas: {len(lines_to_remove)}")
+        _logger.info("  → Solo se reversan los productos específicamente devueltos")
+
+    def _apply_full_cancellation_nc(self, credit_note, case_dte):
+        """
+        Aplica anulación completa (código 1).
+        Mantiene las líneas originales con montos completos para anular toda la factura.
+        """
+        _logger.info("=== APLICANDO ANULACIÓN COMPLETA (Código 1) ===")
+        
+        # Para anulación completa, las líneas ya están correctas (montos completos negativos)
+        # Solo verificar que tenemos las líneas correctas
+        
+        product_lines = credit_note.invoice_line_ids.filtered(
+            lambda l: l.product_id and l.display_type not in ('line_section', 'line_note') and not l.tax_line_id
+        )
+        
+        if case_dte.item_ids:
+            # Si el caso tiene ítems específicos, verificar que coincidan
+            _logger.info(f"Verificando {len(product_lines)} líneas contra {len(case_dte.item_ids)} ítems del caso")
+            
+            # Mapear ítems del caso por nombre
+            case_items_by_name = {item.name: item for item in case_dte.item_ids}
+            
+            for line in product_lines:
+                # Buscar ítem correspondiente
+                matching_item = None
+                for item_name, item in case_items_by_name.items():
+                    if (item_name.upper().strip() in line.name.upper().strip() or 
+                        line.name.upper().strip() in item_name.upper().strip()):
+                        matching_item = item
+                        break
+                
+                if matching_item:
+                    # Para anulación, verificar que las cantidades sean correctas
+                    # (deberían ser las mismas que la factura original)
+                    if line.quantity != matching_item.quantity:
+                        _logger.info(f"Ajustando cantidad para anulación completa: '{line.name}'")
+                        _logger.info(f"  Cantidad: {line.quantity} → {matching_item.quantity}")
+                        line.write({'quantity': matching_item.quantity})
+                    
+                    _logger.info(f"✓ Línea verificada: '{line.name}' - Cant: {line.quantity}")
+                else:
+                    _logger.warning(f"⚠️  Línea sin ítem correspondiente: '{line.name}'")
+        
+        total_lines = len(product_lines)
+        total_amount = sum(line.price_subtotal for line in product_lines)
+        
+        _logger.info(f"✅ ANULACIÓN COMPLETA CONFIGURADA:")
+        _logger.info(f"  - Total líneas: {total_lines}")
+        _logger.info(f"  - Monto total NC: ${total_amount:,.0f}")
+        _logger.info("  → Esta NC anula completamente la factura original")
