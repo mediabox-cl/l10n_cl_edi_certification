@@ -10,30 +10,82 @@ class ResPartner(models.Model):
 
     @api.model
     def create(self, vals):
-        """Override create - NORMALIZACIÓN DE GIRO DESHABILITADA."""
-        # NORMALIZACIÓN DESHABILITADA
-        # Mantener giro original sin modificaciones
-        if 'l10n_cl_activity_description' in vals and vals['l10n_cl_activity_description']:
-            _logger.info("⚠️  Normalización de giro DESHABILITADA en create - manteniendo giro original")
-        
+        """Override create con validación preventiva de longitudes."""
+        vals = self._validate_field_lengths(vals)
         return super().create(vals)
 
     def write(self, vals):
-        """Override write - NORMALIZACIÓN DE GIRO DESHABILITADA."""
-        # NORMALIZACIÓN DESHABILITADA
-        # Mantener giro original sin modificaciones
-        if 'l10n_cl_activity_description' in vals and vals['l10n_cl_activity_description']:
-            _logger.info("⚠️  Normalización de giro DESHABILITADA en write - manteniendo giro original")
-        
+        """Override write con validación preventiva de longitudes."""
+        vals = self._validate_field_lengths(vals)
         return super().write(vals)
 
-    @api.onchange('l10n_cl_activity_description')
-    def _onchange_giro_normalize(self):
-        """NORMALIZACIÓN DE GIRO DESHABILITADA - No se aplican cambios automáticos."""
-        # NORMALIZACIÓN DESHABILITADA
-        # No normalizar giro automáticamente
-        if self.l10n_cl_activity_description:
-            _logger.info("⚠️  Normalización de giro DESHABILITADA en onchange - manteniendo giro original")
+    @api.onchange('name', 'l10n_cl_activity_description', 'street')
+    def _onchange_validate_lengths(self):
+        """Validación en tiempo real de longitudes de campos."""
+        warnings = []
         
-        # No retornar warning ni modificar el campo
-        return 
+        # Validar razón social (100 chars)
+        if self.name and len(self.name) > 100:
+            self.name = self.name[:97] + '...'
+            warnings.append('Razón social truncada a 100 caracteres')
+        
+        # Validar giro (40 chars)
+        if self.l10n_cl_activity_description and len(self.l10n_cl_activity_description) > 40:
+            self.l10n_cl_activity_description = self.l10n_cl_activity_description[:37] + '...'
+            warnings.append('Giro truncado a 40 caracteres')
+        
+        # Validar dirección (60 chars)
+        if self.street and len(self.street) > 60:
+            self.street = self.street[:57] + '...'
+            warnings.append('Dirección truncada a 60 caracteres')
+        
+        # Mostrar warning si hubo truncados
+        if warnings:
+            return {
+                'warning': {
+                    'title': 'Campos Truncados',
+                    'message': 'Los siguientes campos fueron truncados para cumplir límites SII:\n• ' + '\n• '.join(warnings)
+                }
+            }
+
+    def _validate_field_lengths(self, vals):
+        """
+        Valida y trunca campos que excedan los límites del esquema XSD del SII.
+        
+        Límites aplicados:
+        - name (razón social): 100 caracteres
+        - l10n_cl_activity_description (giro): 40 caracteres  
+        - street (dirección): 60 caracteres
+        """
+        # Límites según esquema XSD del SII
+        field_limits = {
+            'name': 100,                           # Razón social
+            'l10n_cl_activity_description': 40,    # Giro/actividad
+            'street': 60,                          # Dirección
+        }
+        
+        for field_name, max_length in field_limits.items():
+            if field_name in vals and vals[field_name]:
+                field_value = vals[field_name]
+                if len(field_value) > max_length:
+                    original_length = len(field_value)
+                    # Truncar dejando espacio para "..."
+                    vals[field_name] = field_value[:max_length-3] + '...'
+                    _logger.info(
+                        f"✂️  Campo {field_name} truncado: {original_length} → {max_length} caracteres"
+                    )
+        
+        return vals
+
+    def _get_giro_for_certification_case(self, case_number=None):
+        """
+        Retorna el giro apropiado según el caso de certificación.
+        
+        Para casos específicos como corrección de giro, retorna un giro alternativo.
+        """
+        # Caso especial: 4267228-5 (CORRIGE GIRO DEL RECEPTOR)
+        if case_number == '4267228-5':
+            return 'Servicios de Consultoría Empresarial'  # Giro corregido (37 chars)
+        
+        # Giro normal
+        return self.l10n_cl_activity_description or 'Servicios Empresariales'  # Fallback (22 chars) 

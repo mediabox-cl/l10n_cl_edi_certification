@@ -114,6 +114,17 @@ class CertificationDocumentGenerator(models.TransientModel):
             # Log de éxito
             _logger.info(f"Factura generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
             
+            # Verificar después de la configuración
+            _logger.info("✓ Factura configurada:")
+            _logger.info("  - Diario: %s (ID: %s)", invoice.journal_id.name, invoice.journal_id.id)
+            _logger.info("  - Tipo documento: %s (%s)", invoice.l10n_latam_document_type_id.name, invoice.l10n_latam_document_type_id.code)
+            _logger.info("  - Fecha: %s", invoice.invoice_date)
+            _logger.info("  - Referencia: %s", invoice.ref)
+            _logger.info("  - Número documento: %s", invoice.l10n_latam_document_number)
+
+            # APLICAR GIRO ALTERNATIVO SI ES NECESARIO
+            self._apply_alternative_giro_if_needed(invoice)
+            
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'Factura Generada',
@@ -315,6 +326,9 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info("  - Fecha: %s", invoice.invoice_date)
         _logger.info("  - Referencia: %s", invoice.ref)
         _logger.info("  - Número documento: %s", invoice.l10n_latam_document_number)
+
+        # APLICAR GIRO ALTERNATIVO SI ES NECESARIO
+        self._apply_alternative_giro_if_needed(invoice)
 
     def _fix_document_number_if_needed(self, invoice):
         """
@@ -588,18 +602,28 @@ class CertificationDocumentGenerator(models.TransientModel):
             return '3'
         return False
 
-    def _fix_encoding_issues(self, xml_content):
+    def _apply_alternative_giro_if_needed(self, invoice):
         """
-        NORMALIZACIÓN DESHABILITADA - Solo mantiene el XML original.
+        Aplica giro alternativo para casos específicos como corrección de giro.
         
-        Anteriormente aplicaba normalización de caracteres especiales,
-        pero se deshabilitó para probar si el SII acepta caracteres originales.
+        Caso 4267228-5: CORRIGE GIRO DEL RECEPTOR
         """
-        if not xml_content:
-            return xml_content
+        self.ensure_one()
         
-        # NORMALIZACIÓN DESHABILITADA
-        # No aplicar reemplazos de caracteres especiales
-        _logger.info("⚠️  Normalización de caracteres DESHABILITADA en generador - manteniendo caracteres originales")
+        case_number = self.dte_case_id.case_number_raw
         
-        return xml_content
+        # Caso especial: Corrección de giro
+        if case_number == '4267228-5':
+            partner = invoice.partner_id
+            original_giro = partner.l10n_cl_activity_description
+            alternative_giro = 'Servicios de Consultoría Empresarial'  # 37 chars
+            
+            # Aplicar giro alternativo temporalmente
+            partner.write({'l10n_cl_activity_description': alternative_giro})
+            
+            _logger.info(f"🔄 Giro alternativo aplicado para caso {case_number}:")
+            _logger.info(f"   Original: '{original_giro}'")
+            _logger.info(f"   Corregido: '{alternative_giro}'")
+            _logger.info(f"   Motivo: CORRIGE GIRO DEL RECEPTOR")
+        else:
+            _logger.info(f"✓ Giro normal mantenido para caso {case_number}")

@@ -519,12 +519,12 @@ class CertificationProcess(models.Model):
         
         # RUT del SII: 60.803.000-K (requisito obligatorio para certificación)
         target_name = 'The John Doe\'s Foundation'
-        target_vat = 'CL60803000K'
+        target_rut = 'CL60803000K'
         
         # Buscar partner existente con el mismo nombre Y RUT
         existing_partner = self.env['res.partner'].search([
             ('name', '=', target_name),
-            ('vat', '=', target_vat)
+            ('vat', '=', target_rut)
         ], limit=1)
         
         if existing_partner:
@@ -532,11 +532,11 @@ class CertificationProcess(models.Model):
             return existing_partner
         
         # No existe, crear uno nuevo
-        _logger.info(f"Creando nuevo partner con nombre: {target_name} y RUT: {target_vat}")
+        _logger.info(f"Creando nuevo partner con nombre: {target_name} y RUT: {target_rut}")
         
         vals = {
             'name': target_name,
-            'vat': target_vat,
+            'vat': target_rut,
             'is_company': True,
             'customer_rank': 1,
             'supplier_rank': 0,
@@ -549,7 +549,7 @@ class CertificationProcess(models.Model):
             'website': 'https://johndoe.foundation',
             'l10n_cl_sii_taxpayer_type': '1',
             'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
-            'l10n_cl_activity_description': 'Servicios de consultoría y desarrollo tecnológico',
+            'l10n_cl_activity_description': 'Servicios Empresariales',  # 22 chars - dentro del límite
         }
         
         certification_partner = self.env['res.partner'].create(vals)
