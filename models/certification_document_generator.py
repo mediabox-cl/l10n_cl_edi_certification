@@ -739,17 +739,46 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # **CLAVE 4: Preparar los valores por defecto usando el método nativo**
         # Esto simula lo que hace el wizard de reversión chileno
+        # IMPORTANTE: Crear las referencias en el ORDEN CORRECTO para el XML (SET primero)
+        
+        # Buscar tipo de documento SET para la primera referencia
+        set_doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        # Crear referencias en orden correcto: SET primero, luego documento original
+        reference_lines = []
+        
+        # PRIMERA REFERENCIA: SET (obligatoria para certificación SII)
+        if set_doc_type:
+            reference_lines.append([0, 0, {
+                'l10n_cl_reference_doc_type_id': set_doc_type.id,
+                'origin_doc_number': case_dte.case_number_raw,
+                'reason': f'CASO {case_dte.case_number_raw}',
+                'date': fields.Date.context_today(self),
+                # NO incluir reference_doc_code para referencia SET
+            }])
+            _logger.info(f"✓ Referencia SET preparada (primera): {case_dte.case_number_raw}")
+        else:
+            _logger.error("❌ No se encontró tipo de documento SET")
+            raise UserError("No se encontró tipo de documento SET para referencias")
+        
+        # SEGUNDA REFERENCIA: Documento original 
+        reference_lines.append([0, 0, {
+            'origin_doc_number': invoice.l10n_latam_document_number,
+            'l10n_cl_reference_doc_type_id': invoice.l10n_latam_document_type_id.id,
+            'reference_doc_code': reference_code,
+            'reason': reference_reason,
+            'date': invoice.invoice_date,
+        }])
+        _logger.info(f"✓ Referencia documento original preparada (segunda): {invoice.l10n_latam_document_number}")
+        
         default_values = [{
             'move_type': 'out_refund' if invoice.move_type == 'out_invoice' else 'in_refund',
             'invoice_origin': f'{invoice.l10n_latam_document_type_id.doc_code_prefix} {invoice.l10n_latam_document_number}',
             'l10n_latam_document_type_id': reverse_doc_type.id,  # ← ESTO ERA LO QUE FALTABA
-            'l10n_cl_reference_ids': [[0, 0, {
-                'origin_doc_number': invoice.l10n_latam_document_number,
-                'l10n_cl_reference_doc_type_id': invoice.l10n_latam_document_type_id.id,
-                'reference_doc_code': reference_code,
-                'reason': reference_reason,
-                'date': invoice.invoice_date,
-            }]]
+            'l10n_cl_reference_ids': reference_lines  # Referencias en orden correcto
         }]
         
         _logger.info("Valores por defecto configurados para NC")
@@ -776,30 +805,28 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.error(f"❌ Error creando NC/ND: {str(e)}")
             raise UserError(f"Error al crear nota de crédito/débito: {str(e)}")
         
-        # **PASO 6: Configurar referencia obligatoria al SET**
-        _logger.info("Configurando referencias del caso de certificación")
+        # **PASO 6: Verificar que las referencias se crearon correctamente**
+        _logger.info("Verificando referencias creadas en la NC")
         
-        # Las referencias al documento original ya fueron configuradas en default_values
-        # Solo necesitamos agregar la referencia obligatoria al SET
+        # Las referencias ya fueron configuradas en default_values en el orden correcto:
+        # 1. SET (primera - aparece primera en XML)
+        # 2. Documento original (segunda - aparece segunda en XML)
         
-        set_doc_type = self.env['l10n_latam.document.type'].search([
-            ('code', '=', 'SET'),
-            ('country_id.code', '=', 'CL')
-        ], limit=1)
+        created_references = credit_note.l10n_cl_reference_ids
+        _logger.info(f"✓ Total referencias creadas: {len(created_references)}")
         
-        if set_doc_type:
-            set_reference_vals = {
-                'move_id': credit_note.id,
-                'l10n_cl_reference_doc_type_id': set_doc_type.id,
-                'origin_doc_number': case_dte.case_number_raw,
-                'reason': f'CASO {case_dte.case_number_raw}',
-                'date': fields.Date.context_today(self),
-            }
-            
-            set_reference = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
-            _logger.info(f"✓ Referencia SET creada: {case_dte.case_number_raw}")
+        for i, ref in enumerate(created_references.sorted('id'), 1):
+            _logger.info(f"  Ref {i}: {ref.l10n_cl_reference_doc_type_id.code} - {ref.origin_doc_number} - {ref.reason}")
+        
+        # Verificar que SET es la primera referencia
+        if created_references:
+            first_ref = created_references.sorted('id')[0]
+            if first_ref.l10n_cl_reference_doc_type_id.code == 'SET':
+                _logger.info("✓ Orden de referencias correcto: SET aparece primera")
+            else:
+                _logger.warning(f"⚠️  Orden de referencias incorrecto: {first_ref.l10n_cl_reference_doc_type_id.code} aparece primera en lugar de SET")
         else:
-            _logger.warning("⚠️  No se encontró tipo de documento SET")
+            _logger.error("❌ No se crearon referencias")
         
         # **PASO 7: Ajustar líneas según el tipo de nota de crédito**
         _logger.info("Ajustando líneas del documento según tipo de NC")
