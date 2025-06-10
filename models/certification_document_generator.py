@@ -690,6 +690,7 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _generate_credit_note_from_case(self, invoice, case_dte):
         """
         Genera nota de crédito desde caso de certificación siguiendo procesos nativos de Odoo.
+        CORREGIDO: Configura correctamente el tipo de documento y contexto antes de crear la NC.
         
         Args:
             invoice (account.move): Factura original desde la cual crear la NC
@@ -708,108 +709,103 @@ class CertificationDocumentGenerator(models.TransientModel):
         if case_dte.document_type_code not in ['61', '56']:
             raise UserError(f"El caso {case_dte.case_number_raw} no es una nota de crédito/débito (tipo: {case_dte.document_type_code})")
         
-        # 1. Crear la NC/ND usando el método nativo de Odoo
-        _logger.info("1. Creando documento usando método nativo _reverse_moves()")
+        # **CLAVE 1: Obtener el tipo correcto de documento según el partner**
+        # Esto usa la lógica nativa del módulo chileno
+        reverse_doc_type = invoice._l10n_cl_get_reverse_doc_type()
+        _logger.info(f"Tipo de documento NC determinado: {reverse_doc_type.name} (código: {reverse_doc_type.code})")
         
+        # **CLAVE 2: Determinar el código de referencia según el caso**
+        reference_code = '3'  # Por defecto: corrección de monto
+        if case_dte.reference_ids:
+            reference_code = case_dte.reference_ids[0].reference_code
+            _logger.info(f"Código de referencia del caso: {reference_code}")
+        
+        # **CLAVE 3: Configurar el contexto como lo hace el wizard nativo**
+        reference_reason = case_dte.reference_ids[0].reason_raw if case_dte.reference_ids else 'Nota de crédito'
+        
+        reversal_context = {
+            'default_l10n_cl_edi_reference_doc_code': reference_code,
+        }
+        
+        # Para correcciones de texto (código 2), configurar textos
+        if reference_code == '2':
+            reversal_context.update({
+                'default_l10n_cl_original_text': 'Texto original a corregir',
+                'default_l10n_cl_corrected_text': reference_reason,
+            })
+            _logger.info("Configurando corrección de texto")
+        
+        _logger.info(f"Contexto de reversión: {reversal_context}")
+        
+        # **CLAVE 4: Preparar los valores por defecto usando el método nativo**
+        # Esto simula lo que hace el wizard de reversión chileno
+        default_values = [{
+            'move_type': 'out_refund' if invoice.move_type == 'out_invoice' else 'in_refund',
+            'invoice_origin': f'{invoice.l10n_latam_document_type_id.doc_code_prefix} {invoice.l10n_latam_document_number}',
+            'l10n_latam_document_type_id': reverse_doc_type.id,  # ← ESTO ERA LO QUE FALTABA
+            'l10n_cl_reference_ids': [[0, 0, {
+                'origin_doc_number': invoice.l10n_latam_document_number,
+                'l10n_cl_reference_doc_type_id': invoice.l10n_latam_document_type_id.id,
+                'reference_doc_code': reference_code,
+                'reason': reference_reason,
+                'date': invoice.invoice_date,
+            }]]
+        }]
+        
+        _logger.info("Valores por defecto configurados para NC")
+        
+        # **PASO 5: Crear la NC usando el método nativo con contexto correcto**
         try:
-            # Llamar al método nativo de reversión
-            reversed_moves = invoice._reverse_moves()
+            _logger.info("Llamando a _reverse_moves() con configuración correcta")
+            
+            # Usar el contexto correcto y los valores por defecto
+            reversed_moves = invoice.with_context(**reversal_context)._reverse_moves(
+                default_values_list=default_values,
+                cancel=False
+            )
+            
             if not reversed_moves:
                 raise UserError("No se pudo crear la nota de crédito/débito")
             
             credit_note = reversed_moves[0]
-            _logger.info(f"✓ Documento creado: {credit_note.name} (ID: {credit_note.id})")
+            _logger.info(f"✓ NC/ND creada: {credit_note.name} (ID: {credit_note.id})")
+            _logger.info(f"  - Tipo documento: {credit_note.l10n_latam_document_type_id.name}")
+            _logger.info(f"  - Código: {credit_note.l10n_latam_document_type_id.code}")
             
         except Exception as e:
-            _logger.error(f"❌ Error creando documento nativo: {str(e)}")
+            _logger.error(f"❌ Error creando NC/ND: {str(e)}")
             raise UserError(f"Error al crear nota de crédito/débito: {str(e)}")
         
-        # 2. ANTES de limpiar, almacenar la referencia automática para consistencia
-        _logger.info("2. Almacenando referencia automática antes de limpiar")
-        automatic_ref_data = None
+        # **PASO 6: Configurar referencia obligatoria al SET**
+        _logger.info("Configurando referencias del caso de certificación")
         
-        if credit_note.l10n_cl_reference_ids:
-            auto_ref = credit_note.l10n_cl_reference_ids[0]
-            automatic_ref_data = {
-                'l10n_cl_reference_doc_type_id': auto_ref.l10n_cl_reference_doc_type_id.id,
-                'origin_doc_number': auto_ref.origin_doc_number,
-                'date': auto_ref.date,
-            }
-            _logger.info(f"✓ Referencia automática almacenada: {auto_ref.origin_doc_number}")
-        else:
-            _logger.warning("⚠️  No se encontró referencia automática")
+        # Las referencias al documento original ya fueron configuradas en default_values
+        # Solo necesitamos agregar la referencia obligatoria al SET
         
-        # 3. Limpiar referencias automáticas para crear las correctas
-        _logger.info("3. Limpiando referencias automáticas")
-        if credit_note.l10n_cl_reference_ids:
-            credit_note.l10n_cl_reference_ids.unlink()
-            _logger.info("✓ Referencias automáticas eliminadas")
-        
-        # 5. Crear referencias en el orden correcto (SET primero, luego documento original)
-        _logger.info("5. Creando referencias en orden correcto")
-        references_to_create = []
-        
-        # PRIMERA REFERENCIA: SET (obligatoria para certificación SII)
         set_doc_type = self.env['l10n_latam.document.type'].search([
             ('code', '=', 'SET'),
             ('country_id.code', '=', 'CL')
         ], limit=1)
         
         if set_doc_type:
-            set_reference = {
+            set_reference_vals = {
                 'move_id': credit_note.id,
                 'l10n_cl_reference_doc_type_id': set_doc_type.id,
-                'origin_doc_number': case_dte.case_number_raw,           # ej: "4267228-5"
-                'reason': f'CASO {case_dte.case_number_raw}',            # ej: "CASO 4267228-5"
+                'origin_doc_number': case_dte.case_number_raw,
+                'reason': f'CASO {case_dte.case_number_raw}',
                 'date': fields.Date.context_today(self),
             }
-            references_to_create.append(set_reference)
-            _logger.info(f"✓ Referencia SET agregada: {case_dte.case_number_raw}")
-        else:
-            _logger.error("❌ No se encontró tipo de documento SET")
-            raise UserError("No se encontró tipo de documento SET para referencias")
-        
-        # SEGUNDA REFERENCIA: Documento original (usando datos automáticos + datos del caso)
-        if automatic_ref_data and case_dte.reference_ids:
-            ref_case = case_dte.reference_ids[0]  # Primera referencia del caso DTE
             
-            document_reference = {
-                'move_id': credit_note.id,
-                'l10n_cl_reference_doc_type_id': automatic_ref_data['l10n_cl_reference_doc_type_id'],
-                'origin_doc_number': automatic_ref_data['origin_doc_number'],
-                'date': automatic_ref_data['date'],
-                'reference_doc_code': ref_case.reference_code,           # Del modelo: '1', '2', '3'
-                'reason': ref_case.reason_raw,                          # Del modelo: razón específica
-            }
-            references_to_create.append(document_reference)
-            _logger.info(f"✓ Referencia documento agregada: {automatic_ref_data['origin_doc_number']}")
-            _logger.info(f"  - Código: {ref_case.reference_code}")
-            _logger.info(f"  - Razón: {ref_case.reason_raw}")
+            set_reference = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
+            _logger.info(f"✓ Referencia SET creada: {case_dte.case_number_raw}")
         else:
-            _logger.warning("⚠️  No se pudo crear referencia al documento original")
+            _logger.warning("⚠️  No se encontró tipo de documento SET")
         
-        # 6. Crear todas las referencias
-        if references_to_create:
-            _logger.info(f"6. Creando {len(references_to_create)} referencias")
-            try:
-                created_refs = self.env['l10n_cl.account.invoice.reference'].create(references_to_create)
-                _logger.info(f"✓ Referencias creadas exitosamente: {len(created_refs)} registros")
-                
-                # Log detalle de referencias creadas
-                for i, ref in enumerate(created_refs, 1):
-                    _logger.info(f"  Ref {i}: {ref.origin_doc_number} - {ref.reason}")
-                    
-            except Exception as e:
-                _logger.error(f"❌ Error creando referencias: {str(e)}")
-                raise UserError(f"Error al crear referencias: {str(e)}")
-        else:
-            _logger.warning("⚠️  No hay referencias para crear")
-        
-        # 7. Ajustar líneas según el tipo de nota de crédito (si es necesario)
-        _logger.info("7. Ajustando líneas del documento")
+        # **PASO 7: Ajustar líneas según el tipo de nota de crédito**
+        _logger.info("Ajustando líneas del documento según tipo de NC")
         self._adjust_credit_note_lines(credit_note, case_dte)
         
-        # 8. Marcar el caso como generado
+        # **PASO 8: Marcar el caso como generado**
         case_dte.write({
             'generation_status': 'generated',
             'generated_account_move_id': credit_note.id,
@@ -817,8 +813,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         _logger.info(f"✅ NOTA DE CRÉDITO GENERADA EXITOSAMENTE")
         _logger.info(f"   Documento: {credit_note.name}")
-        _logger.info(f"   Tipo: {case_dte.document_type_raw}")
-        _logger.info(f"   Referencias: {len(references_to_create)}")
+        _logger.info(f"   Tipo: {credit_note.l10n_latam_document_type_id.name} ({credit_note.l10n_latam_document_type_id.code})")
+        _logger.info(f"   Referencias: {len(credit_note.l10n_cl_reference_ids)}")
         _logger.info(f"   Caso marcado como generado")
         
         return credit_note
