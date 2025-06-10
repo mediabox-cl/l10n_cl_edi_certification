@@ -83,9 +83,16 @@ class CertificationDocumentGenerator(models.TransientModel):
             # **NUEVO: Detectar tipo de documento y usar flujo correspondiente**
             document_type = self.dte_case_id.document_type_code
             
+            _logger.info(f"🔍 DETECCIÓN DE FLUJO:")
+            _logger.info(f"   - Caso: {self.dte_case_id.case_number_raw}")
+            _logger.info(f"   - Tipo documento: '{document_type}' (tipo: {type(document_type)})")
+            _logger.info(f"   - Referencias: {len(self.dte_case_id.reference_ids)}")
+            
             if document_type in ['61', '56']:  # Nota de crédito o débito
+                _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
                 return self._generate_credit_or_debit_note()
             else:  # Factura u otro documento original
+                _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS ORIGINALES")
                 return self._generate_original_document()
                 
         except Exception as e:
@@ -155,16 +162,28 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _generate_credit_or_debit_note(self):
         """Genera nota de crédito o débito desde documento referenciado"""
+        _logger.info(f"=== ENTRANDO A _generate_credit_or_debit_note() ===")
         _logger.info(f"Generando nota de crédito/débito (tipo {self.dte_case_id.document_type_code})")
+        _logger.info(f"Caso: {self.dte_case_id.case_number_raw}")
+        _logger.info(f"Referencias disponibles: {len(self.dte_case_id.reference_ids)}")
         
         # Buscar el documento original referenciado
         if not self.dte_case_id.reference_ids:
+            _logger.error(f"❌ El caso {self.dte_case_id.case_number_raw} no tiene referencias")
             raise UserError(f"La nota de crédito/débito {self.dte_case_id.case_number_raw} debe tener referencias al documento original")
         
         # Obtener la primera referencia (documento original)
         ref = self.dte_case_id.reference_ids[0]
+        _logger.info(f"✓ Primera referencia: '{ref.reference_document_text_raw}' -> caso {ref.referenced_sii_case_number}")
         
         # **NUEVA LÓGICA: Detectar si es ND que anula NC**
+        _logger.info(f"🔍 VERIFICANDO SI ES ND QUE ANULA NC:")
+        _logger.info(f"   - Tipo caso actual: '{self.dte_case_id.document_type_code}'")
+        _logger.info(f"   - Código referencia: '{ref.reference_code}'")
+        _logger.info(f"   - Caso referenciado existe: {bool(ref.referenced_case_dte_id)}")
+        if ref.referenced_case_dte_id:
+            _logger.info(f"   - Tipo caso referenciado: '{ref.referenced_case_dte_id.document_type_code}'")
+        
         if (self.dte_case_id.document_type_code == '56' and  # Es nota de débito
             ref.reference_code == '1' and  # Código anulación
             ref.referenced_case_dte_id and 
@@ -172,9 +191,13 @@ class CertificationDocumentGenerator(models.TransientModel):
             
             _logger.info(f"🎯 DETECTADO: ND que anula NC (caso {self.dte_case_id.case_number_raw})")
             return self._generate_debit_note_from_credit_note()
+        else:
+            _logger.info(f"📌 NO ES ND QUE ANULA NC - usando flujo estándar de NC/ND")
         
         # Buscar el documento original generado
+        _logger.info(f"🔍 Buscando documento original con caso: {ref.referenced_sii_case_number}")
         original_invoice = self._get_referenced_move(ref.referenced_sii_case_number)
+        _logger.info(f"Documento original encontrado: {bool(original_invoice)}")
         
         if not original_invoice:
             # Si no existe, sugerir generarlo primero
@@ -198,6 +221,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Documento original encontrado: {original_invoice.name} (estado: {original_invoice.state})")
         
         # Generar la nota de crédito/débito
+        _logger.info(f"🚀 Generando NC/ND usando flujo estándar")
         credit_note = self._generate_credit_note_from_case(original_invoice, self.dte_case_id)
         
         return {

@@ -239,6 +239,27 @@ class CertificationCaseDte(models.Model):
         """Generar documento desde el caso DTE"""
         self.ensure_one()
         
+        # **DIAGNÓSTICO PREVIO**
+        _logger.info(f"\n=== DIAGNÓSTICO CASO DTE {self.id} ===")
+        _logger.info(f"Número: {self.case_number_raw}")
+        _logger.info(f"Tipo documento: '{self.document_type_code}' ({self.document_type_name})")
+        _logger.info(f"Estado: {self.generation_status}")
+        _logger.info(f"Referencias: {len(self.reference_ids)}")
+        
+        for i, ref in enumerate(self.reference_ids, 1):
+            _logger.info(f"  Ref {i}: {ref.reference_document_text_raw} -> {ref.referenced_sii_case_number}")
+            _logger.info(f"    Código: '{ref.reference_code}', Razón: '{ref.reason_raw}'")
+            if ref.referenced_case_dte_id:
+                _logger.info(f"    Caso referenciado: {ref.referenced_case_dte_id.case_number_raw} (tipo: {ref.referenced_case_dte_id.document_type_code})")
+            else:
+                _logger.info(f"    Caso referenciado: NO VINCULADO")
+        
+        _logger.info(f"Ítems: {len(self.item_ids)}")
+        for i, item in enumerate(self.item_ids, 1):
+            _logger.info(f"  Item {i}: {item.name} - Cant: {item.quantity}, Precio: {item.price_unit}")
+        
+        _logger.info(f"=== FIN DIAGNÓSTICO ===\n")
+        
         # Crear el generador y ejecutar
         generator = self.env['l10n_cl_edi.certification.document.generator'].create({
             'dte_case_id': self.id,
