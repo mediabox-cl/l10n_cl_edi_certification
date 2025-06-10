@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 
+    Fix para corregir texto "VAT" por "IVA" en reportes de facturas chilenas.
+    Este template extiende el módulo base l10n_cl para corregir el texto hardcodeado.
+    -->
+    
+    <template id="tax_totals_widget_fix" inherit_id="l10n_cl.tax_totals_widget">
+        <!-- 
+        Corregir el texto "VAT %s" por "IVA %s" en el widget de totales de impuestos.
+        El template original del módulo l10n_cl tiene este texto hardcodeado en inglés.
+        -->
+        <xpath expr="//td[@t-out=&quot;'VAT %s' % subtotal_amounts['vat_percent']&quot;]" position="attributes">
+            <attribute name="t-out">'IVA %s' % subtotal_amounts['vat_percent']</attribute>
+        </xpath>
+    </template>
+</odoo>
