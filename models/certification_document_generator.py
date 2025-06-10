@@ -1125,6 +1125,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.error(f"❌ Error ejecutando wizard de ND: {str(e)}")
             raise UserError(f"Error al ejecutar wizard de nota de débito: {str(e)}")
         
+        # **CORRECCIÓN CRÍTICA: Forzar el tipo de documento correcto**
+        self._fix_debit_note_document_type(debit_note)
+        
         # Configurar referencia obligatoria al SET
         self._add_set_reference_to_debit_note(debit_note)
         
@@ -1148,6 +1151,37 @@ class CertificationDocumentGenerator(models.TransientModel):
             'view_mode': 'form',
             'target': 'current',
         }
+    
+    def _fix_debit_note_document_type(self, debit_note):
+        """
+        Corrige el tipo de documento de la nota de débito.
+        El wizard nativo a veces asigna tipo incorrecto.
+        """
+        # Buscar el tipo correcto de nota de débito
+        debit_doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', '56'),  # Nota de Débito Electrónica
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if not debit_doc_type:
+            _logger.error("❌ No se encontró tipo de documento '56' para Nota de Débito")
+            raise UserError("No se encontró el tipo de documento Nota de Débito Electrónica (56)")
+        
+        # Verificar el tipo actual
+        current_type = debit_note.l10n_latam_document_type_id
+        _logger.info(f"🔍 Tipo actual ND: {current_type.name} ({current_type.code})")
+        
+        if current_type.code != '56':
+            # Corregir el tipo de documento
+            _logger.info(f"🔧 Corrigiendo tipo de documento: {current_type.code} → 56")
+            
+            debit_note.write({
+                'l10n_latam_document_type_id': debit_doc_type.id,
+            })
+            
+            _logger.info(f"✅ Tipo de documento corregido: {debit_note.l10n_latam_document_type_id.name} ({debit_note.l10n_latam_document_type_id.code})")
+        else:
+            _logger.info(f"✅ Tipo de documento ya es correcto: {current_type.name} ({current_type.code})")
     
     def _add_set_reference_to_debit_note(self, debit_note):
         """
@@ -1173,7 +1207,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info("✓ Referencia SET ya existe")
             return
         
-        # Crear referencia SET como primera referencia
+        # Crear referencia SET (sin campo sequence que no existe)
         try:
             set_reference_vals = {
                 'move_id': debit_note.id,
@@ -1181,13 +1215,7 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'origin_doc_number': self.dte_case_id.case_number_raw,
                 'reason': f'CASO {self.dte_case_id.case_number_raw}',
                 'date': fields.Date.context_today(self),
-                'sequence': 1,  # Asegurar que aparezca primera
             }
-            
-            # Actualizar secuencias de referencias existentes
-            existing_refs = debit_note.l10n_cl_reference_ids
-            for i, ref in enumerate(existing_refs, 2):
-                ref.write({'sequence': i})
             
             # Crear referencia SET
             set_ref = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
