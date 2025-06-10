@@ -1185,45 +1185,85 @@ class CertificationDocumentGenerator(models.TransientModel):
     
     def _add_set_reference_to_debit_note(self, debit_note):
         """
-        Añade la referencia obligatoria al SET en la nota de débito.
-        El wizard nativo solo crea referencia al documento anulado.
+        Configura las referencias de la nota de débito en el orden correcto para cumplir 
+        con los requisitos del SII.
+        
+        ORDEN REQUERIDO EN XML:
+        1. SET (primera referencia - requisito SII)
+        2. Documento anulado (segunda referencia - generada por wizard nativo)
+        
+        PATRÓN: Mismo que funciona en notas de crédito
         """
-        # Buscar tipo de documento SET
+        _logger.info(f"=== CONFIGURANDO REFERENCIAS EN ORDEN CORRECTO PARA ND ===")
+        
+        # PASO 1: Capturar la referencia generada automáticamente por el wizard nativo
+        existing_references = debit_note.l10n_cl_reference_ids
+        _logger.info(f"Referencias existentes encontradas: {len(existing_references)}")
+        
+        if not existing_references:
+            _logger.error("❌ No se encontraron referencias generadas por el wizard nativo")
+            raise UserError("El wizard nativo no generó referencias al documento anulado")
+        
+        # Guardar la referencia al documento anulado (generada automáticamente)
+        original_reference = existing_references[0]  # Debería ser la única referencia
+        
+        # Capturar datos de la referencia original antes de eliminarla
+        original_ref_data = {
+            'l10n_cl_reference_doc_type_id': original_reference.l10n_cl_reference_doc_type_id.id,
+            'origin_doc_number': original_reference.origin_doc_number,
+            'reference_doc_code': original_reference.reference_doc_code,
+            'reason': original_reference.reason,
+            'date': original_reference.date,
+        }
+        
+        _logger.info(f"✓ Referencia original capturada: {original_ref_data['origin_doc_number']} (código: {original_ref_data['reference_doc_code']})")
+        
+        # PASO 2: Eliminar todas las referencias existentes
+        _logger.info("🗑️  Eliminando referencias existentes para recrear en orden correcto")
+        existing_references.unlink()
+        
+        # PASO 3: Buscar tipo de documento SET
         set_doc_type = self.env['l10n_latam.document.type'].search([
             ('code', '=', 'SET'),
             ('country_id.code', '=', 'CL')
         ], limit=1)
         
         if not set_doc_type:
-            _logger.warning("⚠️  No se encontró tipo de documento SET")
-            return
+            _logger.error("❌ No se encontró tipo de documento SET")
+            raise UserError("No se encontró el tipo de documento SET para referencias")
         
-        # Verificar si ya existe referencia SET
-        existing_set_ref = debit_note.l10n_cl_reference_ids.filtered(
-            lambda r: r.l10n_cl_reference_doc_type_id.code == 'SET'
-        )
+        # PASO 4: Recrear referencias en el ORDEN CORRECTO
         
-        if existing_set_ref:
-            _logger.info("✓ Referencia SET ya existe")
-            return
+        # PRIMERA REFERENCIA: SET (aparece primera en XML)
+        set_reference_vals = {
+            'move_id': debit_note.id,
+            'l10n_cl_reference_doc_type_id': set_doc_type.id,
+            'origin_doc_number': self.dte_case_id.case_number_raw,
+            'reason': f'CASO {self.dte_case_id.case_number_raw}',
+            'date': fields.Date.context_today(self),
+            # NO incluir reference_doc_code para referencia SET
+        }
         
-        # Crear referencia SET (sin campo sequence que no existe)
-        try:
-            set_reference_vals = {
-                'move_id': debit_note.id,
-                'l10n_cl_reference_doc_type_id': set_doc_type.id,
-                'origin_doc_number': self.dte_case_id.case_number_raw,
-                'reason': f'CASO {self.dte_case_id.case_number_raw}',
-                'date': fields.Date.context_today(self),
-            }
+        set_ref = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
+        _logger.info(f"✓ PRIMERA referencia creada (SET): {set_ref.origin_doc_number}")
+        
+        # SEGUNDA REFERENCIA: Documento anulado (aparece segunda en XML)
+        original_ref_data['move_id'] = debit_note.id
+        original_ref = self.env['l10n_cl.account.invoice.reference'].create(original_ref_data)
+        _logger.info(f"✓ SEGUNDA referencia creada (doc anulado): {original_ref.origin_doc_number} (código: {original_ref.reference_doc_code})")
+        
+        # PASO 5: Verificar el orden final
+        final_references = debit_note.l10n_cl_reference_ids.sorted('id')
+        _logger.info(f"✅ REFERENCIAS CONFIGURADAS EN ORDEN CORRECTO:")
+        _logger.info(f"   Total referencias: {len(final_references)}")
+        
+        for i, ref in enumerate(final_references, 1):
+            _logger.info(f"   {i}. {ref.l10n_cl_reference_doc_type_id.code} - {ref.origin_doc_number} - {ref.reason}")
+        
+        # Verificar que SET es la primera referencia
+        if final_references and final_references[0].l10n_cl_reference_doc_type_id.code == 'SET':
+            _logger.info("✅ ORDEN CORRECTO: SET aparece como primera referencia en XML")
+        else:
+            _logger.error("❌ ORDEN INCORRECTO: SET no es la primera referencia")
             
-            # Crear referencia SET
-            set_ref = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
-            
-            _logger.info(f"✓ Referencia SET añadida: {set_ref.origin_doc_number}")
-            _logger.info(f"✓ Total referencias en ND: {len(debit_note.l10n_cl_reference_ids)}")
-            
-        except Exception as e:
-            _logger.error(f"❌ Error añadiendo referencia SET: {str(e)}")
-            # No fallar la operación por esto, solo registrar el error
-            _logger.warning("La ND se creó sin referencia SET")
+        return True
