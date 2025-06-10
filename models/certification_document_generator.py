@@ -164,6 +164,15 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Obtener la primera referencia (documento original)
         ref = self.dte_case_id.reference_ids[0]
         
+        # **NUEVA LÓGICA: Detectar si es ND que anula NC**
+        if (self.dte_case_id.document_type_code == '56' and  # Es nota de débito
+            ref.reference_code == '1' and  # Código anulación
+            ref.referenced_case_dte_id and 
+            ref.referenced_case_dte_id.document_type_code == '61'):  # Referencia a NC
+            
+            _logger.info(f"🎯 DETECTADO: ND que anula NC (caso {self.dte_case_id.case_number_raw})")
+            return self._generate_debit_note_from_credit_note()
+        
         # Buscar el documento original generado
         original_invoice = self._get_referenced_move(ref.referenced_sii_case_number)
         
@@ -1015,3 +1024,154 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"  - Total líneas: {total_lines}")
         _logger.info(f"  - Monto total NC: ${total_amount:,.0f}")
         _logger.info("  → Esta NC anula completamente la factura original")
+
+    def _generate_debit_note_from_credit_note(self):
+        """
+        Genera nota de débito que anula una nota de crédito usando el wizard nativo.
+        Simplificado para sets de pruebas específicos del SII.
+        """
+        _logger.info(f"=== GENERANDO ND QUE ANULA NC (CASO {self.dte_case_id.case_number_raw}) ===")
+        
+        # Obtener referencia a la nota de crédito
+        ref = self.dte_case_id.reference_ids[0]
+        credit_note_case = ref.referenced_case_dte_id
+        
+        if not credit_note_case or not credit_note_case.generated_account_move_id:
+            raise UserError(
+                f"La nota de crédito referenciada (caso {ref.referenced_sii_case_number}) "
+                f"debe ser generada antes de crear la nota de débito."
+            )
+        
+        credit_note = credit_note_case.generated_account_move_id
+        
+        # Validar que la NC esté confirmada
+        if credit_note.state != 'posted':
+            raise UserError(
+                f"La nota de crédito {credit_note.name} debe estar confirmada "
+                f"antes de crear la nota de débito (estado actual: {credit_note.state})"
+            )
+        
+        _logger.info(f"✓ NC a anular: {credit_note.name} (ID: {credit_note.id})")
+        
+        # Preparar contexto para el wizard nativo
+        wizard_context = {
+            'active_model': 'account.move',
+            'active_ids': [credit_note.id],
+            'default_l10n_cl_edi_reference_doc_code': '1',  # Anulación
+        }
+        
+        # Crear wizard nativo de nota de débito
+        try:
+            wizard = self.env['account.debit.note'].with_context(**wizard_context).create({
+                'move_ids': [(6, 0, [credit_note.id])],
+                'l10n_cl_edi_reference_doc_code': '1',  # Código anulación
+                'reason': ref.reason_raw or f'Anula NC {credit_note.l10n_latam_document_number}',
+            })
+            
+            _logger.info(f"✓ Wizard nativo creado con código de referencia '1' (anulación)")
+            
+        except Exception as e:
+            _logger.error(f"❌ Error creando wizard de ND: {str(e)}")
+            raise UserError(f"Error al crear wizard de nota de débito: {str(e)}")
+        
+        # Ejecutar creación usando lógica nativa
+        try:
+            result = wizard.create_debit()
+            
+            if result and 'res_id' in result:
+                debit_note_id = result['res_id']
+                debit_note = self.env['account.move'].browse(debit_note_id)
+                
+                _logger.info(f"✓ ND creada por wizard nativo: {debit_note.name} (ID: {debit_note_id})")
+                
+            elif isinstance(result, dict) and 'domain' in result:
+                # El wizard devolvió múltiples documentos, tomar el último creado
+                domain = result['domain']
+                debit_notes = self.env['account.move'].search(domain, order='id desc', limit=1)
+                
+                if debit_notes:
+                    debit_note = debit_notes[0]
+                    _logger.info(f"✓ ND encontrada por dominio: {debit_note.name} (ID: {debit_note.id})")
+                else:
+                    raise UserError("No se pudo encontrar la nota de débito creada")
+            else:
+                raise UserError("El wizard no devolvió una nota de débito válida")
+                
+        except Exception as e:
+            _logger.error(f"❌ Error ejecutando wizard de ND: {str(e)}")
+            raise UserError(f"Error al ejecutar wizard de nota de débito: {str(e)}")
+        
+        # Configurar referencia obligatoria al SET
+        self._add_set_reference_to_debit_note(debit_note)
+        
+        # Vincular el caso al documento generado
+        self.dte_case_id.write({
+            'generation_status': 'generated',
+            'generated_account_move_id': debit_note.id,
+        })
+        
+        _logger.info(f"✅ NOTA DE DÉBITO GENERADA EXITOSAMENTE")
+        _logger.info(f"   Documento: {debit_note.name}")
+        _logger.info(f"   Tipo: {debit_note.l10n_latam_document_type_id.name}")
+        _logger.info(f"   Referencias: {len(debit_note.l10n_cl_reference_ids)}")
+        _logger.info(f"   Anula NC: {credit_note.name}")
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Nota de Débito Generada',
+            'res_model': 'account.move',
+            'res_id': debit_note.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+    
+    def _add_set_reference_to_debit_note(self, debit_note):
+        """
+        Añade la referencia obligatoria al SET en la nota de débito.
+        El wizard nativo solo crea referencia al documento anulado.
+        """
+        # Buscar tipo de documento SET
+        set_doc_type = self.env['l10n_latam.document.type'].search([
+            ('code', '=', 'SET'),
+            ('country_id.code', '=', 'CL')
+        ], limit=1)
+        
+        if not set_doc_type:
+            _logger.warning("⚠️  No se encontró tipo de documento SET")
+            return
+        
+        # Verificar si ya existe referencia SET
+        existing_set_ref = debit_note.l10n_cl_reference_ids.filtered(
+            lambda r: r.l10n_cl_reference_doc_type_id.code == 'SET'
+        )
+        
+        if existing_set_ref:
+            _logger.info("✓ Referencia SET ya existe")
+            return
+        
+        # Crear referencia SET como primera referencia
+        try:
+            set_reference_vals = {
+                'move_id': debit_note.id,
+                'l10n_cl_reference_doc_type_id': set_doc_type.id,
+                'origin_doc_number': self.dte_case_id.case_number_raw,
+                'reason': f'CASO {self.dte_case_id.case_number_raw}',
+                'date': fields.Date.context_today(self),
+                'sequence': 1,  # Asegurar que aparezca primera
+            }
+            
+            # Actualizar secuencias de referencias existentes
+            existing_refs = debit_note.l10n_cl_reference_ids
+            for i, ref in enumerate(existing_refs, 2):
+                ref.write({'sequence': i})
+            
+            # Crear referencia SET
+            set_ref = self.env['l10n_cl.account.invoice.reference'].create(set_reference_vals)
+            
+            _logger.info(f"✓ Referencia SET añadida: {set_ref.origin_doc_number}")
+            _logger.info(f"✓ Total referencias en ND: {len(debit_note.l10n_cl_reference_ids)}")
+            
+        except Exception as e:
+            _logger.error(f"❌ Error añadiendo referencia SET: {str(e)}")
+            # No fallar la operación por esto, solo registrar el error
+            _logger.warning("La ND se creó sin referencia SET")
