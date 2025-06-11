@@ -512,10 +512,19 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
         if not certificate:
             raise UserError(_('No hay certificado digital válido para firmar el libro IECV'))
         
+        # Convertir bytes a string y remover declaración XML si existe
+        xml_string = xml_content.decode('ISO-8859-1')
+        
+        # Remover declaración XML si existe (fix para error de encoding)
+        if xml_string.startswith('<?xml'):
+            xml_end = xml_string.find('?>')
+            if xml_end != -1:
+                xml_string = xml_string[xml_end + 2:].lstrip()
+        
         # Usar el método de firma real del mixin l10n_cl.edi.util
         # El tipo 'bol' es para libros electrónicos según la implementación de Odoo
         signed_xml = self._sign_full_xml(
-            xml_content.decode('ISO-8859-1'),
+            xml_string,  # String sin declaración XML
             certificate,
             'SetDoc',
             'bol',  # tipo para libros electrónicos
