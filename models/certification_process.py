@@ -61,6 +61,11 @@ class CertificationProcess(models.Model):
         compute='_compute_iecv_books_count',
         string='Libros IECV'
     )
+    
+    purchase_entries_count = fields.Integer(
+        compute='_compute_purchase_entries_count',
+        string='Entradas de Compra'
+    )
 
     # New field to link to parsed sets
     parsed_set_ids = fields.One2many(
@@ -309,6 +314,10 @@ class CertificationProcess(models.Model):
     def _compute_iecv_books_count(self):
         for record in self:
             record.iecv_books_count = len(record.iecv_book_ids)
+    
+    def _compute_purchase_entries_count(self):
+        for record in self:
+            record.purchase_entries_count = len(record.purchase_entry_ids)
     
     def _compute_dte_case_to_generate_count(self):
         for record in self:

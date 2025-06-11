@@ -182,12 +182,10 @@
                                 <group string="Estadísticas" invisible="not iecv_book_ids">
                                     <group>
                                         <field name="iecv_books_count" readonly="1"/>
-                                        <label for="purchase_entry_ids" string="Entradas de Compra:"/>
-                                        <div><field name="purchase_entry_ids" nolabel="1" readonly="1" widget="integer"/> entradas</div>
+                                        <field name="purchase_entries_count" readonly="1" string="Entradas de Compra"/>
                                     </group>
                                     <group>
-                                        <label for="test_invoice_ids" string="Documentos de Venta:"/>
-                                        <div><field name="document_count" nolabel="1" readonly="1"/> documentos</div>
+                                        <field name="document_count" readonly="1" string="Documentos de Venta"/>
                                     </group>
                                 </group>
                                 
