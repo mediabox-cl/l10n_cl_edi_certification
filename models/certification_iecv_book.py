@@ -342,10 +342,9 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
         # Período Tributario
         etree.SubElement(caratula, "PeriodoTributario").text = self.period_display
         
-        # Resolución SII
-        resolution_date = company.l10n_cl_dte_resolution_date.strftime('%Y-%m-%d') if company.l10n_cl_dte_resolution_date else '2025-04-11'
-        etree.SubElement(caratula, "FchResol").text = resolution_date
-        etree.SubElement(caratula, "NroResol").text = str(company.l10n_cl_dte_resolution_number or '40')
+        # Resolución SII - Valores específicos para certificación IECV
+        etree.SubElement(caratula, "FchResol").text = "2006-01-20"
+        etree.SubElement(caratula, "NroResol").text = "102006"
         
         # Tipo de Operación
         tipo_operacion = "VENTA" if self.book_type == 'IEV' else "COMPRA"
