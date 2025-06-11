@@ -42,6 +42,13 @@ class CertificationProcess(models.Model):
         string='Documentos de Prueba Generados',
         domain=[('move_type', 'not in', ('entry', 'liq_purchase'))])
 
+    # Entradas de libro de compras
+    purchase_entry_ids = fields.One2many(
+        'l10n_cl_edi.certification.purchase_entry',
+        'certification_process_id',
+        string='Entradas Libro de Compras'
+    )
+
     # New field to link to parsed sets
     parsed_set_ids = fields.One2many(
         'l10n_cl_edi.certification.parsed_set', 'certification_process_id',  # Actualizado
@@ -1079,4 +1086,46 @@ class CertificationProcess(models.Model):
             'view_mode': 'form',
             'res_id': self.id,
             'target': 'current',
+        }
+
+    def action_generate_iecv_books(self):
+        """Abre el wizard para generar libros IECV"""
+        self.ensure_one()
+        
+        if self.state != 'generation':
+            raise UserError(_('Debe completar la generación de DTEs antes de crear los libros IECV'))
+        
+        if not self.test_invoice_ids:
+            raise UserError(_('No hay documentos generados para incluir en los libros IECV'))
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Generar Libros IECV'),
+            'res_model': 'l10n_cl_edi.certification.iecv_generator_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_certification_process_id': self.id,
+            }
+        }
+    
+    def action_create_sample_purchase_entries(self):
+        """Crea entradas de ejemplo para el libro de compras"""
+        self.ensure_one()
+        
+        # Limpiar entradas existentes
+        self.purchase_entry_ids.unlink()
+        
+        # Crear entradas de ejemplo
+        self.env['l10n_cl_edi.certification.purchase_entry'].create_sample_purchase_entries(self.id)
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Entradas de Compras Creadas'),
+                'message': _('Se han creado %s entradas de ejemplo para el libro de compras') % len(self.purchase_entry_ids),
+                'type': 'success',
+                'sticky': False,
+            }
         }

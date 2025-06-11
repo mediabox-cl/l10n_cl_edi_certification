@@ -1,3 +1,2 @@
 # -*- coding: utf-8 -*-
-
-from . import certification_reset_wizard
+from . import iecv_generator_wizard
