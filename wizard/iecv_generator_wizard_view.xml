@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de formulario para el wizard de generación de libros IECV -->
+        <record id="view_iecv_generator_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.iecv_generator_wizard.form</field>
+            <field name="model">l10n_cl_edi.certification.iecv_generator_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generar Libros Electrónicos IECV">
+                    <div class="alert alert-info" role="alert">
+                        <strong>Generación de Libros Electrónicos</strong>
+                        <p>Esta funcionalidad genera los archivos XML de Información Electrónica de Compras y Ventas (IECV) requeridos por el SII para el proceso de certificación.</p>
+                    </div>
+                    
+                    <group>
+                        <group string="Configuración">
+                            <field name="certification_process_id" readonly="1"/>
+                            <field name="period_date"/>
+                        </group>
+                        
+                        <group string="Libros a Generar">
+                            <field name="generate_iev"/>
+                            <field name="generate_iec"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Información del Proceso">
+                        <group>
+                            <field name="sales_documents_count" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="purchase_entries_count" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <div class="alert alert-warning" role="alert" invisible="sales_documents_count > 0 and purchase_entries_count > 0">
+                        <strong>Atención:</strong> 
+                        <span invisible="sales_documents_count > 0">No hay documentos de venta para incluir en el libro IEV.</span>
+                        <span invisible="purchase_entries_count > 0">No hay entradas de compra para incluir en el libro IEC.</span>
+                    </div>
+                    
+                    <footer>
+                        <button name="action_generate_books" string="Generar Libros IECV" type="object" class="btn-primary"
+                                invisible="not generate_iev and not generate_iec"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para abrir el wizard -->
+        <record id="action_iecv_generator_wizard" model="ir.actions.act_window">
+            <field name="name">Generar Libros IECV</field>
+            <field name="res_model">l10n_cl_edi.certification.iecv_generator_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_certification_process_id': active_id}</field>
+        </record>
+    </data>
+</odoo>

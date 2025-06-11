@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de lista para libros IECV -->
+        <record id="view_certification_iecv_book_list" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.iecv_book.list</field>
+            <field name="model">l10n_cl_edi.certification.iecv_book</field>
+            <field name="arch" type="xml">
+                <list string="Libros IECV" 
+                      decoration-success="state == 'signed'" 
+                      decoration-info="state == 'generated'" 
+                      decoration-danger="state == 'error'">
+                    <field name="book_type"/>
+                    <field name="period_display"/>
+                    <field name="total_documents"/>
+                    <field name="total_net_amount" widget="monetary"/>
+                    <field name="total_tax_amount" widget="monetary"/>
+                    <field name="total_amount" widget="monetary"/>
+                    <field name="state"/>
+                    <field name="generation_date"/>
+                    
+                    <button name="action_generate_xml" string="Generar XML" type="object"
+                            class="btn-primary" icon="fa-file-code-o"
+                            invisible="state in ['signed', 'generated']"
+                            help="Generar archivo XML del libro"/>
+                    
+                    <button name="action_download_xml" string="Descargar" type="object"
+                            class="btn-info" icon="fa-download"
+                            invisible="not xml_file"
+                            help="Descargar archivo XML generado"/>
+                    
+                    <button name="action_regenerate" string="Regenerar" type="object"
+                            class="btn-warning" icon="fa-refresh"
+                            invisible="state == 'draft'"
+                            help="Regenerar libro XML"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista de formulario para libros IECV -->
+        <record id="view_certification_iecv_book_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.iecv_book.form</field>
+            <field name="model">l10n_cl_edi.certification.iecv_book</field>
+            <field name="arch" type="xml">
+                <form string="Libro IECV">
+                    <header>
+                        <button name="action_generate_xml" string="Generar XML" type="object"
+                                class="oe_highlight" invisible="state in ['signed', 'generated']"/>
+                        <button name="action_regenerate" string="Regenerar" type="object"
+                                class="btn-warning" invisible="state == 'draft'"/>
+                        <button name="action_download_xml" string="Descargar XML" type="object"
+                                class="btn-info" invisible="not xml_file"/>
+                        
+                        <field name="state" widget="statusbar" statusbar_visible="draft,generated,signed"/>
+                    </header>
+                    
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="book_type" readonly="1"/>
+                                - 
+                                <field name="period_display" readonly="1"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <group string="Configuración">
+                                <field name="certification_process_id" readonly="1"/>
+                                <field name="period_year" readonly="1"/>
+                                <field name="period_month" readonly="1"/>
+                            </group>
+                            
+                            <group string="Estado">
+                                <field name="generation_date" readonly="1"/>
+                                <field name="xml_filename" readonly="1" invisible="not xml_file"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Resumen Financiero">
+                            <group>
+                                <field name="total_documents" readonly="1"/>
+                                <field name="total_net_amount" readonly="1" widget="monetary"/>
+                            </group>
+                            <group>
+                                <field name="total_tax_amount" readonly="1" widget="monetary"/>
+                                <field name="total_amount" readonly="1" widget="monetary"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Archivo Generado" invisible="not xml_file">
+                            <field name="xml_file" filename="xml_filename" readonly="1"/>
+                        </group>
+                        
+                        <group string="Error" invisible="state != 'error'">
+                            <field name="error_message" readonly="1" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para ver libros IECV -->
+        <record id="action_certification_iecv_book" model="ir.actions.act_window">
+            <field name="name">Libros IECV</field>
+            <field name="res_model">l10n_cl_edi.certification.iecv_book</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'default_certification_process_id': active_id}</field>
+            <field name="domain">[('certification_process_id', '=', active_id)]</field>
+        </record>
+    </data>
+</odoo>

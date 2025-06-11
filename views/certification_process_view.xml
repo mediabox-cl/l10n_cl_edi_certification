@@ -33,6 +33,9 @@
                             <button name="action_view_test_documents" type="object" class="oe_stat_button" icon="fa-file-o">
                                 <field name="document_count" widget="statinfo" string="Documentos DTE Generados"/>
                             </button>
+                            <button name="action_view_iecv_books" type="object" class="oe_stat_button" icon="fa-book">
+                                <field name="iecv_books_count" widget="statinfo" string="Libros IECV"/>
+                            </button>
                             <button name="action_view_parsed_sets" type="object" class="oe_stat_button" icon="fa-files-o">
                                  <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="dte_case_to_generate_count" nolabel="1"/> Casos Pendientes</span>
@@ -156,6 +159,64 @@
                                     <button name="action_generate_dte_documents" string="Generar Todos los Documentos DTE" 
                                             type="object" class="oe_highlight" 
                                             invisible="not dte_case_to_generate_count or state != 'data_loaded'"/>
+                                </div>
+                            </page>
+                            <page string="Libros IECV">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Libros Electrónicos de Compras y Ventas (IECV)</strong>
+                                    <p>Una vez generados los DTEs, debe crear los libros electrónicos IECV para enviar al SII durante el proceso de certificación.</p>
+                                </div>
+                                
+                                <group>
+                                    <button name="action_generate_iecv_books" string="📋 Generar Libros IECV" type="object" 
+                                            class="oe_highlight" 
+                                            invisible="state != 'generation' or not test_invoice_ids"
+                                            help="Generar archivos XML de libros de compras y ventas"/>
+                                    
+                                    <button name="action_create_sample_purchase_entries" string="📝 Crear Datos de Compras" type="object" 
+                                            class="btn-secondary" 
+                                            invisible="purchase_entry_ids"
+                                            help="Crear entradas de ejemplo para el libro de compras"/>
+                                </group>
+                                
+                                <group string="Estadísticas" invisible="not iecv_book_ids">
+                                    <group>
+                                        <field name="iecv_books_count" readonly="1"/>
+                                        <label for="purchase_entry_ids" string="Entradas de Compra:"/>
+                                        <div><field name="purchase_entry_ids" nolabel="1" readonly="1" widget="integer"/> entradas</div>
+                                    </group>
+                                    <group>
+                                        <label for="test_invoice_ids" string="Documentos de Venta:"/>
+                                        <div><field name="document_count" nolabel="1" readonly="1"/> documentos</div>
+                                    </group>
+                                </group>
+                                
+                                <separator string="Libros IECV Generados" invisible="not iecv_book_ids"/>
+                                <field name="iecv_book_ids" invisible="not iecv_book_ids">
+                                    <list string="Libros IECV" 
+                                          decoration-success="state == 'signed'" 
+                                          decoration-info="state == 'generated'" 
+                                          decoration-danger="state == 'error'">
+                                        <field name="book_type"/>
+                                        <field name="period_display"/>
+                                        <field name="total_documents"/>
+                                        <field name="total_amount" widget="monetary"/>
+                                        <field name="state"/>
+                                        <field name="generation_date"/>
+                                        
+                                        <button name="action_generate_xml" string="Generar" type="object"
+                                                class="btn-primary" icon="fa-file-code-o"
+                                                invisible="state != 'draft'"/>
+                                        
+                                        <button name="action_download_xml" string="Descargar" type="object"
+                                                class="btn-info" icon="fa-download"
+                                                invisible="not xml_file"/>
+                                    </list>
+                                </field>
+                                
+                                <div class="alert alert-warning" role="alert" invisible="iecv_book_ids or state != 'generation'">
+                                    <strong>No hay libros IECV generados</strong>
+                                    <p>Use el botón "Generar Libros IECV" para crear los archivos XML requeridos por el SII.</p>
                                 </div>
                             </page>
                         </notebook>

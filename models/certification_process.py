@@ -49,6 +49,19 @@ class CertificationProcess(models.Model):
         string='Entradas Libro de Compras'
     )
 
+    # Libros IECV generados
+    iecv_book_ids = fields.One2many(
+        'l10n_cl_edi.certification.iecv_book',
+        'certification_process_id',
+        string='Libros IECV Generados'
+    )
+    
+    # Contadores relacionados con libros IECV
+    iecv_books_count = fields.Integer(
+        compute='_compute_iecv_books_count',
+        string='Libros IECV'
+    )
+
     # New field to link to parsed sets
     parsed_set_ids = fields.One2many(
         'l10n_cl_edi.certification.parsed_set', 'certification_process_id',  # Actualizado
@@ -292,6 +305,10 @@ class CertificationProcess(models.Model):
     def _compute_document_count(self):
         for record in self:
             record.document_count = len(record.test_invoice_ids)
+    
+    def _compute_iecv_books_count(self):
+        for record in self:
+            record.iecv_books_count = len(record.iecv_book_ids)
     
     def _compute_dte_case_to_generate_count(self):
         for record in self:
@@ -584,6 +601,18 @@ class CertificationProcess(models.Model):
                 'type': 'success',
                 'sticky': False,
             }
+        }
+    
+    def action_view_iecv_books(self):
+        """Acción para ver los libros IECV generados"""
+        self.ensure_one()
+        return {
+            'name': _('Libros IECV'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.iecv_book',
+            'view_mode': 'list,form',
+            'domain': [('certification_process_id', '=', self.id)],
+            'context': {'default_certification_process_id': self.id},
         }
     
     def action_process_set_prueba_xml(self):
