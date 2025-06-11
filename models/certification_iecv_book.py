@@ -4,7 +4,6 @@ from odoo.exceptions import UserError
 import base64
 import logging
 from lxml import etree
-import re
 from datetime import datetime
 
 _logger = logging.getLogger(__name__)
@@ -170,11 +169,23 @@ class CertificationIECVBook(models.Model):
         return sales_docs
     
     def _get_purchase_entries(self):
-        """Obtiene entradas de compra para IEC"""
+        """Obtiene entradas de compra para IEC - Solo Set de Pruebas N3"""
         if not self.certification_process_id:
             return self.env['l10n_cl_edi.certification.purchase_entry']
         
-        return self.certification_process_id.purchase_entry_ids
+        # Filtrar solo las entradas que corresponden al Set de Pruebas N3 (4267230)
+        # Estas son las 7 entradas específicas definidas en el XML de datos
+        purchase_entries = self.certification_process_id.purchase_entry_ids.filtered(
+            lambda entry: entry.sii_case_reference and 
+                         entry.sii_case_reference.startswith('LIBRO_COMPRAS_ENTRY_') and
+                         int(entry.sii_case_reference.split('_')[-1]) <= 7
+        )
+        
+        # Validar que tenemos exactamente las 7 entradas esperadas
+        if len(purchase_entries) != 7:
+            _logger.warning(f"Se esperaban 7 entradas del Set N3, pero se encontraron {len(purchase_entries)}")
+        
+        return purchase_entries.sorted('sequence')
     
     def name_get(self):
         """Personaliza el nombre mostrado del registro"""
@@ -450,10 +461,7 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
             etree.SubElement(detalle, "MntTotal").text = str(int(doc.amount_total))
             etree.SubElement(detalle, "TasaImp").text = "19.00"
             
-            # Referencias obligatorias para certificación
-            etree.SubElement(detalle, "TpoDocRef").text = "SET"
-            case_ref = self._extract_case_reference(doc.ref)
-            etree.SubElement(detalle, "RazonRef").text = case_ref
+
     
     def _add_detalle_compras(self, parent):
         """Añade detalle para libro de compras"""
@@ -482,18 +490,7 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
             etree.SubElement(detalle, "MntTotal").text = str(int(entry.amount_total))
             etree.SubElement(detalle, "TasaImp").text = f"{entry.tax_rate:.2f}"
     
-    def _extract_case_reference(self, ref_text):
-        """Extrae referencia del caso SII desde el campo ref"""
-        if not ref_text:
-            return "CERTIFICACION SII"
-        
-        # Buscar patrón "Caso SII xxxx-x" o similar
-        match = re.search(r'(\d{7}-\d+)', ref_text)
-        if match:
-            return f"CASO {match.group(1)}"
-        
-        return "CERTIFICACION SII"
-    
+
     def _apply_digital_signature(self, xml_content):
         """Aplica firma digital al XML usando el certificado de la empresa"""
         certificate = self.env['certificate.certificate'].search([

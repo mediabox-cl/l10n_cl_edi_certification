@@ -106,47 +106,6 @@
             <field name="sii_case_reference">LIBRO_COMPRAS_ENTRY_7</field>
         </record>
 
-        <record id="purchase_entry_008" model="l10n_cl_edi.certification.purchase_entry">
-            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
-            <field name="sequence">80</field>
-            <field name="document_type_code">30</field>
-            <field name="document_folio">892</field>
-            <field name="supplier_rut">44556677-9</field>
-            <field name="supplier_name">Proveedor No Recuperable Ltda.</field>
-            <field name="observations">GASTO RECHAZADO - IVA NO RECUPERABLE</field>
-            <field name="amount_exempt">0</field>
-            <field name="amount_net_affected">15750</field>
-            <field name="iva_type">non_recoverable</field>
-            <field name="sii_case_reference">LIBRO_COMPRAS_ENTRY_8</field>
-        </record>
 
-        <record id="purchase_entry_009" model="l10n_cl_edi.certification.purchase_entry">
-            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
-            <field name="sequence">90</field>
-            <field name="document_type_code">33</field>
-            <field name="document_folio">445</field>
-            <field name="supplier_rut">66778899-0</field>
-            <field name="supplier_name">Proveedor Operaciones Exentas S.A.</field>
-            <field name="observations">COMPRA DESTINADA A OPERACIONES EXENTAS</field>
-            <field name="amount_exempt">0</field>
-            <field name="amount_net_affected">22340</field>
-            <field name="iva_type">non_recoverable</field>
-            <field name="sii_case_reference">LIBRO_COMPRAS_ENTRY_9</field>
-        </record>
-
-        <record id="purchase_entry_010" model="l10n_cl_edi.certification.purchase_entry">
-            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
-            <field name="sequence">100</field>
-            <field name="document_type_code">30</field>
-            <field name="document_folio">556</field>
-            <field name="supplier_rut">11223344-5</field>
-            <field name="supplier_name">Proveedor Uso Común S.A.</field>
-            <field name="observations">SEGUNDA FACTURA PARA USO COMUN</field>
-            <field name="amount_exempt">0</field>
-            <field name="amount_net_affected">18500</field>
-            <field name="iva_type">common_use</field>
-            <field name="proportionality_factor">0.60</field>
-            <field name="sii_case_reference">LIBRO_COMPRAS_ENTRY_10</field>
-        </record>
     </data>
 </odoo>

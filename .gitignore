@@ -3,6 +3,7 @@
 reference_modules/
 examples/
 generatedDTEs/
+generatedIECV/
 addons/
 __pycache__/
 *.py[cod]
