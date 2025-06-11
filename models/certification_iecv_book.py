@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class CertificationIECVBook(models.Model):
     _name = 'l10n_cl_edi.certification.iecv_book'
+    _inherit = ['l10n_cl.edi.util']
     _description = 'Libro Electrónico de Compras y Ventas - Certificación SII'
     _order = 'create_date desc'
     
@@ -255,8 +256,14 @@ class CertificationIECVBook(models.Model):
     def _validate_generation_requirements(self):
         """Valida que se cumplan los requisitos para generar el libro"""
         
-        # En modo certificación, no requerimos certificado digital real
-        _logger.info("Modo certificación: generando libro con estructura de firma placeholder")
+        # Validar certificado digital obligatorio
+        certificate = self.env['certificate.certificate'].search([
+            ('company_id', '=', self.certification_process_id.company_id.id),
+            ('is_valid', '=', True)
+        ], limit=1)
+        
+        if not certificate:
+            raise UserError(_('No hay certificado digital válido para la empresa. Es obligatorio para firmar libros electrónicos.'))
         
         # Validar datos de resolución SII (en modo certificación son valores fijos)
         company = self.certification_process_id.company_id
@@ -314,9 +321,6 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
         
         # 4. TIMESTAMP DE FIRMA (obligatorio)
         self._add_timestamp_firma(envio_libro)
-        
-        # 5. FIRMA DIGITAL (obligatoria)
-        self._add_digital_signature_element(root)
         
         # Convertir a string XML
         xml_string = etree.tostring(root, pretty_print=True, encoding='ISO-8859-1', xml_declaration=True)
@@ -495,65 +499,31 @@ Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV''')
         timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         etree.SubElement(parent, "TmstFirma").text = timestamp
     
-    def _add_digital_signature_element(self, parent):
-        """Añade la estructura de firma digital XML-DSig"""
-        # Namespace para firma digital
-        ds_ns = "http://www.w3.org/2000/09/xmldsig#"
-        
-        # Crear elemento Signature
-        signature = etree.SubElement(parent, "{%s}Signature" % ds_ns)
-        
-        # SignedInfo
-        signed_info = etree.SubElement(signature, "{%s}SignedInfo" % ds_ns)
-        
-        # CanonicalizationMethod
-        canonicalization = etree.SubElement(signed_info, "{%s}CanonicalizationMethod" % ds_ns)
-        canonicalization.set("Algorithm", "http://www.w3.org/TR/2001/REC-xml-c14n-20010315")
-        
-        # SignatureMethod
-        sig_method = etree.SubElement(signed_info, "{%s}SignatureMethod" % ds_ns)
-        sig_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
-        
-        # Reference
-        reference = etree.SubElement(signed_info, "{%s}Reference" % ds_ns)
-        reference.set("URI", "#SetDoc")
-        
-        # Transforms
-        transforms = etree.SubElement(reference, "{%s}Transforms" % ds_ns)
-        transform = etree.SubElement(transforms, "{%s}Transform" % ds_ns)
-        transform.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#enveloped-signature")
-        
-        # DigestMethod
-        digest_method = etree.SubElement(reference, "{%s}DigestMethod" % ds_ns)
-        digest_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#sha1")
-        
-        # DigestValue (placeholder para certificación)
-        digest_value = etree.SubElement(reference, "{%s}DigestValue" % ds_ns)
-        digest_value.text = "PLACEHOLDER_DIGEST_VALUE_FOR_CERTIFICATION"
-        
-        # SignatureValue (placeholder para certificación)
-        sig_value = etree.SubElement(signature, "{%s}SignatureValue" % ds_ns)
-        sig_value.text = "PLACEHOLDER_SIGNATURE_VALUE_FOR_CERTIFICATION"
-        
-        # KeyInfo
-        key_info = etree.SubElement(signature, "{%s}KeyInfo" % ds_ns)
-        key_value = etree.SubElement(key_info, "{%s}KeyValue" % ds_ns)
-        rsa_key_value = etree.SubElement(key_value, "{%s}RSAKeyValue" % ds_ns)
-        
-        # Modulus y Exponent (placeholders para certificación)
-        modulus = etree.SubElement(rsa_key_value, "{%s}Modulus" % ds_ns)
-        modulus.text = "PLACEHOLDER_MODULUS_FOR_CERTIFICATION"
-        
-        exponent = etree.SubElement(rsa_key_value, "{%s}Exponent" % ds_ns)
-        exponent.text = "AQAB"
-    
+
 
     def _apply_digital_signature(self, xml_content):
-        """Para modo certificación, retorna el XML con estructura de firma"""
-        # En modo certificación, la estructura de firma ya fue agregada
-        # con placeholders apropiados para el proceso de certificación SII
-        _logger.info("XML generado con estructura de firma para certificación SII")
-        return xml_content
+        """Aplica firma digital real al XML del libro IECV"""
+        # Obtener certificado digital de la empresa
+        certificate = self.env['certificate.certificate'].search([
+            ('company_id', '=', self.certification_process_id.company_id.id),
+            ('is_valid', '=', True)
+        ], limit=1)
+        
+        if not certificate:
+            raise UserError(_('No hay certificado digital válido para firmar el libro IECV'))
+        
+        # Usar el método de firma real del mixin l10n_cl.edi.util
+        # El tipo 'bol' es para libros electrónicos según la implementación de Odoo
+        signed_xml = self._sign_full_xml(
+            xml_content.decode('ISO-8859-1'),
+            certificate,
+            'SetDoc',
+            'bol',  # tipo para libros electrónicos
+            False   # no es documento de boleta
+        )
+        
+        _logger.info("Libro IECV firmado digitalmente correctamente")
+        return signed_xml.encode('ISO-8859-1')
     
     def action_download_xml(self):
         """Permite descargar el archivo XML generado"""
