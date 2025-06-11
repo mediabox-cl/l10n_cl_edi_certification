@@ -177,6 +177,11 @@
                                             class="btn-secondary" 
                                             invisible="purchase_entry_ids"
                                             help="Crear entradas de ejemplo para el libro de compras"/>
+                                    
+                                    <button name="action_recover_relationships" string="🔄 Recuperar Facturas" type="object" 
+                                            class="btn-warning" 
+                                            invisible="test_invoice_ids"
+                                            help="Buscar y vincular facturas generadas que se perdieron durante actualizaciones"/>
                                 </group>
                                 
                                 <group string="Estadísticas" invisible="not iecv_book_ids">

@@ -185,40 +185,123 @@ class CertificationProcess(models.Model):
 
     def _recover_lost_relationships(self):
         """
-        Método para recuperar relaciones perdidas entre casos DTE y facturas
+        Método mejorado para recuperar relaciones perdidas entre casos DTE y facturas
         después de actualizaciones de módulo o problemas de sincronización.
         """
         self.ensure_one()
-        _logger.info(f"=== INICIANDO RECUPERACIÓN DE RELACIONES PERDIDAS ===")
+        _logger.info(f"=== INICIANDO RECUPERACIÓN MEJORADA DE RELACIONES PERDIDAS ===")
         
-        # Buscar casos DTE sin factura vinculada pero que podrían tener una
-        unlinked_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+        # 1. ESTRATEGIA 1: Buscar facturas ya vinculadas al proceso
+        existing_linked_invoices = self.env['account.move'].search([
+            ('l10n_cl_edi_certification_id', '=', self.id),
+            ('state', '!=', 'cancel')
+        ])
+        
+        if existing_linked_invoices:
+            _logger.info(f"Encontradas {len(existing_linked_invoices)} facturas ya vinculadas al proceso")
+            # Asegurar que estén en test_invoice_ids
+            if not self.test_invoice_ids:
+                self.test_invoice_ids = [(6, 0, existing_linked_invoices.ids)]
+                _logger.info(f"Restauradas {len(existing_linked_invoices)} facturas en test_invoice_ids")
+        
+        # 2. ESTRATEGIA 2: Buscar casos DTE con facturas vinculadas pero sin relación con el proceso
+        cases_with_invoices = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.id),
-            ('generated_account_move_id', '=', False),
-            ('generation_status', '=', 'generated')  # Casos que dicen estar generados pero sin factura
+            ('generated_account_move_id', '!=', False),
+            ('generated_account_move_id.state', '!=', 'cancel')
         ])
         
         recovered_count = 0
-        for case in unlinked_cases:
-            # Buscar facturas que podrían estar relacionadas con este caso
-            potential_invoices = self.env['account.move'].search([
-                ('ref', '=', f'Certificación DTE - Caso {case.id}'),
-                ('state', '!=', 'cancel')
+        for case in cases_with_invoices:
+            invoice = case.generated_account_move_id
+            
+            # Asegurar que la factura esté vinculada al proceso
+            if not invoice.l10n_cl_edi_certification_id:
+                invoice.l10n_cl_edi_certification_id = self.id
+                _logger.info(f"Vinculada factura {invoice.name} al proceso de certificación")
+                recovered_count += 1
+            
+            # Asegurar que esté en test_invoice_ids
+            if invoice not in self.test_invoice_ids:
+                self.test_invoice_ids = [(4, invoice.id)]  # Agregar sin reemplazar
+                _logger.info(f"Agregada factura {invoice.name} a test_invoice_ids")
+        
+        # 3. ESTRATEGIA 3: Buscar facturas por patrones de referencia
+        all_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.id)
+        ])
+        
+        for case in all_cases:
+            if not case.generated_account_move_id:
+                # Buscar facturas que podrían estar relacionadas
+                potential_invoices = self.env['account.move'].search([
+                    '|', '|', '|',
+                    ('ref', '=', f'Certificación DTE - Caso {case.id}'),
+                    ('ref', 'ilike', f'Caso {case.case_number_raw}'),
+                    ('ref', 'ilike', f'SII {case.case_number_raw}'),
+                    ('ref', 'ilike', f'Case {case.id}'),
+                    ('state', '!=', 'cancel'),
+                    ('move_type', 'in', ('out_invoice', 'out_refund'))
+                ])
+                
+                if potential_invoices:
+                    # Usar la primera factura encontrada
+                    invoice = potential_invoices[0]
+                    case.generated_account_move_id = invoice.id
+                    
+                    # Vincular al proceso
+                    if not invoice.l10n_cl_edi_certification_id:
+                        invoice.l10n_cl_edi_certification_id = self.id
+                    
+                    # Agregar a test_invoice_ids
+                    if invoice not in self.test_invoice_ids:
+                        self.test_invoice_ids = [(4, invoice.id)]
+                    
+                    _logger.info(f"Recuperada relación: Caso {case.case_number_raw} → Factura {invoice.name}")
+                    recovered_count += 1
+                    
+                    # Actualizar estado del caso
+                    if case.generation_status != 'generated':
+                        case.generation_status = 'generated'
+        
+        # 4. ESTRATEGIA 4: Buscar facturas del partner SII en el periodo
+        if self.certification_partner_id:
+            sii_invoices = self.env['account.move'].search([
+                ('partner_id', '=', self.certification_partner_id.id),
+                ('move_type', 'in', ('out_invoice', 'out_refund')),
+                ('state', '!=', 'cancel'),
+                ('l10n_cl_edi_certification_id', '=', False)  # No vinculadas aún
             ])
             
-            if potential_invoices:
-                # Vincular la primera factura encontrada
-                case.generated_account_move_id = potential_invoices[0]
-                _logger.info(f"Recuperada relación: Caso {case.id} → Factura {potential_invoices[0].name}")
+            for invoice in sii_invoices:
+                # Vincular al proceso
+                invoice.l10n_cl_edi_certification_id = self.id
+                
+                # Agregar a test_invoice_ids
+                if invoice not in self.test_invoice_ids:
+                    self.test_invoice_ids = [(4, invoice.id)]
+                
+                _logger.info(f"Recuperada factura SII: {invoice.name}")
                 recovered_count += 1
-            else:
-                # Si no hay factura pero el estado dice 'generated', resetear a 'pending'
-                case.generation_status = 'pending'
-                _logger.info(f"Reseteado estado del caso {case.id} a 'pending' (no se encontró factura)")
         
-        if recovered_count > 0:
-            _logger.info(f"=== RECUPERADAS {recovered_count} RELACIONES PERDIDAS ===")
-            _logger.info(f"Se recuperaron {recovered_count} relaciones perdidas entre casos DTE y facturas")
+        # 5. VALIDACIÓN FINAL
+        final_invoice_count = len(self.test_invoice_ids)
+        final_case_count = len(all_cases.filtered(lambda c: c.generated_account_move_id))
+        
+        _logger.info(f"=== RECUPERACIÓN COMPLETADA ===")
+        _logger.info(f"Facturas en test_invoice_ids: {final_invoice_count}")
+        _logger.info(f"Casos con facturas vinculadas: {final_case_count}")
+        _logger.info(f"Relaciones recuperadas en esta sesión: {recovered_count}")
+        
+        # Forzar recalculo de contadores
+        self._compute_document_count()
+        self._compute_dte_case_to_generate_count()
+        
+        return {
+            'recovered_count': recovered_count,
+            'total_invoices': final_invoice_count,
+            'linked_cases': final_case_count
+        }
 
     @api.model
     def default_get(self, fields_list):
@@ -623,6 +706,41 @@ class CertificationProcess(models.Model):
             'domain': [('certification_process_id', '=', self.id)],
             'context': {'default_certification_process_id': self.id},
         }
+    
+    def action_recover_relationships(self):
+        """Acción para recuperar relaciones perdidas manualmente"""
+        self.ensure_one()
+        
+        # Ejecutar recuperación
+        result = self._recover_lost_relationships()
+        
+        # Mostrar resultado
+        if result['recovered_count'] > 0:
+            message = f"Se recuperaron {result['recovered_count']} relaciones. "
+            message += f"Total de facturas: {result['total_invoices']}, "
+            message += f"Casos vinculados: {result['linked_cases']}"
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Recuperación Exitosa'),
+                    'message': message,
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Recuperación Completada'),
+                    'message': 'No se encontraron relaciones perdidas para recuperar',
+                    'type': 'info',
+                    'sticky': False,
+                }
+            }
     
     def action_process_set_prueba_xml(self):
         """Procesa el archivo XML de set de pruebas para crear las definiciones de los documentos."""
