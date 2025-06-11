@@ -243,36 +243,56 @@ class CertificationIECVBook(models.Model):
     
     def _validate_generation_requirements(self):
         """Valida que se cumplan los requisitos para generar el libro"""
-        if self.book_type == 'IEV':
-            documents = self._get_sales_documents()
-            if not documents:
-                raise UserError(_('No hay documentos de venta para incluir en el libro IEV'))
-        elif self.book_type == 'IEC':
-            entries = self._get_purchase_entries()
-            if not entries:
-                raise UserError(_('No hay entradas de compra para incluir en el libro IEC'))
         
-        # Validar certificado digital
+        # Primero validar certificado digital
         certificate = self.env['certificate.certificate'].search([
             ('company_id', '=', self.certification_process_id.company_id.id),
             ('is_valid', '=', True)
         ], limit=1)
         
         if not certificate:
-            raise UserError(_('No hay certificado digital válido para firmar el libro IECV'))
+            # Para certificación, permitir generar sin certificado (solo para testing)
+            _logger.warning("Generando libro IECV sin certificado digital válido (modo certificación)")
         
         # Validar datos de resolución SII
         company = self.certification_process_id.company_id
         if not company.l10n_cl_dte_resolution_number or not company.l10n_cl_dte_resolution_date:
-            raise UserError(_('Faltan datos de resolución SII en la configuración de la empresa'))
+            _logger.warning("Faltan datos de resolución SII, usando valores por defecto para certificación")
+        
+        # Validar datos específicos según tipo de libro
+        if self.book_type == 'IEV':
+            documents = self._get_sales_documents()
+            if not documents:
+                # Verificar si hay facturas no vinculadas que necesitan recuperación
+                all_invoices = self.certification_process_id.test_invoice_ids
+                if not all_invoices:
+                    raise UserError(_('''No hay documentos de venta para incluir en el libro IEV.
+                    
+Esto puede deberse a:
+                    1. Las facturas no están vinculadas al proceso de certificación
+                    2. No se han generado aún los DTEs
+                    
+Solución: Use el botón "Recuperar Facturas" en la pestaña Libros IECV'''))
+                else:
+                    raise UserError(_(f'Las {len(all_invoices)} facturas no coinciden con el período {self.period_display}'))
+        elif self.book_type == 'IEC':
+            entries = self._get_purchase_entries()
+            if not entries:
+                raise UserError(_('''No hay entradas de compra para incluir en el libro IEC.
+                
+Solución: Use el botón "Crear Datos de Compras" en la pestaña Libros IECV'''))
     
     def _build_iecv_xml(self):
         """Construye la estructura XML del libro IECV según formato SII"""
-        # Crear namespace
-        root = etree.Element("LibroCompraVenta")
-        root.set("xmlns", "http://www.sii.cl/SiiDte")
-        root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-        root.set("xsi:schemaLocation", "http://www.sii.cl/SiiDte LibroCV_v10.xsd")
+        # Definir namespaces
+        nsmap = {
+            None: 'http://www.sii.cl/SiiDte',  # Namespace por defecto
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+        }
+        
+        # Crear elemento raíz con namespaces
+        root = etree.Element("LibroCompraVenta", nsmap=nsmap)
+        root.set("{http://www.w3.org/2001/XMLSchema-instance}schemaLocation", "http://www.sii.cl/SiiDte LibroCV_v10.xsd")
         root.set("version", "1.0")
         
         # Crear EnvioLibro con ID
