@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, api, _
+from odoo import models, api, fields, _
 from odoo.exceptions import UserError
 import base64
 import logging
@@ -28,7 +28,7 @@ class CertificationIECVBookActions(models.AbstractModel):
             self.write({
                 'xml_file': base64.b64encode(signed_xml),
                 'state': 'signed',
-                'generation_date': self.env['ir.fields'].Datetime.now(),
+                'generation_date': fields.Datetime.now(),
                 'error_message': False
             })
             
