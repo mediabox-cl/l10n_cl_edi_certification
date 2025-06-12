@@ -78,9 +78,8 @@ class CertificationIECVBookPurchaseProcessor(models.AbstractModel):
             fecha = f"{self.period_year}-{self.period_month:02d}-15"
             etree.SubElement(detalle, "FchDoc").text = fecha
             
-            # RUT emisor del documento (proveedor en libro de compras)
-            rut_emisor = entry.supplier_rut or SII_RUT
-            etree.SubElement(detalle, "RUTDoc").text = rut_emisor
+            # RUT receptor - CRÍTICO: debe ser SII para certificación
+            etree.SubElement(detalle, "RUTDoc").text = SII_RUT
             
             # Montos según tipo de IVA (enteros sin decimales)
             etree.SubElement(detalle, "MntExe").text = str(int(entry.amount_exempt))
