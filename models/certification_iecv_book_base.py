@@ -176,13 +176,8 @@ class CertificationIECVBookBase(models.Model):
         # Obtener todas las entradas de compra del proceso de certificación
         purchase_entries = self.certification_process_id.purchase_entry_ids
         
-        # Filtrar por período si está configurado
-        if self.period_year and self.period_month:
-            purchase_entries = purchase_entries.filtered(
-                lambda entry: not entry.document_date or 
-                             (entry.document_date.year == self.period_year and 
-                              entry.document_date.month == self.period_month)
-            )
+        # Para entradas de certificación no aplicamos filtro por período
+        # ya que son datos fijos del set de pruebas
         
         _logger.info(f"Procesando {len(purchase_entries)} entradas de compra para el libro IEC")
         return purchase_entries.sorted('sequence')
