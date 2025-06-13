@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Script de limpieza para partners de certificación -->
+        <!-- Este archivo debe ejecutarse ANTES que certification_partners.xml -->
+        
+        <!-- Eliminar registros existentes que pueden tener RUTs incorrectos -->
+        <delete model="res.partner" id="certification_partner_01"/>
+        <delete model="res.partner" id="certification_partner_02"/>
+        <delete model="res.partner" id="certification_partner_03"/>
+        <delete model="res.partner" id="certification_partner_04"/>
+        <delete model="res.partner" id="certification_partner_05"/>
+        <delete model="res.partner" id="certification_partner_06"/>
+        <delete model="res.partner" id="certification_partner_07"/>
+        <delete model="res.partner" id="certification_partner_08"/>
+        <delete model="res.partner" id="certification_partner_09"/>
+        <delete model="res.partner" id="certification_partner_10"/>
+        <delete model="res.partner" id="certification_partner_11"/>
+        <delete model="res.partner" id="certification_partner_12"/>
+        <delete model="res.partner" id="certification_partner_13"/>
+        <delete model="res.partner" id="certification_partner_14"/>
+        <delete model="res.partner" id="certification_partner_15"/>
+        <delete model="res.partner" id="certification_partner_16"/>
+        <delete model="res.partner" id="certification_partner_17"/>
+        <delete model="res.partner" id="certification_partner_18"/>
+        <delete model="res.partner" id="certification_partner_19"/>
+        <delete model="res.partner" id="certification_partner_20"/>
+    </data>
+</odoo>
