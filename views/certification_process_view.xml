@@ -82,15 +82,16 @@
                                 <group>
                                     <group string="RECURSOS AUTOMÁTICOS">
                                         <field name="certification_journal_id" options="{'no_create': True, 'no_open': True}"/>
-                                        <field name="certification_partner_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <!-- ELIMINADO: certification_partner_id (error arquitectónico resuelto) -->
+                                        <!-- Ya no usamos un partner único del SII para todos los documentos -->
                                     </group>
                                     <group string="CONFIGURACIÓN MANUAL">
                                         <field name="default_tax_id" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="default_discount_product_id" options="{'no_create': True, 'no_open': True}"/>
                                     </group>
                                 </group>
-                                <div class="alert alert-warning" role="alert" invisible="certification_journal_id and certification_partner_id">
-                                    <strong>Atención:</strong> Debe ejecutar "Preparar Certificación" para crear automáticamente el diario y partner necesarios.
+                                <div class="alert alert-warning" role="alert" invisible="certification_journal_id">
+                                    <strong>Atención:</strong> Debe ejecutar "Preparar Certificación" para crear automáticamente el diario necesario.
                                 </div>
                                 
                                 <group string="DEBUG - Estado de Validaciones" groups="base.group_no_one">
@@ -102,7 +103,7 @@
                                     </group>
                                     <group>
                                         <field name="certification_journal_id" string="Diario Certificación" readonly="1"/>
-                                        <field name="certification_partner_id" string="Partner SII" readonly="1"/>
+                                        <!-- ELIMINADO: certification_partner_id (error arquitectónico resuelto) -->
                                         <field name="state" string="Estado Actual" readonly="1"/>
                                     </group>
                                 </group>
