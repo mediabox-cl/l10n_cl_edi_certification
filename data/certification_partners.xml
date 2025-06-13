@@ -22,7 +22,6 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>  <!-- Contribuyente -->
             <field name="l10n_latam_identification_type_id">4</field>  <!-- Tipo identificación: RUT -->
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
             <field name="lang">es_CL</field>
             <field name="street">Cillero 11</field>
             <field name="city">Rancagua</field>
@@ -42,7 +41,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">PJE VOLCAN NINO 2190 CASAS RUMIE</field>
             <field name="city">Villa Alemana</field>
@@ -61,7 +60,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">MEDIO PONIENTE 820</field>
             <field name="city">Viña del Mar</field>
@@ -80,7 +79,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="city">Providencia</field>
             <field name="country_id" ref="base.cl"/>
@@ -98,7 +97,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Av. Ramón Picarte 817</field>
             <field name="city">Valdivia</field>
@@ -119,7 +118,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Dr M Barros Borgoño 71 Oficina 1105</field>
             <field name="city">Providencia</field>
@@ -138,7 +137,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Nueva de Lyon 105</field>
             <field name="city">Providencia</field>
@@ -157,7 +156,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Merced 369</field>
             <field name="city">Santiago</field>
@@ -176,7 +175,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">El Roble 835</field>
             <field name="city">Chillán</field>
@@ -195,7 +194,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Merced 832, Local 95</field>
             <field name="city">Santiago</field>
@@ -216,7 +215,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Almirante Barrozo 238</field>
             <field name="city">Santiago</field>
@@ -235,7 +234,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Eulogia Sanchez 065</field>
             <field name="city">Providencia</field>
@@ -254,7 +253,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">La Concepción #248</field>
             <field name="city">Quillota</field>
@@ -273,7 +272,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Pasaje Volcan Huequi 152</field>
             <field name="city">Lautaro</field>
@@ -292,7 +291,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">EL IBISCO 367</field>
             <field name="city">San Bernardo</field>
@@ -313,7 +312,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Balmaceda 315 L1</field>
             <field name="city">Puente Alto</field>
@@ -332,7 +331,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Juan Enrique Concha 75</field>
             <field name="city">Ñuñoa</field>
@@ -351,7 +350,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Providencia 1100 local 45</field>
             <field name="city">Providencia</field>
@@ -370,7 +369,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Orompello 178</field>
             <field name="city">Concepción</field>
@@ -389,7 +388,7 @@
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-            <field name="l10n_cl_is_factoring">False</field>
+             
             <field name="lang">es_CL</field>
             <field name="street">Las Achiras 655</field>
             <field name="city">Puente Alto</field>
