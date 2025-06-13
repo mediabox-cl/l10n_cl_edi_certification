@@ -117,12 +117,9 @@ class CertificationProcess(models.Model):
         readonly=True,
         help='Diario creado automáticamente para el proceso de certificación'
     )
-    certification_partner_id = fields.Many2one(
-        'res.partner',
-        string='Cliente SII (Certificación)',
-        readonly=True,
-        help='Partner con RUT del SII creado automáticamente para documentos de certificación'
-    )
+    # ELIMINADO: certification_partner_id ya no se usa (error arquitectónico resuelto)
+    # El partner del SII (60803000-K) ya no se asigna directamente a documentos individuales.
+    # Cada DTE individual usa un partner de certificación único del pool de partners precargados.
     default_tax_id = fields.Many2one(
         'account.tax',
         string='Impuesto IVA por Defecto',
@@ -264,25 +261,9 @@ class CertificationProcess(models.Model):
                     if case.generation_status != 'generated':
                         case.generation_status = 'generated'
         
-        # 4. ESTRATEGIA 4: Buscar facturas del partner SII en el periodo
-        if self.certification_partner_id:
-            sii_invoices = self.env['account.move'].search([
-                ('partner_id', '=', self.certification_partner_id.id),
-                ('move_type', 'in', ('out_invoice', 'out_refund')),
-                ('state', '!=', 'cancel'),
-                ('l10n_cl_edi_certification_id', '=', False)  # No vinculadas aún
-            ])
-            
-            for invoice in sii_invoices:
-                # Vincular al proceso
-                invoice.l10n_cl_edi_certification_id = self.id
-                
-                # Agregar a test_invoice_ids
-                if invoice not in self.test_invoice_ids:
-                    self.test_invoice_ids = [(4, invoice.id)]
-                
-                _logger.info(f"Recuperada factura SII: {invoice.name}")
-                recovered_count += 1
+        # 4. ELIMINADO: Buscar facturas del partner SII (error arquitectónico resuelto)
+        # Ya no usamos un partner único del SII para todos los documentos.
+        # Los partners de certificación únicos se asignan individualmente desde datos precargados.
         
         # 5. VALIDACIÓN FINAL
         final_invoice_count = len(self.test_invoice_ids)
@@ -523,13 +504,13 @@ class CertificationProcess(models.Model):
         # 2. Crear/configurar diario específico para certificación
         certification_journal = self._create_certification_journal()
         
-        # 3. Crear/configurar partner del SII para certificación
-        certification_partner = self._create_certification_partner()
+        # 3. ELIMINADO: Partner del SII (error arquitectónico resuelto)
+        # Ya no creamos un partner único del SII para todos los documentos.
+        # Los partners de certificación únicos se cargan desde datos precargados.
         
-        # 4. Asignar los recursos creados al proceso
+        # 4. Asignar el diario creado al proceso
         self.write({
             'certification_journal_id': certification_journal.id,
-            'certification_partner_id': certification_partner.id,
         })
         
         # 5. Verificar estado automáticamente (no forzar estado)
@@ -621,57 +602,9 @@ class CertificationProcess(models.Model):
         
         return doc_type_set
     
-    def _create_certification_partner(self):
-        """
-        Crea o configura un partner para el proceso de certificación.
-        
-        Usa el RUT real del SII (requisito obligatorio para certificación) pero con 
-        datos ficticios para el resto de la información del partner.
-        
-        Returns:
-            El partner configurado para certificación
-        """
-        self.ensure_one()
-        
-        # RUT del SII: 60.803.000-K (requisito obligatorio para certificación)
-        target_name = 'The John Doe\'s Foundation'
-        target_rut = 'CL60803000K'
-        
-        # Buscar partner existente con el mismo nombre Y RUT
-        existing_partner = self.env['res.partner'].search([
-            ('name', '=', target_name),
-            ('vat', '=', target_rut)
-        ], limit=1)
-        
-        if existing_partner:
-            _logger.info(f"Partner existente encontrado: {existing_partner.name} (ID: {existing_partner.id})")
-            return existing_partner
-        
-        # No existe, crear uno nuevo
-        _logger.info(f"Creando nuevo partner con nombre: {target_name} y RUT: {target_rut}")
-        
-        vals = {
-            'name': target_name,
-            'vat': target_rut,
-            'is_company': True,
-            'customer_rank': 1,
-            'supplier_rank': 0,
-            'country_id': self.env.ref('base.cl').id,
-            'street': 'Av. Ficticia 123, Oficina 456',
-            'city': 'Santiago',
-            'zip': '7500000',
-            'phone': '+56 2 2345 6789',
-            'email': 'contacto@johndoe.foundation',
-            'website': 'https://johndoe.foundation',
-            'l10n_cl_sii_taxpayer_type': '1',
-            'l10n_cl_dte_email': 'facturacion@johndoe.foundation',
-            'l10n_cl_activity_description': 'Servicios Empresariales',  # 22 chars - dentro del límite
-        }
-        
-        certification_partner = self.env['res.partner'].create(vals)
-        _logger.info(f"Partner creado: {certification_partner.name} (ID: {certification_partner.id})")
-        
-        return certification_partner
+    # ELIMINADO: _create_certification_partner() ya no es necesario
+    # El error arquitectónico del partner único del SII (60803000-K) ha sido resuelto.
+    # Ahora cada DTE individual usa un partner de certificación único del pool de partners precargados.
     
     def action_create_demo_cafs(self):
         """Crea CAFs de demostración para los tipos de documento requeridos"""
@@ -1140,7 +1073,8 @@ class CertificationProcess(models.Model):
         
         checks = {
             'certification_journal_id': bool(self.certification_journal_id),
-            'certification_partner_id': bool(self.certification_partner_id),
+            # ELIMINADO: certification_partner_id (error arquitectónico resuelto)
+            # Ya no validamos el partner único del SII, ahora usamos pool de partners de certificación
         }
         
         for field, result in checks.items():

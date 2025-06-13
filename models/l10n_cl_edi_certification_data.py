@@ -17,15 +17,9 @@ class CertificationParsedSet(models.Model):
         required=True, ondelete='cascade', index=True)
     sequence = fields.Integer(string='Secuencia', default=10)
 
-    # Partner asociado (del proceso de certificación)
-    partner_id = fields.Many2one(
-        'res.partner',
-        string='Cliente',
-        related='certification_process_id.certification_partner_id',
-        store=True,
-        readonly=True,
-        help='Partner asociado al proceso de certificación'
-    )
+    # ELIMINADO: Partner relacionado del proceso de certificación (error arquitectónico)
+    # Ya no usamos un partner único del SII para todos los documentos.
+    # Cada caso DTE individual obtiene su propio partner de certificación único.
 
     name = fields.Char(string='Nombre del Set', compute='_compute_name', store=True)
     set_type_raw = fields.Char(string='Tipo de Set (Raw)')

@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 
+        DATOS PRECARGADOS PARA CERTIFICACIÓN SII
+        ==========================================
+        
+        Estos partners ficticios resuelven el error arquitectónico del módulo relacionado
+        con el manejo de RUTs en DTEs. Cada DTE individual debe usar un RUT de destinatario
+        único, mientras que el 60803000-K se reserva únicamente para el EnvioDTE (carátula).
+        
+        IMPORTANTE: Estos datos son TEMPORALES y solo para certificación. No deben 
+        interferir con el funcionamiento normal del sistema post-certificación.
+        -->
+        
+        <!-- LOTE 1: Primeros 5 partners de certificación -->
+        
+        <!-- Partner 1: Baca Juegos y Accesorios SPA -->
+        <record id="certification_partner_01" model="res.partner">
+            <field name="name">Baca Juegos y Accesorios SPA</field>
+            <field name="vat">CL774478426</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>  <!-- Contribuyente -->
+            <field name="l10n_latam_identification_type_id">4</field>  <!-- Tipo identificación: RUT -->
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Cillero 11</field>
+            <field name="city">Rancagua</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta de juegos y accesorios en Comercio Especializado</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <!-- Campo específico para certificación -->
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 2: Brayan Valtierra venta de juegos y juguetes E.I.R.L -->
+        <record id="certification_partner_02" model="res.partner">
+            <field name="name">Brayan Valtierra venta de juegos y juguetes E.I.R.L</field>
+            <field name="vat">CL774709487</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">PJE VOLCAN NINO 2190 CASAS RUMIE</field>
+            <field name="city">Villa Alemana</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 3: CAFE, ROBOTS Y GALLETAS SPA -->
+        <record id="certification_partner_03" model="res.partner">
+            <field name="name">CAFE, ROBOTS Y GALLETAS SPA</field>
+            <field name="vat">CL77908275K</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">MEDIO PONIENTE 820</field>
+            <field name="city">Viña del Mar</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 4: Casa Lagunillas SpA -->
+        <record id="certification_partner_04" model="res.partner">
+            <field name="name">Casa Lagunillas SpA</field>
+            <field name="vat">CL779313697</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="city">Providencia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta al por menor</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 5: Cesar Alfredo Rivera Bustos -->
+        <record id="certification_partner_05" model="res.partner">
+            <field name="name">Cesar Alfredo Rivera Bustos</field>
+            <field name="vat">CL155592907</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Av. Ramón Picarte 817</field>
+            <field name="city">Valdivia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE ARTICULOS DE PAPEL</field>
+            <field name="is_company">False</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+
+        <!-- LOTE 2: Segundo grupo de 5 partners de certificación -->
+        
+        <!-- Partner 6: Chillinbox SpA -->
+        <record id="certification_partner_06" model="res.partner">
+            <field name="name">Chillinbox SpA</field>
+            <field name="vat">CL773949077</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Dr M Barros Borgoño 71 Oficina 1105</field>
+            <field name="city">Providencia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta al por menor por correo, teléfono e internet</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 7: Christian Gabriel Navarro Montero -->
+        <record id="certification_partner_07" model="res.partner">
+            <field name="name">Christian Gabriel Navarro Montero</field>
+            <field name="vat">CL90394541</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Nueva de Lyon 105</field>
+            <field name="city">Providencia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
+            <field name="is_company">False</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 8: Comercial Nacional SpA -->
+        <record id="certification_partner_08" model="res.partner">
+            <field name="name">Comercial Nacional SpA</field>
+            <field name="vat">CL761433520</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Merced 369</field>
+            <field name="city">Santiago</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Industria cultural chilena; servicios y comercialización</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 9: Comercial Salomón Israel Hernández Contreras -->
+        <record id="certification_partner_09" model="res.partner">
+            <field name="name">Comercial Salomón Israel Hernández Contreras</field>
+            <field name="vat">CL771618340</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">El Roble 835</field>
+            <field name="city">Chillán</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 10: Comercializadora Antonio García Díaz E.I.R.L. -->
+        <record id="certification_partner_10" model="res.partner">
+            <field name="name">Comercializadora Antonio García Díaz E.I.R.L.</field>
+            <field name="vat">CL763569268</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Merced 832, Local 95</field>
+            <field name="city">Santiago</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta al por menor de otros productos</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+
+        <!-- LOTE 3: Tercer grupo de 5 partners de certificación -->
+        
+        <!-- Partner 11: Comercializadora EPG Limitada -->
+        <record id="certification_partner_11" model="res.partner">
+            <field name="name">Comercializadora EPG Limitada</field>
+            <field name="vat">CL774222634</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Almirante Barrozo 238</field>
+            <field name="city">Santiago</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR POR CORREO, POR INTERNET Y VIA TELEFONICA</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 12: Comercializadora Romina Tellez Ulloa -->
+        <record id="certification_partner_12" model="res.partner">
+            <field name="name">Comercializadora Romina Tellez Ulloa</field>
+            <field name="vat">CL781045233</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Eulogia Sanchez 065</field>
+            <field name="city">Providencia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Comercio al por menor de productos recreativos por internet</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 13: Diseños Kathy SpA -->
+        <record id="certification_partner_13" model="res.partner">
+            <field name="name">Diseños Kathy SpA</field>
+            <field name="vat">CL777811231</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">La Concepción #248</field>
+            <field name="city">Quillota</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta al por menor en comercio no especializado</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 14: Distribuidora Carolina Fernandez Ponce -->
+        <record id="certification_partner_14" model="res.partner">
+            <field name="name">Distribuidora Carolina Fernandez Ponce</field>
+            <field name="vat">CL778778130</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Pasaje Volcan Huequi 152</field>
+            <field name="city">Lautaro</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta articulos de libreria</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 15: Dr Juegos Spa -->
+        <record id="certification_partner_15" model="res.partner">
+            <field name="name">Dr Juegos Spa</field>
+            <field name="vat">CL770655293</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">EL IBISCO 367</field>
+            <field name="city">San Bernardo</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Comercializadora de juegos de mesa y accesorios</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+
+        <!-- LOTE 4: Cuarto grupo de 5 partners de certificación -->
+        
+        <!-- Partner 16: Dracarys Juegos de Mesa SPA -->
+        <record id="certification_partner_16" model="res.partner">
+            <field name="name">Dracarys Juegos de Mesa SPA</field>
+            <field name="vat">CL773965641</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Balmaceda 315 L1</field>
+            <field name="city">Puente Alto</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Venta al por mayor de libros</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 17: El Dado SPA -->
+        <record id="certification_partner_17" model="res.partner">
+            <field name="name">El Dado SPA</field>
+            <field name="vat">CL775551234</field>  <!-- RUT ficticio por falta en CSV -->
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Juan Enrique Concha 75</field>
+            <field name="city">Ñuñoa</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 18: FROMM RIHM SPA -->
+        <record id="certification_partner_18" model="res.partner">
+            <field name="name">FROMM RIHM SPA</field>
+            <field name="vat">CL767999283</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Providencia 1100 local 45</field>
+            <field name="city">Providencia</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Comercio Minorista</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 19: Filler Place SPA -->
+        <record id="certification_partner_19" model="res.partner">
+            <field name="name">Filler Place SPA</field>
+            <field name="vat">CL774239596</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Orompello 178</field>
+            <field name="city">Concepción</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">Comercialización de productos de entretenimiento</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+        
+        <!-- Partner 20: Fundación Desarrollo Educativo -->
+        <record id="certification_partner_20" model="res.partner">
+            <field name="name">Fundación Desarrollo Educativo</field>
+            <field name="vat">CL650859030</field>
+            <field name="l10n_cl_sii_taxpayer_type">1</field>
+            <field name="l10n_latam_identification_type_id">4</field>
+            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
+            <field name="l10n_cl_is_factoring">False</field>
+            <field name="lang">es_CL</field>
+            <field name="street">Las Achiras 655</field>
+            <field name="city">Puente Alto</field>
+            <field name="country_id" ref="base.cl"/>
+            <field name="l10n_cl_activity_description">ENSEÑANZA PRIMARIA, SECUNDARIA CIENTIFICO HUMANISTA</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+            <field name="l10n_cl_edi_certification_partner">True</field>
+        </record>
+
+    </data>
+</odoo>

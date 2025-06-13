@@ -115,11 +115,84 @@ class CertificationCaseDte(models.Model):
 
     @api.depends('parsed_set_id')
     def _compute_partner_id(self):
+        """
+        Asigna automáticamente un partner de certificación único a cada caso DTE.
+        
+        Lógica:
+        1. Para notas de crédito/débito: usa el mismo partner que el documento original
+        2. Para documentos originales: asigna partner disponible (no usado previamente)
+        3. Registra la asignación para evitar reutilización
+        """
         for record in self:
-            if record.parsed_set_id:
-                record.partner_id = record.parsed_set_id.partner_id
-            else:
+            if not record.parsed_set_id:
                 record.partner_id = False
+                continue
+            
+            # Si ya tiene partner asignado, mantenerlo
+            if record.partner_id:
+                continue
+                
+            # Verificar si es nota de crédito/débito con referencias
+            if (record.document_type_code in ['61', '56'] and 
+                record.reference_ids and 
+                record.reference_ids[0].referenced_case_dte_id):
+                
+                # Para NC/ND, usar el mismo partner que el documento original
+                original_case = record.reference_ids[0].referenced_case_dte_id
+                if original_case.partner_id:
+                    record.partner_id = original_case.partner_id
+                    _logger.info(f"Caso {record.case_number_raw}: Partner heredado de documento original {original_case.case_number_raw}")
+                    continue
+            
+            # Para documentos originales, asignar partner disponible
+            available_partner = record._get_available_certification_partner()
+            if available_partner:
+                # Asignar partner y registrar el caso
+                record.partner_id = available_partner
+                available_partner.l10n_cl_edi_assigned_case_number = record.case_number_raw
+                _logger.info(f"Caso {record.case_number_raw}: Partner asignado automáticamente - {available_partner.name} (RUT: {available_partner.vat})")
+            else:
+                _logger.error(f"No hay partners de certificación disponibles para caso {record.case_number_raw}")
+                record.partner_id = False
+
+    def _get_available_certification_partner(self):
+        """
+        Obtiene un partner de certificación disponible (no asignado a otro caso).
+        
+        Returns:
+            res.partner: Partner disponible o False si no hay disponibles
+        """
+        self.ensure_one()
+        
+        # Buscar partners de certificación que no hayan sido asignados
+        available_partners = self.env['res.partner'].search([
+            ('l10n_cl_edi_certification_partner', '=', True),
+            ('l10n_cl_edi_assigned_case_number', '=', False)
+        ], limit=1)  # Tomar el primer disponible
+        
+        if available_partners:
+            _logger.info(f"Partner disponible encontrado: {available_partners[0].name} (RUT: {available_partners[0].vat})")
+            return available_partners[0]
+        
+        # Si no hay partners completamente libres, buscar partners que no estén asignados 
+        # a casos del proceso actual (permitir reutilización entre procesos diferentes)
+        current_process_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.parsed_set_id.certification_process_id.id)
+        ])
+        
+        assigned_case_numbers = [case.case_number_raw for case in current_process_cases if case.case_number_raw]
+        
+        available_partners = self.env['res.partner'].search([
+            ('l10n_cl_edi_certification_partner', '=', True),
+            ('l10n_cl_edi_assigned_case_number', 'not in', assigned_case_numbers)
+        ], limit=1)
+        
+        if available_partners:
+            _logger.info(f"Partner reutilizable encontrado: {available_partners[0].name} (previamente asignado a: {available_partners[0].l10n_cl_edi_assigned_case_number})")
+            return available_partners[0]
+        
+        _logger.warning("No se encontraron partners de certificación disponibles")
+        return False
 
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):

@@ -7,6 +7,19 @@ _logger = logging.getLogger(__name__)
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+    
+    # Campo para identificar partners usados exclusivamente para certificación SII
+    l10n_cl_edi_certification_partner = fields.Boolean(
+        string='Partner de Certificación SII',
+        default=False,
+        help='Indica si este partner es usado exclusivamente para el proceso de certificación SII'
+    )
+    
+    # Campo para trackear a qué caso fue asignado este partner
+    l10n_cl_edi_assigned_case_number = fields.Char(
+        string='Caso Asignado',
+        help='Número de caso DTE al que fue asignado este partner de certificación'
+    )
 
     @api.model
     def create(self, vals):
