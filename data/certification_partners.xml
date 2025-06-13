@@ -18,7 +18,7 @@
         <!-- Partner 1: Baca Juegos y Accesorios SPA -->
         <record id="certification_partner_01" model="res.partner">
             <field name="name">Baca Juegos y Accesorios SPA</field>
-            <field name="vat">CL774478426</field>
+            <field name="vat">77447842-6</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>  <!-- Contribuyente -->
             <field name="l10n_latam_identification_type_id">4</field>  <!-- Tipo identificación: RUT -->
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -37,7 +37,7 @@
         <!-- Partner 2: Brayan Valtierra venta de juegos y juguetes E.I.R.L -->
         <record id="certification_partner_02" model="res.partner">
             <field name="name">Brayan Valtierra venta de juegos y juguetes E.I.R.L</field>
-            <field name="vat">CL774709487</field>
+            <field name="vat">77470948-7</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -56,7 +56,7 @@
         <!-- Partner 3: CAFE, ROBOTS Y GALLETAS SPA -->
         <record id="certification_partner_03" model="res.partner">
             <field name="name">CAFE, ROBOTS Y GALLETAS SPA</field>
-            <field name="vat">CL77908275K</field>
+            <field name="vat">77908275-K</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -75,7 +75,7 @@
         <!-- Partner 4: Casa Lagunillas SpA -->
         <record id="certification_partner_04" model="res.partner">
             <field name="name">Casa Lagunillas SpA</field>
-            <field name="vat">CL779313697</field>
+            <field name="vat">77931369-7</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -93,7 +93,7 @@
         <!-- Partner 5: Cesar Alfredo Rivera Bustos -->
         <record id="certification_partner_05" model="res.partner">
             <field name="name">Cesar Alfredo Rivera Bustos</field>
-            <field name="vat">CL155592907</field>
+            <field name="vat">15559290-7</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -114,7 +114,7 @@
         <!-- Partner 6: Chillinbox SpA -->
         <record id="certification_partner_06" model="res.partner">
             <field name="name">Chillinbox SpA</field>
-            <field name="vat">CL773949077</field>
+            <field name="vat">77394907-7</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -133,7 +133,7 @@
         <!-- Partner 7: Christian Gabriel Navarro Montero -->
         <record id="certification_partner_07" model="res.partner">
             <field name="name">Christian Gabriel Navarro Montero</field>
-            <field name="vat">CL90394541</field>
+            <field name="vat">9039454-1</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -152,7 +152,7 @@
         <!-- Partner 8: Comercial Nacional SpA -->
         <record id="certification_partner_08" model="res.partner">
             <field name="name">Comercial Nacional SpA</field>
-            <field name="vat">CL761433520</field>
+            <field name="vat">76143352-0</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -171,7 +171,7 @@
         <!-- Partner 9: Comercial Salomón Israel Hernández Contreras -->
         <record id="certification_partner_09" model="res.partner">
             <field name="name">Comercial Salomón Israel Hernández Contreras</field>
-            <field name="vat">CL771618340</field>
+            <field name="vat">77161834-0</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -190,7 +190,7 @@
         <!-- Partner 10: Comercializadora Antonio García Díaz E.I.R.L. -->
         <record id="certification_partner_10" model="res.partner">
             <field name="name">Comercializadora Antonio García Díaz E.I.R.L.</field>
-            <field name="vat">CL763569268</field>
+            <field name="vat">76356926-8</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -211,7 +211,7 @@
         <!-- Partner 11: Comercializadora EPG Limitada -->
         <record id="certification_partner_11" model="res.partner">
             <field name="name">Comercializadora EPG Limitada</field>
-            <field name="vat">CL774222634</field>
+            <field name="vat">77422263-4</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -230,7 +230,7 @@
         <!-- Partner 12: Comercializadora Romina Tellez Ulloa -->
         <record id="certification_partner_12" model="res.partner">
             <field name="name">Comercializadora Romina Tellez Ulloa</field>
-            <field name="vat">CL781045233</field>
+            <field name="vat">78104523-3</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -249,7 +249,7 @@
         <!-- Partner 13: Diseños Kathy SpA -->
         <record id="certification_partner_13" model="res.partner">
             <field name="name">Diseños Kathy SpA</field>
-            <field name="vat">CL777811231</field>
+            <field name="vat">77781123-1</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -268,7 +268,7 @@
         <!-- Partner 14: Distribuidora Carolina Fernandez Ponce -->
         <record id="certification_partner_14" model="res.partner">
             <field name="name">Distribuidora Carolina Fernandez Ponce</field>
-            <field name="vat">CL778778130</field>
+            <field name="vat">77877813-0</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -287,7 +287,7 @@
         <!-- Partner 15: Dr Juegos Spa -->
         <record id="certification_partner_15" model="res.partner">
             <field name="name">Dr Juegos Spa</field>
-            <field name="vat">CL770655293</field>
+            <field name="vat">77065529-3</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -308,7 +308,7 @@
         <!-- Partner 16: Dracarys Juegos de Mesa SPA -->
         <record id="certification_partner_16" model="res.partner">
             <field name="name">Dracarys Juegos de Mesa SPA</field>
-            <field name="vat">CL773965641</field>
+            <field name="vat">77396564-1</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -327,7 +327,7 @@
         <!-- Partner 17: El Dado SPA -->
         <record id="certification_partner_17" model="res.partner">
             <field name="name">El Dado SPA</field>
-            <field name="vat">CL775551234</field>  <!-- RUT ficticio por falta en CSV -->
+            <field name="vat">77555123-4</field>  <!-- RUT ficticio válido -->
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -346,7 +346,7 @@
         <!-- Partner 18: FROMM RIHM SPA -->
         <record id="certification_partner_18" model="res.partner">
             <field name="name">FROMM RIHM SPA</field>
-            <field name="vat">CL767999283</field>
+            <field name="vat">76799928-3</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -365,7 +365,7 @@
         <!-- Partner 19: Filler Place SPA -->
         <record id="certification_partner_19" model="res.partner">
             <field name="name">Filler Place SPA</field>
-            <field name="vat">CL774239596</field>
+            <field name="vat">77423959-6</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
@@ -384,7 +384,7 @@
         <!-- Partner 20: Fundación Desarrollo Educativo -->
         <record id="certification_partner_20" model="res.partner">
             <field name="name">Fundación Desarrollo Educativo</field>
-            <field name="vat">CL650859030</field>
+            <field name="vat">65085903-0</field>
             <field name="l10n_cl_sii_taxpayer_type">1</field>
             <field name="l10n_latam_identification_type_id">4</field>
             <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
