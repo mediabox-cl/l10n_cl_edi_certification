@@ -323,26 +323,7 @@
             <field name="customer_rank">1</field>
             <field name="l10n_cl_edi_certification_partner">True</field>
         </record>
-        
-        <!-- Partner 17: El Dado SPA -->
-        <record id="certification_partner_17" model="res.partner">
-            <field name="name">El Dado SPA</field>
-            <field name="vat">CL77555123-4</field>  <!-- RUT ficticio válido -->
-            <field name="l10n_cl_sii_taxpayer_type">1</field>
-            <field name="l10n_latam_identification_type_id">4</field>
-            <field name="l10n_cl_dte_email">dev@withinplaygames.com</field>
-             
-            <field name="lang">es_CL</field>
-            <field name="street">Juan Enrique Concha 75</field>
-            <field name="city">Ñuñoa</field>
-            <field name="country_id" ref="base.cl"/>
-            <field name="l10n_cl_activity_description">VENTA AL POR MENOR DE JUEGOS Y JUGUETES</field>
-            <field name="is_company">True</field>
-            <field name="supplier_rank">0</field>
-            <field name="customer_rank">1</field>
-            <field name="l10n_cl_edi_certification_partner">True</field>
-        </record>
-        
+                
         <!-- Partner 18: FROMM RIHM SPA -->
         <record id="certification_partner_18" model="res.partner">
             <field name="name">FROMM RIHM SPA</field>
