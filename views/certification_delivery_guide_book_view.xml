@@ -72,8 +72,7 @@
                             <page string="Información del XML" invisible="not xml_file">
                                 <group>
                                     <field name="xml_file" filename="xml_filename" readonly="1"/>
-                                    <field name="error_message" readonly="1" invisible="not error_message"
-                                           attrs="{'invisible': [('error_message', '=', False)]}"/>
+                                    <field name="error_message" readonly="1" invisible="not error_message"/>
                                 </group>
                             </page>
                             
@@ -160,7 +159,7 @@
                             <group string="Estado">
                                 <field name="can_generate" readonly="1" widget="boolean_toggle"/>
                                 <field name="validation_message" readonly="1" 
-                                       attrs="{'invisible': [('validation_message', '=', False)]}"/>
+                                       invisible="not validation_message"/>
                             </group>
                         </group>
                         
