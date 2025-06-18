@@ -49,7 +49,7 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
         ('generated', 'Generado'),
         ('signed', 'Firmado'),
         ('error', 'Error')
-    ], string='Estado', default='draft', tracking=True)
+    ], string='Estado', default='draft')
     
     # Archivos generados
     xml_file = fields.Binary(
