@@ -122,6 +122,19 @@ python tools/sii_test_set_parser.py examples/SIISetDePruebas762352915\ -\ 03.txt
 - Some SII test formats may need parser updates
 - IECV books limited to current Chilean tax regulations
 
+## Fixed Issues
+
+### Company Giro Length Correction (2025-06-18)
+**Problem**: Company activity description (`l10n_cl_activity_description`) was incorrectly limited to 40 characters for all partners, including company partners.
+
+**Root Cause**: `res.company.l10n_cl_activity_description` is a related field to `partner_id.l10n_cl_activity_description`. Our validation in `res_partner.py` was applying 40-character limit to all partners.
+
+**Solution**: Modified `res_partner.py` to distinguish between:
+- **Company partners**: 80 characters (GiroEmisor per SII spec line 58)
+- **Normal partners**: 40 characters (GiroRecep per SII spec line 61)
+
+**Migration**: Use `migrations/fix_company_giro_length.py` script for production databases to restore truncated company giros.
+
 ## Important Notes
 
 **SIIDEMO is NOT used:** This module is specifically for real SII certification process only. Any SIIDEMO functionality is used only for testing unrelated features and is not part of the certification scope. Demo CAFs are not created or used - only real CAFs provided by SII.

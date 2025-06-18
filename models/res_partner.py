@@ -37,15 +37,20 @@ class ResPartner(models.Model):
         """Validación en tiempo real de longitudes de campos."""
         warnings = []
         
+        # Determinar si es partner de empresa
+        is_company_partner = self._is_company_partner()
+        giro_limit = 80 if is_company_partner else 40
+        partner_type = "empresa" if is_company_partner else "partner"
+        
         # Validar razón social (100 chars)
         if self.name and len(self.name) > 100:
             self.name = self.name[:97] + '...'
             warnings.append('Razón social truncada a 100 caracteres')
         
-        # Validar giro (40 chars)
-        if self.l10n_cl_activity_description and len(self.l10n_cl_activity_description) > 40:
-            self.l10n_cl_activity_description = self.l10n_cl_activity_description[:37] + '...'
-            warnings.append('Giro truncado a 40 caracteres')
+        # Validar giro (80 chars empresa / 40 chars partner)
+        if self.l10n_cl_activity_description and len(self.l10n_cl_activity_description) > giro_limit:
+            self.l10n_cl_activity_description = self.l10n_cl_activity_description[:giro_limit-3] + '...'
+            warnings.append(f'Giro de {partner_type} truncado a {giro_limit} caracteres')
         
         # Validar dirección (60 chars)
         if self.street and len(self.street) > 60:
@@ -65,16 +70,21 @@ class ResPartner(models.Model):
         """
         Valida y trunca campos que excedan los límites del esquema XSD del SII.
         
-        Límites aplicados:
+        Límites aplicados según especificación SII (FORMATOS_DTE.md):
         - name (razón social): 100 caracteres
-        - l10n_cl_activity_description (giro): 40 caracteres  
+        - l10n_cl_activity_description (giro): 
+          * 80 caracteres para empresas (GiroEmisor) - Línea 58 especificación
+          * 40 caracteres para partners/receptores (GiroRecep) - Línea 61 especificación  
         - street (dirección): 60 caracteres
         """
+        # Determinar si este partner es de una empresa
+        is_company_partner = self._is_company_partner(vals)
+        
         # Límites según esquema XSD del SII
         field_limits = {
-            'name': 100,                           # Razón social
-            'l10n_cl_activity_description': 40,    # Giro/actividad
-            'street': 60,                          # Dirección
+            'name': 100,                                                # Razón social
+            'l10n_cl_activity_description': 80 if is_company_partner else 40,  # Giro diferenciado
+            'street': 60,                                               # Dirección
         }
         
         for field_name, max_length in field_limits.items():
@@ -84,11 +94,40 @@ class ResPartner(models.Model):
                     original_length = len(field_value)
                     # Truncar dejando espacio para "..."
                     vals[field_name] = field_value[:max_length-3] + '...'
+                    partner_type = "empresa" if is_company_partner else "partner"
                     _logger.info(
-                        f"✂️  Campo {field_name} truncado: {original_length} → {max_length} caracteres"
+                        f"✂️  Campo {field_name} truncado para {partner_type}: {original_length} → {max_length} caracteres"
                     )
         
         return vals
+    
+    def _is_company_partner(self, vals=None):
+        """
+        Determina si este partner pertenece a una empresa (res.company).
+        
+        Los partners de empresa son aquellos que están vinculados como partner_id
+        de algún registro res.company, por lo que requieren límites diferentes
+        según especificación SII (80 chars vs 40 chars para giro).
+        
+        Args:
+            vals (dict): Valores que se están escribiendo/creando (opcional)
+            
+        Returns:
+            bool: True si es partner de empresa, False si es partner normal
+        """
+        # Para nuevos registros, verificar si se está creando como empresa
+        if vals and vals.get('is_company', False):
+            return True
+            
+        # Para registros existentes, verificar si ya es partner de alguna empresa
+        if self.id:
+            company_count = self.env['res.company'].search_count([
+                ('partner_id', '=', self.id)
+            ])
+            return company_count > 0
+            
+        # Para registros nuevos sin flag is_company, asumir partner normal
+        return False
 
     def _get_giro_for_certification_case(self, case_number=None):
         """
