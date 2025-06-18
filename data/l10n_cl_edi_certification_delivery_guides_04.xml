@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET GUIA DE DESPACHO - ATENCION: 4329507 -->
+        <record id="parsed_set_04_guias_4329507" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">20</field>
+            <field name="set_type_raw">GUIA DE DESPACHO</field>
+            <field name="set_type_normalized">dispatch_guide</field>
+            <field name="attention_number">4329507</field>
+            <field name="raw_header_text">SET GUIA DE DESPACHO - NUMERO DE ATENCIÓN: 4329507
+
+IMPORTANTE: Se debe señalar el tipo de traslado en todos los documentos de Guía de Despacho Electrónica. Además, se les indica que cuando una Guía de Despacho Electrónica señala un Traslado Interno, los datos del receptor deben coincidir con los del emisor, además una operación que no constituye venta, el ejemplar cedible es inoficioso.</field>
+        </record>
+
+        <!-- CASO 4329507-1 (Guía de Despacho - Traslado Interno) -->
+        <record id="case_dte_04_4329507_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_guias_4329507"/>
+            <field name="case_number_raw">4329507-1</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA</field>
+            <field name="raw_text_block">CASO 4329507-1
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA
+
+ITEM		CANTIDAD	
+ITEM 1		     59		
+ITEM 2		     66		
+ITEM 3		     33</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_04_4329507_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_1"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">59.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+        <record id="item_04_4329507_1_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_1"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">66.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+        <record id="item_04_4329507_1_3" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_1"/>
+            <field name="sequence">30</field>
+            <field name="name">ITEM 3</field>
+            <field name="quantity">33.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+
+        <!-- CASO 4329507-2 (Guía de Despacho - Venta, Traslado por Emisor) -->
+        <record id="case_dte_04_4329507_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_guias_4329507"/>
+            <field name="case_number_raw">4329507-2</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">VENTA</field>
+            <field name="dispatch_transport_type_raw">EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE</field>
+            <field name="raw_text_block">CASO 4329507-2
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		VENTA
+TRASLADO POR: 	EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE
+
+ITEM		CANTIDAD	PRECIO UNITARIO
+ITEM 1		    119		   2879
+ITEM 2		    219		   1054</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_04_4329507_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_2"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">119.0</field>
+            <field name="price_unit">2879.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_04_4329507_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_2"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">219.0</field>
+            <field name="price_unit">1054.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4329507-3 (Guía de Despacho - Venta, Traslado por Cliente) -->
+        <record id="case_dte_04_4329507_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_guias_4329507"/>
+            <field name="case_number_raw">4329507-3</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">VENTA</field>
+            <field name="dispatch_transport_type_raw">CLIENTE</field>
+            <field name="raw_text_block">CASO 4329507-3
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		VENTA
+TRASLADO POR: 	CLIENTE
+
+ITEM		CANTIDAD	PRECIO UNITARIO
+ITEM 1		     99		   1249
+ITEM 2		    153		   2297</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_04_4329507_3_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_3"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">99.0</field>
+            <field name="price_unit">1249.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_04_4329507_3_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329507_3"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">153.0</field>
+            <field name="price_unit">2297.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+    </data>
+</odoo>
