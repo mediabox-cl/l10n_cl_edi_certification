@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- 
+        LIBRO DE COMPRAS - SET 4 - ATENCION: 4329506
+        Datos según formato SII del set de pruebas 4
+        -->
+
+        <!-- Entrada 1: FACTURA 234 -->
+        <record id="purchase_entry_04_001" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">10</field>
+            <field name="document_type_code">30</field>
+            <field name="document_folio">234</field>
+            <field name="supplier_rut">12345678-9</field>
+            <field name="supplier_name">Proveedor Con Derecho A Crédito S.A.</field>
+            <field name="observations">FACTURA DEL GIRO CON DERECHO A CREDITO</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">63763</field>
+            <field name="iva_type">recoverable</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_1</field>
+        </record>
+
+        <!-- Entrada 2: FACTURA ELECTRONICA 32 -->
+        <record id="purchase_entry_04_002" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">20</field>
+            <field name="document_type_code">33</field>
+            <field name="document_folio">32</field>
+            <field name="supplier_rut">87654321-K</field>
+            <field name="supplier_name">Proveedor Electrónico Ltda.</field>
+            <field name="observations">FACTURA DEL GIRO CON DERECHO A CREDITO</field>
+            <field name="amount_exempt">11221</field>
+            <field name="amount_net_affected">13100</field>
+            <field name="iva_type">recoverable</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_2</field>
+        </record>
+
+        <!-- Entrada 3: FACTURA 781 - IVA USO COMÚN -->
+        <record id="purchase_entry_04_003" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">30</field>
+            <field name="document_type_code">30</field>
+            <field name="document_folio">781</field>
+            <field name="supplier_rut">11223344-5</field>
+            <field name="supplier_name">Proveedor Uso Común S.A.</field>
+            <field name="observations">FACTURA CON IVA USO COMUN</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">30297</field>
+            <field name="iva_type">common_use</field>
+            <field name="proportionality_factor">0.60</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_3</field>
+        </record>
+
+        <!-- Entrada 4: NOTA DE CREDITO 451 -->
+        <record id="purchase_entry_04_004" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">40</field>
+            <field name="document_type_code">60</field>
+            <field name="document_folio">451</field>
+            <field name="supplier_rut">12345678-9</field>
+            <field name="supplier_name">Proveedor Con Derecho A Crédito S.A.</field>
+            <field name="observations">NOTA DE CREDITO POR DESCUENTO A FACTURA 234</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">2997</field>
+            <field name="iva_type">recoverable</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_4</field>
+        </record>
+
+        <!-- Entrada 5: FACTURA ELECTRONICA 67 - ENTREGA GRATUITA -->
+        <record id="purchase_entry_04_005" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">50</field>
+            <field name="document_type_code">33</field>
+            <field name="document_folio">67</field>
+            <field name="supplier_rut">55666777-8</field>
+            <field name="supplier_name">Proveedor Entrega Gratuita Ltda.</field>
+            <field name="observations">ENTREGA GRATUITA DEL PROVEEDOR</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">12829</field>
+            <field name="iva_type">free_delivery</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_5</field>
+        </record>
+
+        <!-- Entrada 6: FACTURA DE COMPRA ELECTRONICA 9 - RETENCION TOTAL IVA -->
+        <record id="purchase_entry_04_006" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">60</field>
+            <field name="document_type_code">46</field>
+            <field name="document_folio">9</field>
+            <field name="supplier_rut">99887766-1</field>
+            <field name="supplier_name">Proveedor Retención IVA S.A.</field>
+            <field name="observations">COMPRA CON RETENCION TOTAL DEL IVA</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">10979</field>
+            <field name="iva_type">total_retention</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_6</field>
+        </record>
+
+        <!-- Entrada 7: NOTA DE CREDITO 211 -->
+        <record id="purchase_entry_04_007" model="l10n_cl_edi.certification.purchase_entry">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">70</field>
+            <field name="document_type_code">60</field>
+            <field name="document_folio">211</field>
+            <field name="supplier_rut">87654321-K</field>
+            <field name="supplier_name">Proveedor Electrónico Ltda.</field>
+            <field name="observations">NOTA DE CREDITO POR DESCUENTO FACTURA ELECTRONICA 32</field>
+            <field name="amount_exempt">0</field>
+            <field name="amount_net_affected">10562</field>
+            <field name="iva_type">recoverable</field>
+            <field name="sii_case_reference">LIBRO_COMPRAS_04_ENTRY_7</field>
+        </record>
+
+    </data>
+</odoo>

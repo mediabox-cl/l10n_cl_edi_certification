@@ -88,7 +88,10 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"   - Tipo documento: '{document_type}' (tipo: {type(document_type)})")
             _logger.info(f"   - Referencias: {len(self.dte_case_id.reference_ids)}")
             
-            if document_type in ['61', '56']:  # Nota de crédito o débito
+            if document_type == '52':  # Guía de Despacho
+                _logger.info(f"✅ ENTRANDO A FLUJO DE GUÍAS DE DESPACHO")
+                return self._generate_delivery_guide()
+            elif document_type in ['61', '56']:  # Nota de crédito o débito
                 _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
                 return self._generate_credit_or_debit_note()
             else:  # Factura u otro documento original
@@ -1266,4 +1269,449 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:
             _logger.error("❌ ORDEN INCORRECTO: SET no es la primera referencia")
             
+        return True
+
+    # ========================================================================
+    # MÉTODOS PARA GENERACIÓN DE GUÍAS DE DESPACHO
+    # ========================================================================
+
+    # Mapping de tipos de movimiento para guías de despacho
+    DISPATCH_MOVEMENT_MAPPING = {
+        # Traslado Interno - Partner = Empresa misma
+        'internal_transfer': {
+            'keywords': ['TRASLADO INTERNO', 'ENTRE BODEGAS', 'MATERIALES ENTRE BODEGAS'],
+            'partner_type': 'company_self',
+            'sii_movement_type': '2',  # Traslado interno según SII
+            'requires_price': False,
+            'is_sale': False
+        },
+        
+        # Venta con Transporte por Emisor - Partner = Cliente certificación
+        'sale_issuer_transport': {
+            'keywords': ['VENTA', 'EMISOR DEL DOCUMENTO AL LOCAL'],
+            'partner_type': 'certification_pool',
+            'sii_movement_type': '1',  # Venta según SII
+            'requires_price': True,
+            'is_sale': True
+        },
+        
+        # Venta con Retiro por Cliente - Partner = Cliente certificación  
+        'sale_client_pickup': {
+            'keywords': ['VENTA', 'CLIENTE', 'TRASLADO POR: CLIENTE'],
+            'partner_type': 'certification_pool',
+            'sii_movement_type': '1',  # Venta según SII
+            'requires_price': True,
+            'is_sale': True
+        }
+    }
+
+    def _generate_delivery_guide(self):
+        """
+        Método principal para generar guías de despacho.
+        """
+        self.ensure_one()
+        _logger.info(f"=== INICIANDO GENERACIÓN DE GUÍA DE DESPACHO ===")
+        _logger.info(f"Caso: {self.dte_case_id.case_number_raw}")
+        
+        # **VERIFICACIÓN: Comprobar si ya existe una guía vinculada**
+        if self.dte_case_id.generated_stock_picking_id:
+            _logger.info(f"Caso {self.dte_case_id.id} ya tiene guía vinculada: {self.dte_case_id.generated_stock_picking_id.name}")
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Guía de Despacho Existente',
+                'res_model': 'stock.picking',
+                'res_id': self.dte_case_id.generated_stock_picking_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        
+        # 1. Clasificar tipo de movimiento
+        movement_type, movement_config = self._classify_dispatch_movement(self.dte_case_id)
+        _logger.info(f"Tipo de movimiento detectado: {movement_type}")
+        _logger.info(f"Configuración: {movement_config}")
+        
+        # 2. Validaciones específicas
+        self._validate_delivery_guide_requirements(movement_config)
+        _logger.info("Validaciones completadas")
+        
+        # 3. Obtener partner apropiado
+        partner = self._get_dispatch_partner(self.dte_case_id, movement_config)
+        _logger.info(f"Partner seleccionado: {partner.name} (ID: {partner.id})")
+        
+        # 4. Crear picking con configuración específica
+        picking = self._create_stock_picking(partner, movement_config)
+        _logger.info(f"Stock picking creado: {picking.name}")
+        
+        # 5. Agregar líneas de productos
+        self._create_picking_lines(picking, movement_config)
+        _logger.info(f"Líneas de picking creadas")
+        
+        # 6. Finalizar y procesar
+        self._finalize_delivery_guide(picking, movement_config)
+        _logger.info(f"Guía de despacho finalizada")
+        
+        _logger.info(f"✅ GUÍA DE DESPACHO GENERADA EXITOSAMENTE: {picking.name}")
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Guía de Despacho Generada',
+            'res_model': 'stock.picking',
+            'res_id': picking.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def _classify_dispatch_movement(self, dte_case):
+        """
+        Clasifica el tipo de movimiento de la guía de despacho
+        basado en motivo y tipo de traslado.
+        """
+        motivo = (dte_case.dispatch_motive_raw or '').upper()
+        transporte = (dte_case.dispatch_transport_type_raw or '').upper()
+        
+        combined_text = f"{motivo} {transporte}"
+        _logger.info(f"Analizando texto combinado: '{combined_text}'")
+        
+        for movement_type, config in self.DISPATCH_MOVEMENT_MAPPING.items():
+            if any(keyword in combined_text for keyword in config['keywords']):
+                _logger.info(f"Tipo de movimiento detectado: {movement_type}")
+                return movement_type, config
+                
+        # Default fallback
+        _logger.warning(f"No se detectó tipo específico, usando fallback: sale_issuer_transport")
+        return 'sale_issuer_transport', self.DISPATCH_MOVEMENT_MAPPING['sale_issuer_transport']
+
+    def _get_dispatch_partner(self, dte_case, movement_config):
+        """
+        Obtiene el partner apropiado según el tipo de movimiento.
+        """
+        if movement_config['partner_type'] == 'company_self':
+            # Para traslados internos, usar la empresa misma
+            company_partner = self.certification_process_id.company_id.partner_id
+            _logger.info(f"Usando empresa misma como partner: {company_partner.name}")
+            return company_partner
+            
+        elif movement_config['partner_type'] == 'certification_pool':
+            # Para ventas, usar pool de partners de certificación
+            partner = self._get_available_certification_partner()
+            _logger.info(f"Usando partner de certificación: {partner.name}")
+            return partner
+            
+        else:
+            raise UserError(_('Tipo de partner no reconocido: %s') % movement_config['partner_type'])
+
+    def _get_available_certification_partner(self):
+        """
+        Obtiene un partner disponible del pool de certificación.
+        Reutiliza la lógica existente del generador de facturas.
+        """
+        # Buscar partners de certificación no utilizados
+        used_partners = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
+            ('partner_id', '!=', False)
+        ]).mapped('partner_id')
+        
+        available_partners = self.env['res.partner'].search([
+            ('is_certification_partner', '=', True),
+            ('id', 'not in', used_partners.ids)
+        ])
+        
+        if not available_partners:
+            # Si no hay partners disponibles, usar cualquiera del pool
+            available_partners = self.env['res.partner'].search([
+                ('is_certification_partner', '=', True)
+            ])
+        
+        if not available_partners:
+            raise UserError(_('No hay partners de certificación disponibles'))
+        
+        return available_partners[0]
+
+    def _validate_delivery_guide_requirements(self, movement_config):
+        """
+        Valida requisitos específicos según tipo de movimiento.
+        """
+        validations = []
+        
+        # Validaciones comunes
+        validations.extend([
+            self._validate_caf_available_for_guide(),
+            self._validate_company_address_configured(),
+            self._validate_picking_type_available(),
+        ])
+        
+        # Validaciones específicas por tipo
+        if movement_config['is_sale']:
+            validations.extend([
+                self._validate_prices_present_in_items(),
+            ])
+        else:
+            validations.extend([
+                self._validate_internal_locations_available(),
+            ])
+            
+        if not all(validations):
+            raise UserError(_('No se cumplen todos los requisitos para generar la guía de despacho'))
+        
+        return True
+
+    def _validate_caf_available_for_guide(self):
+        """Valida que exista CAF disponible para documento tipo 52."""
+        caf_count = self.env['l10n_cl.dte.caf'].search_count([
+            ('company_id', '=', self.certification_process_id.company_id.id),
+            ('l10n_latam_document_type_id.code', '=', '52'),
+            ('status', '=', 'in_use')
+        ])
+        
+        if caf_count == 0:
+            raise UserError(_('No hay CAF disponible para Guía de Despacho Electrónica (tipo 52)'))
+        
+        return True
+
+    def _validate_company_address_configured(self):
+        """Valida que la empresa tenga dirección configurada."""
+        company = self.certification_process_id.company_id
+        if not company.street:
+            raise UserError(_('La empresa debe tener dirección configurada para emitir guías de despacho'))
+        return True
+
+    def _validate_picking_type_available(self):
+        """Valida que exista un tipo de picking disponible."""
+        picking_types = self.env['stock.picking.type'].search([
+            ('company_id', '=', self.certification_process_id.company_id.id),
+            ('code', '=', 'outgoing')
+        ])
+        
+        if not picking_types:
+            raise UserError(_('No hay tipos de picking de salida configurados'))
+        
+        return True
+
+    def _validate_prices_present_in_items(self):
+        """Valida que los items tengan precios para ventas."""
+        items_without_price = self.dte_case_id.item_ids.filtered(lambda item: item.price_unit <= 0)
+        if items_without_price:
+            raise UserError(_('Todos los items deben tener precio unitario para ventas'))
+        return True
+
+    def _validate_internal_locations_available(self):
+        """Valida que existan ubicaciones internas para traslados."""
+        internal_locations = self.env['stock.location'].search([
+            ('company_id', '=', self.certification_process_id.company_id.id),
+            ('usage', '=', 'internal')
+        ])
+        
+        if len(internal_locations) < 2:
+            raise UserError(_('Se requieren al menos 2 ubicaciones internas para traslados'))
+        
+        return True
+
+    def _create_stock_picking(self, partner, movement_config):
+        """
+        Crea el stock.picking con configuración específica del movimiento.
+        """
+        company = self.certification_process_id.company_id
+        
+        # Determinar ubicaciones según tipo de movimiento
+        if movement_config['partner_type'] == 'company_self':
+            # Traslado interno: misma empresa, diferentes ubicaciones
+            location_src = self._get_internal_source_location(company)
+            location_dest = self._get_internal_dest_location(company)
+        else:
+            # Venta: de stock interno a ubicación del cliente
+            location_src = self._get_stock_location(company)
+            location_dest = partner.property_stock_customer or self._get_customer_location()
+            
+        picking_vals = {
+            'partner_id': partner.id,
+            'picking_type_id': self._get_picking_type(movement_config).id,
+            'location_src_id': location_src.id,
+            'location_dest_id': location_dest.id,
+            'origin': f'Certificación SII - Caso {self.dte_case_id.case_number_raw}',
+            # 'l10n_cl_dte_movement_type': movement_config['sii_movement_type'],  # Comentado por ahora
+            'certification_process_id': self.certification_process_id.id,
+        }
+        
+        _logger.info(f"Creando picking con valores: {picking_vals}")
+        return self.env['stock.picking'].create(picking_vals)
+
+    def _get_internal_source_location(self, company):
+        """Obtiene ubicación origen para traslados internos."""
+        location = self.env['stock.location'].search([
+            ('company_id', '=', company.id),
+            ('usage', '=', 'internal'),
+        ], limit=1)
+        
+        if not location:
+            # Fallback a ubicación stock principal
+            location = self.env['stock.warehouse'].search([
+                ('company_id', '=', company.id)
+            ], limit=1).lot_stock_id
+            
+        if not location:
+            raise UserError(_('No se encontró ubicación origen para traslado interno'))
+            
+        return location
+        
+    def _get_internal_dest_location(self, company):
+        """Obtiene ubicación destino para traslados internos."""
+        # Buscar una ubicación diferente a la origen
+        source_location = self._get_internal_source_location(company)
+        
+        location = self.env['stock.location'].search([
+            ('company_id', '=', company.id),
+            ('usage', '=', 'internal'),
+            ('id', '!=', source_location.id)
+        ], limit=1)
+        
+        if not location:
+            # Si no hay otra ubicación interna, crear una temporal para certificación
+            location = self.env['stock.location'].create({
+                'name': 'Bodega Destino Certificación',
+                'usage': 'internal',
+                'location_id': source_location.location_id.id,
+                'company_id': company.id,
+            })
+            
+        return location
+
+    def _get_stock_location(self, company):
+        """Obtiene ubicación de stock principal."""
+        warehouse = self.env['stock.warehouse'].search([
+            ('company_id', '=', company.id)
+        ], limit=1)
+        
+        if not warehouse:
+            raise UserError(_('No se encontró almacén configurado para la empresa'))
+            
+        return warehouse.lot_stock_id
+
+    def _get_customer_location(self):
+        """Obtiene ubicación genérica de clientes."""
+        location = self.env['stock.location'].search([
+            ('usage', '=', 'customer')
+        ], limit=1)
+        
+        if not location:
+            raise UserError(_('No se encontró ubicación de clientes'))
+            
+        return location
+
+    def _get_picking_type(self, movement_config):
+        """Obtiene el tipo de picking apropiado."""
+        company = self.certification_process_id.company_id
+        
+        if movement_config['partner_type'] == 'company_self':
+            # Para traslados internos, buscar tipo internal
+            picking_type = self.env['stock.picking.type'].search([
+                ('company_id', '=', company.id),
+                ('code', '=', 'internal')
+            ], limit=1)
+        else:
+            # Para ventas, buscar tipo outgoing
+            picking_type = self.env['stock.picking.type'].search([
+                ('company_id', '=', company.id),
+                ('code', '=', 'outgoing')
+            ], limit=1)
+        
+        if not picking_type:
+            # Fallback: cualquier tipo de la empresa
+            picking_type = self.env['stock.picking.type'].search([
+                ('company_id', '=', company.id)
+            ], limit=1)
+            
+        if not picking_type:
+            raise UserError(_('No se encontró tipo de picking configurado'))
+            
+        return picking_type
+
+    def _create_picking_lines(self, picking, movement_config):
+        """
+        Crea las líneas del picking basadas en los items del caso DTE.
+        """
+        for item in self.dte_case_id.item_ids:
+            # Buscar o crear producto
+            product = self._get_or_create_product_for_item(item)
+            
+            # Crear línea de movimiento
+            move_vals = {
+                'name': item.name,
+                'product_id': product.id,
+                'product_uom_qty': item.quantity,
+                'product_uom': product.uom_id.id,
+                'picking_id': picking.id,
+                'location_src_id': picking.location_src_id.id,
+                'location_dest_id': picking.location_dest_id.id,
+            }
+            
+            # Para ventas, agregar información de precio
+            if movement_config['requires_price'] and item.price_unit > 0:
+                # El precio se maneja en la factura posterior, no en el picking
+                pass
+            
+            _logger.info(f"Creando línea de movimiento: {move_vals}")
+            self.env['stock.move'].create(move_vals)
+
+    def _get_or_create_product_for_item(self, item):
+        """
+        Obtiene o crea un producto para el item de certificación.
+        """
+        # Buscar producto existente con nombre similar
+        existing_product = self.env['product.product'].search([
+            ('name', '=', item.name),
+            ('type', '=', 'product')
+        ], limit=1)
+        
+        if existing_product:
+            return existing_product
+        
+        # Crear producto temporal para certificación
+        product_vals = {
+            'name': item.name,
+            'type': 'product',
+            'list_price': item.price_unit,
+            'standard_price': item.price_unit,
+            'default_code': f'CERT-{item.id}',
+            'categ_id': self._get_certification_product_category().id,
+        }
+        
+        return self.env['product.product'].create(product_vals)
+
+    def _get_certification_product_category(self):
+        """Obtiene o crea categoría para productos de certificación."""
+        category = self.env['product.category'].search([
+            ('name', '=', 'Certificación SII')
+        ], limit=1)
+        
+        if not category:
+            category = self.env['product.category'].create({
+                'name': 'Certificación SII',
+            })
+            
+        return category
+
+    def _finalize_delivery_guide(self, picking, movement_config):
+        """
+        Finaliza la guía y actualiza estados del caso.
+        """
+        # Confirmar picking
+        picking.action_confirm()
+        _logger.info(f"Picking confirmado: {picking.name}")
+        
+        # Asignar disponibilidad (asigna stock automáticamente para certificación)
+        picking.action_assign()
+        _logger.info(f"Stock asignado: {picking.name}")
+        
+        # Para certificación, marcar como listo pero no transferir automáticamente
+        # Solo necesitamos el documento, no el movimiento físico real
+        
+        # Actualizar caso DTE
+        self.dte_case_id.write({
+            'generated_stock_picking_id': picking.id,
+            'generation_status': 'generated',
+            # NO sobrescribir partner_id aquí - mantener la lógica de herencia automática
+        })
+        
+        _logger.info(f"Caso DTE actualizado - Picking: {picking.name}, Partner: {picking.partner_id.name}")
+        
         return True

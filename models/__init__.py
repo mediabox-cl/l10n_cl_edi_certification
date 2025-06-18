@@ -12,6 +12,11 @@ from . import certification_iecv_xml_builder
 from . import certification_iecv_sales_processor
 from . import certification_iecv_purchase_processor
 from . import certification_iecv_book
+from . import certification_delivery_guide_book_base
+from . import certification_delivery_guide_book_actions
+from . import certification_delivery_guide_book_xml_builder
+from . import certification_delivery_guide_book_processor
+from . import certification_delivery_guide_book
 from . import account_move
 from . import stock_picking
 from . import sale_order

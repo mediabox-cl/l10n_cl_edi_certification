@@ -20,7 +20,7 @@ class CertificationProcess(models.Model):
         ('generation', 'Generación'),
         ('completed', 'Completado'),
         ('error', 'Error')
-    ], string='Estado', default='preparation', track_visibility='onchange')
+    ], string='Estado', default='preparation')
     
     # Información de certificación
     dte_email = fields.Char(related='company_id.l10n_cl_dte_email', readonly=False, string='Email DTE')
@@ -47,6 +47,19 @@ class CertificationProcess(models.Model):
         'l10n_cl_edi.certification.purchase_entry',
         'certification_process_id',
         string='Entradas Libro de Compras'
+    )
+    
+    # Libros de guías de despacho
+    delivery_guide_book_ids = fields.One2many(
+        'l10n_cl_edi.certification.delivery_guide_book',
+        'certification_process_id',
+        string='Libros de Guías de Despacho'
+    )
+    
+    # Contador de libros de guías
+    delivery_guide_book_count = fields.Integer(
+        compute='_compute_delivery_guide_book_count',
+        string='Libros de Guías'
     )
 
     # Libros IECV generados
@@ -383,6 +396,10 @@ class CertificationProcess(models.Model):
         for record in self:
             record.purchase_entries_count = len(record.purchase_entry_ids)
     
+    def _compute_delivery_guide_book_count(self):
+        for record in self:
+            record.delivery_guide_book_count = len(record.delivery_guide_book_ids)
+    
     def _compute_dte_case_to_generate_count(self):
         for record in self:
             record.dte_case_to_generate_count = self.env['l10n_cl_edi.certification.case.dte'].search_count([  # Actualizado
@@ -606,28 +623,6 @@ class CertificationProcess(models.Model):
     # El error arquitectónico del partner único del SII (60803000-K) ha sido resuelto.
     # Ahora cada DTE individual usa un partner de certificación único del pool de partners precargados.
     
-    def action_create_demo_cafs(self):
-        """Crea CAFs de demostración para los tipos de documento requeridos"""
-        self.ensure_one()
-        
-        # Verificar que estamos en modo SIIDEMO
-        if self.company_id.l10n_cl_dte_service_provider != 'SIIDEMO':
-            raise UserError(_('Para crear CAFs de demostración, primero debe configurar el Proveedor de Servicio DTE a SIIDEMO'))
-        
-        # Crear CAFs para los tipos de documento necesarios
-        self.company_id._create_demo_caf_files()
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('CAFs creados'),
-                'message': _('Se han creado CAFs de demostración para los documentos requeridos.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
-    
     def action_view_iecv_books(self):
         """Acción para ver los libros IECV generados"""
         self.ensure_one()
@@ -637,6 +632,30 @@ class CertificationProcess(models.Model):
             'res_model': 'l10n_cl_edi.certification.iecv_book',
             'view_mode': 'list,form',
             'domain': [('certification_process_id', '=', self.id)],
+            'context': {'default_certification_process_id': self.id},
+        }
+    
+    def action_view_delivery_guide_books(self):
+        """Acción para ver los libros de guías de despacho generados"""
+        self.ensure_one()
+        return {
+            'name': _('Libros de Guías de Despacho'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.delivery_guide_book',
+            'view_mode': 'list,form',
+            'domain': [('certification_process_id', '=', self.id)],
+            'context': {'default_certification_process_id': self.id},
+        }
+    
+    def action_create_delivery_guide_book(self):
+        """Acción para crear un nuevo libro de guías de despacho"""
+        self.ensure_one()
+        return {
+            'name': _('Crear Libro de Guías de Despacho'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'l10n_cl_edi.certification.delivery_guide_book_generator_wizard',
+            'view_mode': 'form',
+            'target': 'new',
             'context': {'default_certification_process_id': self.id},
         }
     
