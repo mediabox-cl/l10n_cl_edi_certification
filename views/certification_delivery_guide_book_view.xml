@@ -102,12 +102,12 @@
             </field>
         </record>
 
-        <!-- Tree View for Delivery Guide Book -->
+        <!-- List View for Delivery Guide Book -->
         <record id="view_certification_delivery_guide_book_tree" model="ir.ui.view">
-            <field name="name">certification.delivery.guide.book.tree</field>
+            <field name="name">certification.delivery.guide.book.list</field>
             <field name="model">l10n_cl_edi.certification.delivery_guide_book</field>
             <field name="arch" type="xml">
-                <tree decoration-success="state == 'signed'" 
+                <list decoration-success="state == 'signed'" 
                       decoration-info="state == 'generated'" 
                       decoration-danger="state == 'error'">
                     <field name="certification_process_id"/>
@@ -118,7 +118,7 @@
                     <field name="state"/>
                     <field name="generation_date"/>
                     <field name="currency_id" invisible="1"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -126,7 +126,7 @@
         <record id="action_certification_delivery_guide_book" model="ir.actions.act_window">
             <field name="name">Libros de Guías de Despacho</field>
             <field name="res_model">l10n_cl_edi.certification.delivery_guide_book</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     No hay libros de guías de despacho generados

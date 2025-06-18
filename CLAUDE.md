@@ -164,6 +164,37 @@ mcp__mnemox-lite__recall with project_id and specific queries
 
 **Important:** Always store new insights, architectural decisions, bug fixes, and task completions in memory for future reference.
 
+## Odoo Version Compatibility Notes
+
+### Modern Odoo Syntax (17.0+)
+When working with views and fields, use these modern patterns:
+
+**View Types:**
+- Use `<list>` instead of `<tree>` for list views
+- Update view names accordingly (e.g., `model.list` instead of `model.tree`)
+- Update action `view_mode` from `tree,form` to `list,form`
+
+**Field Visibility:**
+- Use `invisible="condition"` instead of `attrs="{'invisible': [condition]}"`
+- Use `readonly="condition"` instead of `attrs="{'readonly': [condition]}"`
+
+**Field Tracking:**
+- Remove `tracking=True` or `track_visibility='onchange'` parameters unless model inherits from `mail.thread`
+- These parameters cause warnings in newer Odoo versions and are not needed for certification modules
+
+**Example Migration:**
+```xml
+<!-- Old syntax -->
+<tree>
+    <field name="name" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+</tree>
+
+<!-- New syntax -->
+<list>
+    <field name="name" invisible="state == 'draft'"/>
+</list>
+```
+
 ## Architecture Notes
 
 The module follows Odoo best practices with:
@@ -173,3 +204,4 @@ The module follows Odoo best practices with:
 - Real certification workflow with SII-provided CAFs
 - Comprehensive logging for debugging
 - Wizard patterns for complex operations
+- Modern Odoo syntax compatibility
