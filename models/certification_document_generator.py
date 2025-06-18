@@ -241,11 +241,37 @@ class CertificationDocumentGenerator(models.TransientModel):
         if not self.dte_case_id:
             raise UserError("No hay caso DTE asociado")
         
-        if not self.dte_case_id.partner_id:
-            raise UserError("El caso DTE debe tener un partner asociado")
-        
         if not self.dte_case_id.document_type_code:
             raise UserError("El caso DTE debe tener un tipo de documento")
+        
+        # Validaciones específicas por tipo de documento
+        if self.dte_case_id.document_type_code in ['61', '56']:  # NC/ND
+            self._validate_credit_debit_note_requirements()
+        else:  # Documentos originales
+            if not self.dte_case_id.partner_id:
+                raise UserError("El documento original debe tener un partner asociado")
+    
+    def _validate_credit_debit_note_requirements(self):
+        """Valida requisitos específicos para notas de crédito/débito"""
+        # Verificar que tenga referencias
+        if not self.dte_case_id.reference_ids:
+            raise UserError(f"La nota de crédito/débito {self.dte_case_id.case_number_raw} debe tener referencias al documento original")
+        
+        # Obtener la primera referencia (documento original)
+        ref = self.dte_case_id.reference_ids[0]
+        
+        # Validar que el caso referenciado exista
+        if not ref.referenced_case_dte_id:
+            raise UserError(f"No se encontró el caso DTE original referenciado: {ref.referenced_sii_case_number}")
+        
+        # Validar que el caso referenciado tenga factura generada
+        original_case = ref.referenced_case_dte_id
+        if not original_case.generated_account_move_id:
+            raise UserError(f"El caso original {original_case.case_number_raw} debe tener un documento generado antes de crear la nota de crédito/débito")
+        
+        # Validar que la factura original esté confirmada
+        if original_case.generated_account_move_id.state == 'draft':
+            raise UserError(f"El documento original {original_case.generated_account_move_id.name} debe estar confirmado antes de crear la nota de crédito/débito")
 
     def _create_sale_order(self):
         """Create sale.order from DTE case"""
