@@ -7,9 +7,8 @@ from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
 
-class CertificationDeliveryGuideBookBase(models.Model):
+class CertificationDeliveryGuideBookBase(models.AbstractModel):
     _name = 'l10n_cl_edi.certification.delivery_guide_book.base'
-    _inherit = ['l10n_cl.edi.util']
     _description = 'Libro de Guías de Despacho - Certificación SII'
     _order = 'create_date desc'
     

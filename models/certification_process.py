@@ -20,7 +20,7 @@ class CertificationProcess(models.Model):
         ('generation', 'Generación'),
         ('completed', 'Completado'),
         ('error', 'Error')
-    ], string='Estado', default='preparation', track_visibility='onchange')
+    ], string='Estado', default='preparation', tracking=True)
     
     # Información de certificación
     dte_email = fields.Char(related='company_id.l10n_cl_dte_email', readonly=False, string='Email DTE')
