@@ -4,97 +4,93 @@
         <Caratula version="1.0">
             <RutEmisor>76235291-5</RutEmisor>
             <RutEnvia>17605402-6</RutEnvia>
-            <RutReceptor>CL60803000K</RutReceptor>
+            <RutReceptor>60803000-K</RutReceptor>
             <FchResol>2025-03-26</FchResol>
             <NroResol>0</NroResol>
-            <TmstFirmaEnv>2025-06-05T12:31:33</TmstFirmaEnv>
+            <TmstFirmaEnv>2025-06-18T15:24:45</TmstFirmaEnv>
             <SubTotDTE>
                 <TpoDTE>33</TpoDTE>
                 <NroDTE>1</NroDTE>
             </SubTotDTE>
         </Caratula>
         <DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">
-            <Documento ID="F3T33">
+            <Documento ID="F5T33">
             <Encabezado>
                 <IdDoc>
                     <TipoDTE>33</TipoDTE>
-                    <Folio>3</Folio>
-                    <FchEmis>2025-06-05</FchEmis>
+                    <Folio>5</Folio>
+                    <FchEmis>2025-06-18</FchEmis>
                     <FmaPago>2</FmaPago>
-                    <FchVenc>2025-06-05</FchVenc>
+                    <FchVenc>2025-06-18</FchVenc>
                 </IdDoc>
                 <Emisor>
                     <RUTEmisor>76235291-5</RUTEmisor>
                     <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
-                    <GiroEmis>Impr. Comerc. Inform. Public. Diseno</GiroEmis>
+                    <GiroEmis>Impresión Comercialización Informátic...</GiroEmis>
                     <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
                     <Acteco>181101</Acteco>
+                    <Acteco>464905</Acteco>
+                    <Acteco>464906</Acteco>
+                    <Acteco>477399</Acteco>
+                    <Acteco>620200</Acteco>
+                    <Acteco>731001</Acteco>
+                    <Acteco>741009</Acteco>
+                    <Acteco>900009</Acteco>
                     <DirOrigen>San Lucio 138 </DirOrigen>
                     <CmnaOrigen>Los Andes</CmnaOrigen>
                     <CdgVendedor>Administrator</CdgVendedor>
                 </Emisor>
                 <Receptor>
-                    <RUTRecep>60803000-K</RUTRecep>
-                    <RznSocRecep>The John Doe&#39;s Foundation</RznSocRecep>
-                    <GiroRecep>SERVICIOS DE CONSULTORIA Y DESARROLLO...</GiroRecep>
-                    <Contacto>+56 2 2345 6789</Contacto>
-                    <CorreoRecep>contacto@johndoe.foundation</CorreoRecep>
-                    <DirRecep>Av. Ficticia 123, Oficina 456</DirRecep>
-                    <CmnaRecep>Santiago</CmnaRecep>
+                    <RUTRecep>77447842-6</RUTRecep>
+                    <RznSocRecep>Baca Juegos y Accesorios SPA</RznSocRecep>
+                    <GiroRecep>Venta de juegos y accesorios en Comer...</GiroRecep>
+                    <Contacto></Contacto>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>Cillero 11</DirRecep>
+                    <CmnaRecep>Rancagua</CmnaRecep>
                 </Receptor>
                 <Totales>
-                    <MntNeto>2075531</MntNeto>
-                    <MntExe>35535</MntExe>
+                    <MntNeto>236925</MntNeto>
                     <TasaIVA>19.00</TasaIVA>
-                    <IVA>394351</IVA>
-                    <MntTotal>2505417</MntTotal>
+                    <IVA>45016</IVA>
+                    <MntTotal>281941</MntTotal>
                 </Totales>
             </Encabezado>
             <Detalle>
                 <NroLinDet>1</NroLinDet>
-                <NmbItem>Pintura B&amp;W AFECTO</NmbItem>
-                <DscItem>Pintura B&amp;W AFECTO</DscItem>
-                <QtyItem>95.000000</QtyItem>
+                <NmbItem>Cajón AFECTO</NmbItem>
+                <DscItem>Cajón AFECTO</DscItem>
+                <QtyItem>127.000000</QtyItem>
                 <UnmdItem>U</UnmdItem>
-                <PrcItem>8623.000000</PrcItem>
-                <MontoItem>819185</MontoItem>
+                <PrcItem>1107.000000</PrcItem>
+                <MontoItem>140589</MontoItem>
             </Detalle>
             <Detalle>
                 <NroLinDet>2</NroLinDet>
-                <NmbItem>ITEM 2 AFECTO</NmbItem>
-                <DscItem>ITEM 2 AFECTO</DscItem>
-                <QtyItem>273.000000</QtyItem>
+                <NmbItem>Relleno AFECTO</NmbItem>
+                <DscItem>Relleno AFECTO</DscItem>
+                <QtyItem>54.000000</QtyItem>
                 <UnmdItem>U</UnmdItem>
-                <PrcItem>4602.000000</PrcItem>
-                <MontoItem>1256346</MontoItem>
-            </Detalle>
-            <Detalle>
-                <NroLinDet>3</NroLinDet>
-                <IndExe>1</IndExe>
-                <NmbItem>ITEM 3 SERVICIO EXENTO</NmbItem>
-                <DscItem>ITEM 3 SERVICIO EXENTO</DscItem>
-                <QtyItem>1.000000</QtyItem>
-                <UnmdItem>U</UnmdItem>
-                <PrcItem>35535.000000</PrcItem>
-                <MontoItem>35535</MontoItem>
+                <PrcItem>1784.000000</PrcItem>
+                <MontoItem>96336</MontoItem>
             </Detalle>
             <Referencia>
                 <NroLinRef>1</NroLinRef>
                 <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>4267228-3</FolioRef>
-                <FchRef>2025-06-05</FchRef>
-                <RazonRef>CASO 4267228-3</RazonRef>
+                <FolioRef>4329504-1</FolioRef>
+                <FchRef>2025-06-18</FchRef>
+                <RazonRef>CASO 4329504-1</RazonRef>
             </Referencia>
             <TED version="1.0">
             <DD>
                 <RE>76235291-5</RE>
                 <TD>33</TD>
-                <F>3</F>
-                <FE>2025-06-05</FE>
-                <RR>60803000-K</RR>
-                <RSR>The John Doe&#39;s Foundation</RSR>
-                <MNT>2505417</MNT>
-                <IT1>Pintura B&amp;W AFECTO</IT1>
+                <F>5</F>
+                <FE>2025-06-18</FE>
+                <RR>77447842-6</RR>
+                <RSR>Baca Juegos y Accesorios SPA</RSR>
+                <MNT>281941</MNT>
+                <IT1>Cajón AFECTO</IT1>
                 <CAF version="1.0">
                     <DA>
                         <RE>76235291-5</RE>
@@ -113,12 +109,12 @@
                     </DA>
                     <FRMA algoritmo="SHA1withRSA">UyDhGevCqhJrA+lEOkIDMm2ShPfxEJdSa6ZmP6nF8zBPRV1RpNfDOOTyit5jWN/wigQhxrl9BtqkpzOc0r2p7Q==</FRMA>
                 </CAF>
-                <TSTED>2025-06-05T12:28:28</TSTED>
+                <TSTED>2025-06-18T15:24:45</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">oSC2rEpL3wDhihwQCmoFgWImr6iQJw+G9R9R2o4rBGX8/O5Olz55WNRS4l7biJRX2WFgAOqjSLlR0SoyWUKnEw==</FRMT>
-            </TED><TmstFirma>2025-06-05T12:28:28</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">Xahzvf/R0kUjPEOBMCNGp/3WVvgWCgUkz8kzLtqUYWehzs7/iz/WB+P448j+Qeck3xEMlVhRJnsGXN3HMPmRgw==</FRMT>
+            </TED><TmstFirma>2025-06-18T15:24:45</TmstFirma>
             </Documento>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F3T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>JQ/hhyt7GJACl7iVfhQC/3KcvfY=</DigestValue></Reference></SignedInfo><SignatureValue>EZH87fkq+koareNTUbvuvorDwJBuZ8JI0/y2ii4QByMtwu7hVDXUsbDsOeqITVcFQS/bsl4cEVHrwkF+ZsjiFO8qsOXU0x2Tj7/xVz/vRBCzQzcfVo8fCVPgjY5rAMXDNG/RoQfdRxkdTE1PKVjGn+LLoReYah1P4FL6Ju2atxkadPEMUMeJWfv93nyx7+Xgj4UkFwnFT+3gpIyA8TCTMm7/fOR6cmrlK6pMqjkQn3lHNWREma6a0ijthgl+qdOXyeTt0U7yKufWy83b/J/B3y1qXrhx1mXg0Wwjl8p1oFBlz8Z6fgF8Sb1E5RwT5Yl2cYllSd2sOmYsOvCys4uL6Q==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F5T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>Tlm18rtC4XpgUHpxCup4bIYswL8=</DigestValue></Reference></SignedInfo><SignatureValue>NpNZjxpovfCJjoOl2rwwvRKFrB8WMrFxH88YTfEnuBg/7Z3Kxifq+9Im4VTFcr7fD7dvBSbAYwd1YzEugw7WtYlaXhcSXX8tx+Z2OvPdSxeGubGD097ZpKq/07wUBB1NbbdrnJ1Ov+mPAU36I3I/WiQSJ8EBBNdQ4V0SXDCJ4ZmBVX31Q42lQxbF4b4C29CwPXB0McNN2/MN0o+nwqLhO10nP09GmM8qk3+FBGo9RJLR2UEHYqr5rCe/Yt8rt+y78j7pN2kh+IUyU6NYEcC1I5RAL/sT6JI8yww+DFJiDhn4K3OAihPwGkzmwbll8kGMH9Y+d+XNMYpeGvsoyGNdAg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -158,7 +154,7 @@ V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
     </SetDTE>
 
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>Fsrkvhc1cshWUE3UZaz2ZbX/SKM=</DigestValue></Reference></SignedInfo><SignatureValue>PguMR5/6b6bKP+4q3szdYq9wln6x0cOA8VDnMBcEvHfutaT2cE6zO6P5zDlc7NMpM1eML9R8esmG37S0MFY/Bz3hjQbB6QsBPuzPHdZ1SNTFflb2W57nC8cmesHaMQWFNL1euwvdTbpCrrLnV64Im/CbcoZtF4zoFiGkYDNvXsHv70g1Hp2Dnc3AhYnw0S7Byf+41WxmOt87EhMGzuji+BgolRAtNMeuAft2qLQemY5gEcBPioVoOPBmclu5kY+RuspcBYSwLDKFj6605iiOXkV+YwUtyKnu0hnYs1AcJCqlLBys4/uNamVqjJwSJRsj2BQBYtXmQ15BXk9+kPK2nw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>+4Ew9QalYlVT9sm/9Qew7+3Ja1I=</DigestValue></Reference></SignedInfo><SignatureValue>NE6DaM7itv+N9N4e6GUlmJK7LUQ+LjGC7QGOr9vYeO0yIr7dyTC0O+Y9QbzFF8/zbYMOf9pN9I1OJaApYxUUYnypO1mwEd541mf2b7w33ejVNInKYrqJMf+rG6iU4JyNJYzmFcM2J07xCqBshcgPekDLRw3u1D7faskIHo76nGkIksOb/yx1/1UoNGF6cuLY8ZaZXlWA6QXZoAufpcAdki1xXGf6rIk8lolNxTwoNK60AzKOXVBVZk2eYwsZ0x6mxKn8c9Kk1XU/7uFQUYWaqvtAHKIB72W4WGMRKlB6Kb94gt/QHE3N97aAVOpgDaeO/NhwCUHamJ75wFpXJVdS4w==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
