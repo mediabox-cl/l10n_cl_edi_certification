@@ -287,10 +287,10 @@ RAZON REFERENCIA	ANULA FACTURA</field>
             <field name="document_type_raw">NOTA DE DEBITO ELECTRONICA</field>
             <field name="document_type_code">56</field>
             <field name="raw_text_block">CASO 4267228-8
-==============
-DOCUMENTO		NOTA DE DEBITO ELECTRONICA
-REFERENCIA		NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4267228-5
-RAZON REFERENCIA	ANULA NOTA DE CREDITO ELECTRONICA</field>
+            ==============
+            DOCUMENTO		NOTA DE DEBITO ELECTRONICA
+            REFERENCIA		NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4267228-5
+            RAZON REFERENCIA	ANULA NOTA DE CREDITO ELECTRONICA</field>
             <field name="generation_status">pending</field>
         </record>
         <record id="ref_03_4267228_8_1" model="l10n_cl_edi.certification.case.dte.reference">

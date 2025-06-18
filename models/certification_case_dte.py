@@ -124,10 +124,9 @@ class CertificationCaseDte(models.Model):
         """
         Asigna automáticamente un partner de certificación único a cada caso DTE.
         
-        Lógica:
-        1. Para notas de crédito/débito: usa el mismo partner que el documento original
-        2. Para documentos originales: asigna partner disponible (no usado previamente)
-        3. Registra la asignación para evitar reutilización
+        Lógica SIMPLE:
+        - Solo asigna partners a documentos originales (facturas, guías)
+        - Las NC/ND heredan el partner automáticamente durante la generación del documento (proceso nativo Odoo)
         """
         for record in self:
             if not record.parsed_set_id:
@@ -138,28 +137,17 @@ class CertificationCaseDte(models.Model):
             if record.partner_id:
                 continue
                 
-            # Verificar si es nota de crédito/débito con referencias
-            if (record.document_type_code in ['61', '56'] and 
-                record.reference_ids and 
-                record.reference_ids[0].referenced_case_dte_id):
-                
-                # Para NC/ND, usar el mismo partner que el documento original
-                original_case = record.reference_ids[0].referenced_case_dte_id
-                if original_case.partner_id:
-                    record.partner_id = original_case.partner_id
-                    _logger.info(f"Caso {record.case_number_raw}: Partner heredado de documento original {original_case.case_number_raw}")
-                    continue
-            
-            # Para documentos originales, asignar partner disponible
-            available_partner = record._get_available_certification_partner()
-            if available_partner:
-                # Asignar partner y registrar el caso
-                record.partner_id = available_partner
-                available_partner.l10n_cl_edi_assigned_case_number = record.case_number_raw
-                _logger.info(f"Caso {record.case_number_raw}: Partner asignado automáticamente - {available_partner.name} (RUT: {available_partner.vat})")
-            else:
-                _logger.error(f"No hay partners de certificación disponibles para caso {record.case_number_raw}")
-                record.partner_id = False
+            # Solo asignar partners a documentos originales
+            # Las NC/ND heredarán el partner durante la generación del documento
+            if record.document_type_code not in ['61', '56']:
+                available_partner = record._get_available_certification_partner()
+                if available_partner:
+                    record.partner_id = available_partner
+                    available_partner.l10n_cl_edi_assigned_case_number = record.case_number_raw
+                    _logger.info(f"Caso {record.case_number_raw}: Partner asignado - {available_partner.name}")
+                else:
+                    _logger.error(f"No hay partners disponibles para caso {record.case_number_raw}")
+                    record.partner_id = False
 
     def _get_available_certification_partner(self):
         """

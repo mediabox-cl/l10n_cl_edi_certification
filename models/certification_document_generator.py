@@ -1709,7 +1709,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         self.dte_case_id.write({
             'generated_stock_picking_id': picking.id,
             'generation_status': 'generated',
-            'partner_id': picking.partner_id.id,
+            # NO sobrescribir partner_id aquí - mantener la lógica de herencia automática
         })
         
         _logger.info(f"Caso DTE actualizado - Picking: {picking.name}, Partner: {picking.partner_id.name}")
