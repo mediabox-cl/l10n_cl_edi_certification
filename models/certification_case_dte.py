@@ -40,12 +40,18 @@ class CertificationCaseDte(models.Model):
         ('error', 'Error')
     ], string='Estado Generación', default='pending', track_visibility='onchange')
     
-    # Factura generada
+    # Documentos generados
     generated_account_move_id = fields.Many2one(
         'account.move',
         string='Factura Generada',
         readonly=True,
         help='Factura generada desde este caso DTE'
+    )
+    generated_stock_picking_id = fields.Many2one(
+        'stock.picking',
+        string='Guía de Despacho Generada',
+        readonly=True,
+        help='Guía de despacho generada desde este caso DTE'
     )
     
     # Relaciones con items y referencias
@@ -216,7 +222,7 @@ class CertificationCaseDte(models.Model):
 
     def _sync_generation_status(self):
         """
-        Sincroniza el estado de generación de los casos DTE con las facturas existentes.
+        Sincroniza el estado de generación de los casos DTE con los documentos existentes.
         """
         for record in self:
             try:
@@ -233,10 +239,31 @@ class CertificationCaseDte(models.Model):
                         record.generated_account_move_id = False
                         record.generation_status = 'pending'
                         _logger.info(f"Sincronizado caso {record.id}: factura inexistente, estado → 'pending'")
+                
+                # Verificar si hay guía de despacho vinculada
+                elif record.generated_stock_picking_id:
+                    # Si hay guía vinculada, verificar que exista y esté activa
+                    if record.generated_stock_picking_id.exists() and record.generated_stock_picking_id.state != 'cancel':
+                        # Guía existe y está activa
+                        if record.generation_status != 'generated':
+                            record.generation_status = 'generated'
+                            _logger.info(f"Sincronizado caso {record.id}: estado → 'generated' (guía)")
+                    else:
+                        # Guía no existe o está cancelada, desvincular
+                        record.generated_stock_picking_id = False
+                        record.generation_status = 'pending'
+                        _logger.info(f"Sincronizado caso {record.id}: guía inexistente, estado → 'pending'")
+                
                 else:
-                    # No hay factura vinculada, buscar si existe una factura relacionada
+                    # No hay documento vinculado, buscar si existe un documento relacionado
                     potential_invoice = self.env['account.move'].search([
                         ('ref', '=', f'Certificación DTE - Caso {record.id}'),
+                        ('state', '!=', 'cancel')
+                    ], limit=1)
+                    
+                    # Buscar guía de despacho relacionada (por referencia al caso)
+                    potential_picking = self.env['stock.picking'].search([
+                        ('origin', 'ilike', f'Caso {record.id}'),
                         ('state', '!=', 'cancel')
                     ], limit=1)
                     
@@ -245,21 +272,27 @@ class CertificationCaseDte(models.Model):
                         record.generated_account_move_id = potential_invoice
                         record.generation_status = 'generated'
                         _logger.info(f"Sincronizado caso {record.id}: factura encontrada {potential_invoice.name}, estado → 'generated'")
+                    elif potential_picking:
+                        # Encontrada guía relacionada, vincular
+                        record.generated_stock_picking_id = potential_picking
+                        record.generation_status = 'generated'
+                        _logger.info(f"Sincronizado caso {record.id}: guía encontrada {potential_picking.name}, estado → 'generated'")
                     else:
-                        # No hay factura relacionada
+                        # No hay documento relacionado
                         if record.generation_status == 'generated':
                             record.generation_status = 'pending'
-                            _logger.info(f"Sincronizado caso {record.id}: sin factura, estado → 'pending'")
+                            _logger.info(f"Sincronizado caso {record.id}: sin documento, estado → 'pending'")
             except Exception as e:
                 _logger.warning(f"Error sincronizando caso {record.id}: {str(e)}")
 
     def action_reset_case(self):
         """
         Resetea el caso DTE para permitir regeneración.
-        Maneja la desvinculación de facturas existentes.
+        Maneja la desvinculación de documentos existentes (facturas o guías).
         """
         self.ensure_one()
         
+        # Manejar factura vinculada
         if self.generated_account_move_id:
             invoice = self.generated_account_move_id
             
@@ -285,28 +318,59 @@ class CertificationCaseDte(models.Model):
                 _logger.info(f"Caso {self.id} reseteado. Factura {invoice.name} desvinculada (estado: {invoice.state})")
             else:
                 raise UserError(f"No se puede resetear: la factura {invoice.name} está en estado {invoice.state}")
+        
+        # Manejar guía de despacho vinculada
+        elif self.generated_stock_picking_id:
+            picking = self.generated_stock_picking_id
+            
+            if picking.state == 'draft':
+                # Si la guía está en borrador, solo desvincular
+                self.generated_stock_picking_id = False
+                self.generation_status = 'pending'
+                _logger.info(f"Caso {self.id} reseteado. Guía {picking.name} desvinculada (estado: {picking.state})")
+            elif picking.state in ['done', 'cancel']:
+                # Si la guía está validada o cancelada, solo desvincular
+                self.generated_stock_picking_id = False
+                self.generation_status = 'pending'
+                _logger.info(f"Caso {self.id} reseteado. Guía {picking.name} desvinculada (estado: {picking.state})")
+            else:
+                raise UserError(f"No se puede resetear: la guía {picking.name} está en estado {picking.state}")
+        
         else:
-            # Si no hay factura vinculada, simplemente resetear estado
+            # Si no hay documento vinculado, simplemente resetear estado
             self.generation_status = 'pending'
             _logger.info(f"Caso {self.id} reseteado a estado 'pending'")
         
         return True
 
-    def action_view_invoice(self):
-        """Abrir la factura vinculada si existe"""
+    def action_view_document(self):
+        """Abrir el documento vinculado (factura o guía de despacho)"""
         self.ensure_one()
         
-        if not self.generated_account_move_id:
-            raise UserError("Este caso DTE no tiene una factura vinculada")
-        
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Factura Vinculada',
-            'res_model': 'account.move',
-            'res_id': self.generated_account_move_id.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        if self.generated_account_move_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Factura Vinculada',
+                'res_model': 'account.move',
+                'res_id': self.generated_account_move_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        elif self.generated_stock_picking_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Guía de Despacho Vinculada',
+                'res_model': 'stock.picking',
+                'res_id': self.generated_stock_picking_id.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+        else:
+            raise UserError("Este caso DTE no tiene un documento vinculado")
+    
+    def action_view_invoice(self):
+        """Mantener compatibilidad - redirige a action_view_document"""
+        return self.action_view_document()
 
     def action_generate_document(self):
         """Generar documento desde el caso DTE"""

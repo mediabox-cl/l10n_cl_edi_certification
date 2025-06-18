@@ -13,6 +13,7 @@ from . import certification_iecv_sales_processor
 from . import certification_iecv_purchase_processor
 from . import certification_iecv_book
 from . import account_move
+from . import stock_picking
 from . import sale_order
 from . import l10n_cl_edi_util
 from . import res_partner
