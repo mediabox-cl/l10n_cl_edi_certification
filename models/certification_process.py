@@ -606,28 +606,6 @@ class CertificationProcess(models.Model):
     # El error arquitectónico del partner único del SII (60803000-K) ha sido resuelto.
     # Ahora cada DTE individual usa un partner de certificación único del pool de partners precargados.
     
-    def action_create_demo_cafs(self):
-        """Crea CAFs de demostración para los tipos de documento requeridos"""
-        self.ensure_one()
-        
-        # Verificar que estamos en modo SIIDEMO
-        if self.company_id.l10n_cl_dte_service_provider != 'SIIDEMO':
-            raise UserError(_('Para crear CAFs de demostración, primero debe configurar el Proveedor de Servicio DTE a SIIDEMO'))
-        
-        # Crear CAFs para los tipos de documento necesarios
-        self.company_id._create_demo_caf_files()
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('CAFs creados'),
-                'message': _('Se han creado CAFs de demostración para los documentos requeridos.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
-    
     def action_view_iecv_books(self):
         """Acción para ver los libros IECV generados"""
         self.ensure_one()
