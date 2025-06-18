@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Form View for Delivery Guide Book -->
+        <record id="view_certification_delivery_guide_book_form" model="ir.ui.view">
+            <field name="name">certification.delivery.guide.book.form</field>
+            <field name="model">l10n_cl_edi.certification.delivery_guide_book</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_generate_xml" string="🔨 Generar XML" 
+                                type="object" class="oe_highlight"
+                                invisible="state != 'draft'"
+                                help="Generar archivo XML del libro de guías"/>
+                        
+                        <button name="action_download_xml" string="⬇️ Descargar XML" 
+                                type="object" class="btn-secondary"
+                                invisible="not xml_file"
+                                help="Descargar archivo XML generado"/>
+                        
+                        <button name="action_preview_classification" string="👁️ Vista Previa" 
+                                type="object" class="btn-info"
+                                help="Ver clasificación de guías"/>
+                        
+                        <button name="action_reset_to_draft" string="🔄 Resetear" 
+                                type="object" class="btn-warning"
+                                invisible="state == 'draft'"
+                                confirm="¿Está seguro de resetear el libro a estado borrador?"
+                                help="Resetear libro a estado borrador"/>
+                        
+                        <field name="state" widget="statusbar" statusbar_visible="draft,generated,signed"/>
+                    </header>
+                    
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <span>Libro de Guías de Despacho</span>
+                            </h1>
+                            <h2>
+                                <field name="period_display" readonly="1"/>
+                            </h2>
+                        </div>
+                        
+                        <group>
+                            <group string="Información General">
+                                <field name="certification_process_id" readonly="1"/>
+                                <field name="book_type" readonly="1"/>
+                                <field name="period_year"/>
+                                <field name="period_month"/>
+                            </group>
+                            <group string="Estado y Fechas">
+                                <field name="state" readonly="1"/>
+                                <field name="generation_date" readonly="1"/>
+                                <field name="xml_filename" readonly="1" invisible="not xml_file"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Resumen de Guías" invisible="state == 'draft'">
+                            <group>
+                                <field name="total_guides" readonly="1"/>
+                                <field name="total_normal_guides" readonly="1"/>
+                                <field name="total_invoiced_guides" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="total_cancelled_guides" readonly="1"/>
+                                <field name="total_amount" readonly="1" widget="monetary"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Información del XML" invisible="not xml_file">
+                                <group>
+                                    <field name="xml_file" filename="xml_filename" readonly="1"/>
+                                    <field name="error_message" readonly="1" invisible="not error_message"
+                                           attrs="{'invisible': [('error_message', '=', False)]}"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Notas SET 4" invisible="state == 'draft'">
+                                <div class="alert alert-info" role="alert">
+                                    <h4>Especificaciones del SET 4 - Guías de Despacho</h4>
+                                    <ul>
+                                        <li><strong>Caso 4329507-1:</strong> Traslado interno entre bodegas (clasificado como Normal)</li>
+                                        <li><strong>Caso 4329507-2:</strong> Venta con transporte por emisor que se facturó posteriormente (clasificado como Facturada)</li>
+                                        <li><strong>Caso 4329507-3:</strong> Venta con retiro por cliente que fue anulada (clasificado como Anulada)</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="alert alert-warning" role="alert">
+                                    <h5>Validaciones SII:</h5>
+                                    <ul>
+                                        <li>El libro debe incluir todas las guías emitidas en el período</li>
+                                        <li>Las guías deben estar correctamente clasificadas por tipo de operación</li>
+                                        <li>Los montos deben coincidir con los reportados en las guías individuales</li>
+                                        <li>El archivo XML debe estar firmado digitalmente</li>
+                                    </ul>
+                                </div>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View for Delivery Guide Book -->
+        <record id="view_certification_delivery_guide_book_tree" model="ir.ui.view">
+            <field name="name">certification.delivery.guide.book.tree</field>
+            <field name="model">l10n_cl_edi.certification.delivery_guide_book</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state == 'signed'" 
+                      decoration-info="state == 'generated'" 
+                      decoration-danger="state == 'error'">
+                    <field name="certification_process_id"/>
+                    <field name="period_display"/>
+                    <field name="book_type"/>
+                    <field name="total_guides"/>
+                    <field name="total_amount" widget="monetary"/>
+                    <field name="state"/>
+                    <field name="generation_date"/>
+                    <field name="currency_id" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action for Delivery Guide Book -->
+        <record id="action_certification_delivery_guide_book" model="ir.actions.act_window">
+            <field name="name">Libros de Guías de Despacho</field>
+            <field name="res_model">l10n_cl_edi.certification.delivery_guide_book</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay libros de guías de despacho generados
+                </p>
+                <p>
+                    Los libros de guías de despacho consolidan todas las guías electrónicas 
+                    emitidas en un período específico para reporte al SII.
+                </p>
+            </field>
+        </record>
+
+        <!-- Wizard View for Delivery Guide Book Generator -->
+        <record id="view_delivery_guide_book_generator_wizard_form" model="ir.ui.view">
+            <field name="name">delivery.guide.book.generator.wizard.form</field>
+            <field name="model">l10n_cl_edi.certification.delivery_guide_book_generator_wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>Crear Libro de Guías de Despacho</h1>
+                        </div>
+                        
+                        <group>
+                            <group string="Configuración">
+                                <field name="certification_process_id" readonly="1"/>
+                                <field name="period_year"/>
+                                <field name="period_month"/>
+                                <field name="period_display" readonly="1"/>
+                            </group>
+                            <group string="Estado">
+                                <field name="can_generate" readonly="1" widget="boolean_toggle"/>
+                                <field name="validation_message" readonly="1" 
+                                       attrs="{'invisible': [('validation_message', '=', False)]}"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Estadísticas de Guías" invisible="not guides_found">
+                            <group>
+                                <field name="guides_found" readonly="1"/>
+                                <field name="guides_normal" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="guides_invoiced" readonly="1"/>
+                                <field name="guides_cancelled" readonly="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook invisible="not guides_found">
+                            <page string="Vista Previa">
+                                <field name="guide_preview" readonly="1" widget="html"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <footer>
+                        <button name="action_generate_delivery_guide_book" string="🔨 Generar Libro" 
+                                type="object" class="oe_highlight"
+                                invisible="not can_generate"/>
+                        
+                        <button name="action_preview_only" string="👁️ Solo Vista Previa" 
+                                type="object" class="btn-secondary"/>
+                        
+                        <button string="Cancelar" class="btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for Wizard -->
+        <record id="action_delivery_guide_book_generator_wizard" model="ir.actions.act_window">
+            <field name="name">Crear Libro de Guías de Despacho</field>
+            <field name="res_model">l10n_cl_edi.certification.delivery_guide_book_generator_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

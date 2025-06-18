@@ -36,6 +36,9 @@
                             <button name="action_view_iecv_books" type="object" class="oe_stat_button" icon="fa-book">
                                 <field name="iecv_books_count" widget="statinfo" string="Libros IECV"/>
                             </button>
+                            <button name="action_view_delivery_guide_books" type="object" class="oe_stat_button" icon="fa-truck">
+                                <field name="delivery_guide_book_count" widget="statinfo" string="Libros Guías"/>
+                            </button>
                             <button name="action_view_parsed_sets" type="object" class="oe_stat_button" icon="fa-files-o">
                                  <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value"><field name="dte_case_to_generate_count" nolabel="1"/> Casos Pendientes</span>
@@ -221,6 +224,62 @@
                                 <div class="alert alert-warning" role="alert" invisible="iecv_book_ids or state != 'generation'">
                                     <strong>No hay libros IECV generados</strong>
                                     <p>Use el botón "Generar Libros IECV" para crear los archivos XML requeridos por el SII.</p>
+                                </div>
+                            </page>
+                            <page string="Libros de Guías">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Libro Electrónico de Guías de Despacho</strong>
+                                    <p>Los libros de guías de despacho son requeridos por el SII para consolidar y reportar todas las guías electrónicas emitidas en un período específico.</p>
+                                </div>
+                                
+                                <group>
+                                    <button name="action_create_delivery_guide_book" string="📋 Crear Libro de Guías" type="object" 
+                                            class="oe_highlight" 
+                                            invisible="state not in ['generation', 'completed']"
+                                            help="Crear un nuevo libro de guías de despacho"/>
+                                    
+                                    <button name="action_view_delivery_guide_books" string="📖 Ver Todos los Libros" type="object" 
+                                            class="btn-secondary" 
+                                            invisible="not delivery_guide_book_ids"
+                                            help="Ver todos los libros de guías generados"/>
+                                </group>
+                                
+                                <group string="Estadísticas" invisible="not delivery_guide_book_ids">
+                                    <group>
+                                        <field name="delivery_guide_book_count" readonly="1" string="Libros Generados"/>
+                                    </group>
+                                </group>
+                                
+                                <separator string="Libros de Guías Generados" invisible="not delivery_guide_book_ids"/>
+                                <field name="delivery_guide_book_ids" invisible="not delivery_guide_book_ids">
+                                    <list string="Libros de Guías" 
+                                          decoration-success="state == 'signed'" 
+                                          decoration-info="state == 'generated'" 
+                                          decoration-danger="state == 'error'">
+                                        <field name="book_type"/>
+                                        <field name="period_display"/>
+                                        <field name="total_guides"/>
+                                        <field name="total_amount" widget="monetary"/>
+                                        <field name="state"/>
+                                        <field name="generation_date"/>
+                                        
+                                        <button name="action_generate_xml" string="Generar" type="object"
+                                                class="btn-primary" icon="fa-file-code-o"
+                                                invisible="state != 'draft'"/>
+                                        
+                                        <button name="action_download_xml" string="Descargar" type="object"
+                                                class="btn-info" icon="fa-download"
+                                                invisible="not xml_file"/>
+                                        
+                                        <button name="action_preview_classification" string="Vista Previa" type="object"
+                                                class="btn-secondary" icon="fa-eye"
+                                                help="Ver clasificación de guías"/>
+                                    </list>
+                                </field>
+                                
+                                <div class="alert alert-warning" role="alert" invisible="delivery_guide_book_ids or state not in ['generation', 'completed']">
+                                    <strong>No hay libros de guías generados</strong>
+                                    <p>Use el botón "Crear Libro de Guías" para generar los archivos XML de libros de guías de despacho.</p>
                                 </div>
                             </page>
                         </notebook>

@@ -27,6 +27,7 @@
         'views/test_set_views.xml',
         'views/report_invoice_fix.xml',
         'views/certification_iecv_book_view.xml',
+        'views/certification_delivery_guide_book_view.xml',
         'wizard/certification_reset_wizard_view.xml',
         'wizard/iecv_generator_wizard_view.xml',
         'data/l10n_cl_edi_certification_data.xml',
