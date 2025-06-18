@@ -1551,7 +1551,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         picking_vals = {
             'partner_id': partner.id,
             'picking_type_id': self._get_picking_type(movement_config).id,
-            'location_src_id': location_src.id,
+            'location_id': location_src.id,  # Campo correcto para ubicación origen
             'location_dest_id': location_dest.id,
             'origin': f'Certificación SII - Caso {self.dte_case_id.case_number_raw}',
             # 'l10n_cl_dte_movement_type': movement_config['sii_movement_type'],  # Comentado por ahora
@@ -1666,7 +1666,7 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'product_uom_qty': item.quantity,
                 'product_uom': product.uom_id.id,
                 'picking_id': picking.id,
-                'location_src_id': picking.location_src_id.id,
+                'location_id': picking.location_id.id,  # Campo correcto para ubicación origen
                 'location_dest_id': picking.location_dest_id.id,
             }
             
