@@ -31,7 +31,6 @@
         'wizard/certification_reset_wizard_view.xml',
         'wizard/iecv_generator_wizard_view.xml',
         'data/l10n_cl_edi_certification_data.xml',
-        'data/certification_partners_cleanup.xml',
         'data/certification_partners.xml',
         'data/l10n_cl_edi_certification_basic_set_04.xml',
         'data/l10n_cl_edi_certification_purchase_book_04.xml',
