@@ -26,17 +26,14 @@ class StockPicking(models.Model):
         """
         values = super()._prepare_dte_values()
         
-        # Si es una guía de certificación, agregar referencias SET y corregir campos
+        # Si es una guía de certificación, agregar referencias SET
         if self.l10n_cl_edi_certification_case_id:
             # Agregar referencias de certificación
             values['certification_references'] = self._get_certification_references()
             
-            # Corregir motivo de traslado según tipo de movimiento
-            values['delivery_guide_reason'] = self._get_certification_delivery_reason()
-            
             _logger.info("✓ Aplicando configuración específica de certificación para guía")
             _logger.info(f"  - Referencias SET: {len(values.get('certification_references', []))}")
-            _logger.info(f"  - Motivo traslado: {values.get('delivery_guide_reason')}")
+            _logger.info(f"  - Motivo traslado: {self.l10n_cl_delivery_guide_reason}")
         
         return values
     
@@ -64,23 +61,6 @@ class StockPicking(models.Model):
         _logger.info(f"Generando referencia SET: {references[0]}")
         return references
     
-    def _get_certification_delivery_reason(self):
-        """
-        Determina el motivo de traslado correcto según el tipo de movimiento.
-        """
-        if not self.l10n_cl_edi_certification_case_id:
-            return '1'  # Venta por defecto
-        
-        # Determinar según tipo de picking y configuración
-        if self.picking_type_id.code == 'internal':
-            # Traslado interno entre bodegas
-            return '8'  # Traslado entre bodegas
-        elif self.picking_type_id.code == 'outgoing':
-            # Entrega a cliente
-            return '1'  # Operación constituye venta
-        else:
-            # Fallback a venta
-            return '1'
     
     def _l10n_cl_create_dte_envelope(self, receiver_rut='60803000-K'):
         """

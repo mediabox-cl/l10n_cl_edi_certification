@@ -1548,6 +1548,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             location_src = self._get_stock_location(company)
             location_dest = partner.property_stock_customer or self._get_customer_location()
             
+        # Determinar motivo de traslado según dispatch_motive_raw del caso
+        delivery_guide_reason = self._get_delivery_guide_reason_from_case()
+        
         picking_vals = {
             'partner_id': partner.id,
             'picking_type_id': self._get_picking_type(movement_config).id,
@@ -1556,7 +1559,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             'origin': f'Certificación SII - Caso {self.dte_case_id.case_number_raw}',
             'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Proceso de certificación
             'l10n_cl_edi_certification_case_id': self.dte_case_id.id,  # Caso DTE específico
-            # Campos específicos de guía de despacho que se configurarán en el método _prepare_dte_values
+            'l10n_cl_delivery_guide_reason': delivery_guide_reason,  # Motivo según caso DTE
         }
         
         _logger.info(f"Creando picking con valores: {picking_vals}")
@@ -1722,6 +1725,59 @@ class CertificationDocumentGenerator(models.TransientModel):
             })
             
         return category
+    
+    def _get_delivery_guide_reason_from_case(self):
+        """
+        Determina el motivo de traslado (l10n_cl_delivery_guide_reason) basado en 
+        el campo dispatch_motive_raw del caso DTE.
+        
+        Mapeo según SII:
+        1 = Operación constituye venta
+        2 = Ventas por efectuar  
+        3 = Consignaciones
+        4 = Entregas gratuitas
+        5 = Traslados internos
+        6 = Otros traslados no venta
+        7 = Guía de devolución
+        8 = Traslado para exportación (no constituye venta)
+        """
+        self.ensure_one()
+        
+        dispatch_motive = (self.dte_case_id.dispatch_motive_raw or '').upper().strip()
+        
+        # Mapeo de texto a código SII
+        motive_mapping = {
+            'VENTA': '1',  # Operación constituye venta
+            'VENTAS POR EFECTUAR': '2',
+            'CONSIGNACIONES': '3', 
+            'ENTREGAS GRATUITAS': '4',
+            'TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA': '8',  # Caso específico
+            'TRASLADO INTERNO': '5',
+            'TRASLADOS INTERNOS': '5',
+            'TRASLADO ENTRE BODEGAS': '8',  # Más específico que traslado interno
+            'OTROS TRASLADOS': '6',
+            'DEVOLUCION': '7',
+            'DEVOLUCIÓN': '7', 
+            'EXPORTACION': '8',
+            'EXPORTACIÓN': '8',
+        }
+        
+        # Buscar coincidencia exacta
+        if dispatch_motive in motive_mapping:
+            reason_code = motive_mapping[dispatch_motive]
+            _logger.info(f"Motivo traslado: '{dispatch_motive}' → Código SII: {reason_code}")
+            return reason_code
+        
+        # Buscar coincidencias parciales para casos complejos
+        for key, code in motive_mapping.items():
+            if key in dispatch_motive:
+                reason_code = code
+                _logger.info(f"Motivo traslado (coincidencia parcial): '{dispatch_motive}' contiene '{key}' → Código SII: {reason_code}")
+                return reason_code
+        
+        # Fallback: si no encuentra coincidencia, intentar determinar por tipo de picking
+        _logger.warning(f"No se pudo mapear motivo de traslado: '{dispatch_motive}'. Usando fallback.")
+        return '1'  # Venta por defecto
 
     def _finalize_delivery_guide(self, picking, movement_config):
         """
