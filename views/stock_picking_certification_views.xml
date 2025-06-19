@@ -52,6 +52,9 @@
                 <field name="l10n_cl_edi_certification_case_id" readonly="1" 
                        invisible="not l10n_cl_edi_certification_case_id"
                        string="Caso DTE Certificación"/>
+                <field name="l10n_cl_dte_gd_transport_type" 
+                       invisible="not l10n_cl_edi_certification_case_id"
+                       string="Tipo de Transporte"/>
             </xpath>
             
         </field>
