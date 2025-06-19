@@ -1429,21 +1429,37 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _get_available_certification_partner(self):
         """
         Obtiene un partner disponible del pool de certificación.
-        Reutiliza la lógica existente del generador de facturas.
+        Considera tanto facturas como guías de despacho ya generadas.
         """
-        # Buscar partners de certificación no utilizados
-        used_partners = self.env['l10n_cl_edi.certification.case.dte'].search([
+        # Buscar partners ya utilizados en casos DTE (facturas)
+        used_partners_in_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
             ('partner_id', '!=', False)
         ]).mapped('partner_id')
         
+        # Buscar partners ya utilizados en guías de despacho generadas
+        used_partners_in_pickings = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
+            ('generated_stock_picking_id', '!=', False)
+        ]).mapped('generated_stock_picking_id.partner_id')
+        
+        # Combinar ambos conjuntos de partners usados
+        all_used_partners = used_partners_in_cases | used_partners_in_pickings
+        
+        _logger.info(f"Partners usados en casos DTE: {used_partners_in_cases.mapped('name')}")
+        _logger.info(f"Partners usados en guías: {used_partners_in_pickings.mapped('name')}")
+        _logger.info(f"Total partners usados: {all_used_partners.mapped('name')}")
+        
         available_partners = self.env['res.partner'].search([
             ('l10n_cl_edi_certification_partner', '=', True),
-            ('id', 'not in', used_partners.ids)
+            ('id', 'not in', all_used_partners.ids)
         ])
+        
+        _logger.info(f"Partners disponibles: {available_partners.mapped('name')}")
         
         if not available_partners:
             # Si no hay partners disponibles, usar cualquiera del pool
+            _logger.warning("No hay partners únicos disponibles, reutilizando del pool")
             available_partners = self.env['res.partner'].search([
                 ('l10n_cl_edi_certification_partner', '=', True)
             ])
