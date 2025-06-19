@@ -108,6 +108,9 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
             })
             
             try:
+                _logger.info(f"WIZARD DEBUG: Iniciando cálculo para proceso {record.certification_process_id.id}")
+                _logger.info(f"WIZARD DEBUG: Período {record.period_year}-{record.period_month:02d}")
+                
                 classified_guides = temp_book._classify_delivery_guides()
                 
                 record.guides_normal = len(classified_guides.get('normal', []))
@@ -115,8 +118,12 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
                 record.guides_cancelled = len(classified_guides.get('cancelled', []))
                 record.guides_found = record.guides_normal + record.guides_invoiced + record.guides_cancelled
                 
+                _logger.info(f"WIZARD DEBUG: Resultado - Normal: {record.guides_normal}, Facturadas: {record.guides_invoiced}, Anuladas: {record.guides_cancelled}, Total: {record.guides_found}")
+                
             except Exception as e:
-                _logger.warning(f"Error calculando estadísticas de guías: {str(e)}")
+                _logger.error(f"WIZARD DEBUG: Error calculando estadísticas de guías: {str(e)}")
+                import traceback
+                _logger.error(f"WIZARD DEBUG: Traceback: {traceback.format_exc()}")
                 record.update({
                     'guides_found': 0,
                     'guides_normal': 0,
