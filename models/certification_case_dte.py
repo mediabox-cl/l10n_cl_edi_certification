@@ -311,8 +311,8 @@ class CertificationCaseDte(models.Model):
         elif self.generated_stock_picking_id:
             picking = self.generated_stock_picking_id
             
-            if picking.state == 'draft':
-                # Si la guía está en borrador, solo desvincular
+            if picking.state in ['draft', 'waiting', 'confirmed', 'assigned']:
+                # Si la guía está en estados previos a done, solo desvincular
                 self.generated_stock_picking_id = False
                 self.generation_status = 'pending'
                 _logger.info(f"Caso {self.id} reseteado. Guía {picking.name} desvinculada (estado: {picking.state})")
