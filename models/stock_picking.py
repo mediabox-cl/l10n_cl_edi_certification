@@ -26,7 +26,7 @@ class StockPicking(models.Model):
         """
         values = super()._prepare_dte_values()
         
-        # Si es una guía de certificación, agregar referencias SET
+        # SIEMPRE agregar una referencia para evitar error SII
         if self.l10n_cl_edi_certification_case_id:
             # Agregar referencias de certificación
             cert_refs = self._get_certification_references()
@@ -38,6 +38,14 @@ class StockPicking(models.Model):
             _logger.info(f"  - Detalle referencias: {cert_refs}")
             _logger.info(f"  - Motivo traslado: {self.l10n_cl_delivery_guide_reason}")
         else:
+            # Forzar una referencia básica si no hay certificación
+            values['certification_references'] = [{
+                'sequence': 1,
+                'document_type': 'SET',
+                'folio': 'CERT-001',
+                'date': fields.Date.today().strftime('%Y-%m-%d'),
+                'reason': 'Documento de Certificación',
+            }]
             _logger.info("⚠️ Guía sin certificación - aplicando referencia por defecto")
         
         return values

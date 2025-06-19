@@ -12,10 +12,10 @@
     
     <template id="dte_certification_references" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
         
-        <!-- Reemplazar la sección de referencias para agregar lógica de certificación -->
-        <xpath expr="//t[@t-if='picking.sale_id.client_order_ref']" position="replace">
+        <!-- Agregar referencias de certificación ANTES de las referencias existentes -->
+        <xpath expr="//t[@t-if='picking.sale_id.client_order_ref']" position="before">
             
-            <!-- Referencias de certificación (prioritarias) -->
+            <!-- Referencias de certificación -->
             <t t-if="certification_references">
                 <t t-foreach="certification_references" t-as="ref">
                     <Referencia>
@@ -28,28 +28,11 @@
                 </t>
             </t>
             
-            <!-- Referencia opcional a orden de compra (si no hay certificación) -->
-            <t t-elif="picking.sale_id.client_order_ref">
-                <Referencia>
-                    <NroLinRef t-out="'1'"/>
-                    <TpoDocRef t-out="'801'"/>
-                    <FolioRef t-out="picking.sale_id.client_order_ref"/>
-                    <FchRef t-out="picking.sale_id.date_order.date()"/>
-                    <RazonRef t-out="'Orden de compra Ref Cliente'"/>
-                </Referencia>
-            </t>
-            
-            <!-- Referencia por defecto si no hay ninguna (CRÍTICO para SII) -->
-            <t t-else="">
-                <Referencia>
-                    <NroLinRef t-out="'1'"/>
-                    <TpoDocRef t-out="'SET'"/>
-                    <FolioRef t-out="'N/A'"/>
-                    <FchRef t-out="picking._get_cl_current_datetime().date()"/>
-                    <RazonRef t-out="'Documento de Certificación'"/>
-                </Referencia>
-            </t>
-            
+        </xpath>
+        
+        <!-- También modificar la condición de la referencia original para que no aparezca si hay certificación -->
+        <xpath expr="//t[@t-if='picking.sale_id.client_order_ref']" position="attributes">
+            <attribute name="t-if">picking.sale_id.client_order_ref and not certification_references</attribute>
         </xpath>
         
         <!-- Corregir motivo de traslado para certificación -->
