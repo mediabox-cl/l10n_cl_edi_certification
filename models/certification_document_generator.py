@@ -1588,6 +1588,9 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Determinar motivo de traslado según dispatch_motive_raw del caso
         delivery_guide_reason = self._get_delivery_guide_reason_from_case()
         
+        # Determinar tipo de transporte según dispatch_transport_type_raw del caso
+        transport_type = self._map_dispatch_transport_to_code(self.dte_case_id.dispatch_transport_type_raw)
+        
         # Asegurar que el partner tenga configuración para guías de despacho
         if not partner.l10n_cl_delivery_guide_price:
             partner.l10n_cl_delivery_guide_price = 'none'  # Para certificación, no mostrar precios
@@ -1601,6 +1604,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Proceso de certificación
             'l10n_cl_edi_certification_case_id': self.dte_case_id.id,  # Caso DTE específico
             'l10n_cl_delivery_guide_reason': delivery_guide_reason,  # Motivo según caso DTE
+            'l10n_cl_dte_gd_transport_type': transport_type,  # Tipo de transporte
         }
         
         _logger.info(f"Creando picking con valores: {picking_vals}")

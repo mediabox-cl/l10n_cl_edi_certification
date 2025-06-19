@@ -19,6 +19,13 @@ class StockPicking(models.Model):
         string='Caso DTE Certificación',
         help='Caso DTE específico que genera esta guía de despacho'
     )
+    
+    # Campo para tipo de transporte en certificación
+    l10n_cl_dte_gd_transport_type = fields.Selection([
+        ('1', '1. Emisor'),
+        ('2', '2. Cliente/Receptor por cuenta propia'),
+        ('3', '3. Terceros')
+    ], string='Tipo de Transporte', help='Tipo de transporte para certificación SII')
 
     def _prepare_dte_values(self):
         """
