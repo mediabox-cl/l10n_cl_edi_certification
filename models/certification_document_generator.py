@@ -1438,14 +1438,14 @@ class CertificationDocumentGenerator(models.TransientModel):
         ]).mapped('partner_id')
         
         available_partners = self.env['res.partner'].search([
-            ('is_certification_partner', '=', True),
+            ('l10n_cl_edi_certification_partner', '=', True),
             ('id', 'not in', used_partners.ids)
         ])
         
         if not available_partners:
             # Si no hay partners disponibles, usar cualquiera del pool
             available_partners = self.env['res.partner'].search([
-                ('is_certification_partner', '=', True)
+                ('l10n_cl_edi_certification_partner', '=', True)
             ])
         
         if not available_partners:
