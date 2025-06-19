@@ -107,7 +107,7 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
     def _is_guide_invoiced_in_period(self, guide, case_dte=None):
         """
         Detecta si una guía fue facturada en el período.
-        Para certificación: basado en case number según especificación SET 4.
+        Para certificación: basado ÚNICAMENTE en case number según especificación SET 4.
         """
         if not case_dte:
             case_dte = self._get_case_dte_for_guide(guide)
@@ -117,45 +117,10 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
             _logger.info(f"Guía {guide.name} marcada como facturada (caso 4329507-2)")
             return True
         
-        # Lógica adicional: buscar facturas relacionadas en el período
-        if self._has_related_invoice_in_period(guide):
-            _logger.info(f"Guía {guide.name} tiene facturas relacionadas en el período")
-            return True
-        
+        # Para certificación SII, NO necesitamos lógica adicional
+        # La clasificación se basa puramente en los números de caso del SET
         return False
     
-    def _has_related_invoice_in_period(self, guide):
-        """
-        Busca facturas relacionadas con la guía en el período.
-        """
-        # Buscar facturas que referencien la guía directamente
-        related_invoices = self.env['account.move'].search([
-            ('picking_ids', 'in', guide.id),
-            ('invoice_date', '>=', self._get_period_start()),
-            ('invoice_date', '<=', self._get_period_end()),
-            ('state', 'not in', ['draft', 'cancel']),
-            ('move_type', 'in', ['out_invoice', 'out_refund'])
-        ])
-        
-        if related_invoices:
-            return True
-        
-        # Buscar facturas del mismo partner en el período (lógica alternativa)
-        if guide.partner_id:
-            partner_invoices = self.env['account.move'].search([
-                ('partner_id', '=', guide.partner_id.id),
-                ('invoice_date', '>=', self._get_period_start()),
-                ('invoice_date', '<=', self._get_period_end()),
-                ('state', 'not in', ['draft', 'cancel']),
-                ('move_type', 'in', ['out_invoice'])
-            ])
-            
-            # Si hay facturas del mismo partner y la guía es de venta, asumir relación
-            case_dte = self._get_case_dte_for_guide(guide)
-            if partner_invoices and case_dte and 'VENTA' in (case_dte.dispatch_motive_raw or '').upper():
-                return True
-        
-        return False
     
     def _get_guide_classification_summary(self):
         """
