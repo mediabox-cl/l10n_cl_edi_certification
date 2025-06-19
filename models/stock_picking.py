@@ -29,11 +29,16 @@ class StockPicking(models.Model):
         # Si es una guía de certificación, agregar referencias SET
         if self.l10n_cl_edi_certification_case_id:
             # Agregar referencias de certificación
-            values['certification_references'] = self._get_certification_references()
+            cert_refs = self._get_certification_references()
+            values['certification_references'] = cert_refs
+            values['delivery_guide_reason'] = self.l10n_cl_delivery_guide_reason
             
             _logger.info("✓ Aplicando configuración específica de certificación para guía")
-            _logger.info(f"  - Referencias SET: {len(values.get('certification_references', []))}")
+            _logger.info(f"  - Referencias SET: {len(cert_refs)}")
+            _logger.info(f"  - Detalle referencias: {cert_refs}")
             _logger.info(f"  - Motivo traslado: {self.l10n_cl_delivery_guide_reason}")
+        else:
+            _logger.info("⚠️ Guía sin certificación - aplicando referencia por defecto")
         
         return values
     

@@ -39,11 +39,22 @@
                 </Referencia>
             </t>
             
+            <!-- Referencia por defecto si no hay ninguna (CRÍTICO para SII) -->
+            <t t-else="">
+                <Referencia>
+                    <NroLinRef t-out="'1'"/>
+                    <TpoDocRef t-out="'SET'"/>
+                    <FolioRef t-out="'N/A'"/>
+                    <FchRef t-out="picking._get_cl_current_datetime().date()"/>
+                    <RazonRef t-out="'Documento de Certificación'"/>
+                </Referencia>
+            </t>
+            
         </xpath>
         
         <!-- Corregir motivo de traslado para certificación -->
         <xpath expr="//IndTraslado" position="replace">
-            <IndTraslado t-out="delivery_guide_reason or '1'"/>
+            <IndTraslado t-out="delivery_guide_reason or picking.l10n_cl_delivery_guide_reason or '1'"/>
         </xpath>
         
     </template>
