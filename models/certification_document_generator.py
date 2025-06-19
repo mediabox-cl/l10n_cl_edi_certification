@@ -1745,21 +1745,32 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         dispatch_motive = (self.dte_case_id.dispatch_motive_raw or '').upper().strip()
         
-        # Mapeo de texto a código SII
+        # Mapeo de texto a código SII según l10n_cl_edi_stock
+        # 1 = Operation is sale
+        # 2 = Sales to be made  
+        # 3 = Consignments
+        # 4 = Free delivery
+        # 5 = Internal Transfer
+        # 6 = Other not-sale transfers
+        # 7 = Return guide
+        # 8 = Exportation Transfers
+        # 9 = Export Sales
         motive_mapping = {
-            'VENTA': '1',  # Operación constituye venta
-            'VENTAS POR EFECTUAR': '2',
-            'CONSIGNACIONES': '3', 
-            'ENTREGAS GRATUITAS': '4',
-            'TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA': '8',  # Caso específico
-            'TRASLADO INTERNO': '5',
-            'TRASLADOS INTERNOS': '5',
-            'TRASLADO ENTRE BODEGAS': '8',  # Más específico que traslado interno
-            'OTROS TRASLADOS': '6',
-            'DEVOLUCION': '7',
-            'DEVOLUCIÓN': '7', 
-            'EXPORTACION': '8',
-            'EXPORTACIÓN': '8',
+            'VENTA': '1',  # Operation is sale
+            'VENTAS POR EFECTUAR': '2',  # Sales to be made
+            'CONSIGNACIONES': '3',  # Consignments
+            'ENTREGAS GRATUITAS': '4',  # Free delivery
+            'TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA': '5',  # Internal Transfer
+            'TRASLADO INTERNO': '5',  # Internal Transfer
+            'TRASLADOS INTERNOS': '5',  # Internal Transfer
+            'TRASLADO ENTRE BODEGAS': '5',  # Internal Transfer
+            'OTROS TRASLADOS': '6',  # Other not-sale transfers
+            'DEVOLUCION': '7',  # Return guide
+            'DEVOLUCIÓN': '7',  # Return guide
+            'EXPORTACION': '8',  # Exportation Transfers
+            'EXPORTACIÓN': '8',  # Exportation Transfers
+            'VENTAS EXPORTACION': '9',  # Export Sales
+            'VENTAS DE EXPORTACIÓN': '9',  # Export Sales
         }
         
         # Buscar coincidencia exacta

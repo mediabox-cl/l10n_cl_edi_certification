@@ -54,12 +54,8 @@
                                         <field name="document_type_raw"/>
                                         <field name="document_type_code"/>
                                         <field name="generation_status"/>
-                                        <field name="generated_account_move_id"/>
-                                        <field name="generated_stock_picking_id"/>
-                                        <button name="action_view_document" string="Ver Factura" type="object" icon="fa-external-link"
-                                                invisible="document_type_code == '52' or not generated_account_move_id"/>
-                                        <button name="action_view_document" string="Ver Guía" type="object" icon="fa-external-link" 
-                                                invisible="document_type_code != '52' or not generated_stock_picking_id"/>
+                                        <field name="generated_account_move_id" widget="many2one_button" invisible="document_type_code == '52'"/>
+                                        <field name="generated_stock_picking_id" widget="many2one_button" invisible="document_type_code != '52'"/>
                                     </list>
                                 </field>
                             </page>
@@ -179,12 +175,8 @@
                     <field name="document_type_code"/>
                     <field name="parsed_set_id"/>
                     <field name="generation_status"/>
-                    <field name="generated_account_move_id"/>
-                    <field name="generated_stock_picking_id"/>
-                    <button name="action_view_document" string="Ver Factura" type="object" icon="fa-external-link"
-                            invisible="document_type_code == '52' or not generated_account_move_id"/>
-                    <button name="action_view_document" string="Ver Guía" type="object" icon="fa-external-link" 
-                            invisible="document_type_code != '52' or not generated_stock_picking_id"/>
+                    <field name="generated_account_move_id" widget="many2one_button" invisible="document_type_code == '52'"/>
+                    <field name="generated_stock_picking_id" widget="many2one_button" invisible="document_type_code != '52'"/>
                 </list>
             </field>
         </record>
