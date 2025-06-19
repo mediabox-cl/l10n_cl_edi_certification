@@ -724,7 +724,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         3 = Terceros
         """
         if not transport_raw:
-            return False
+            # Para traslados internos sin especificar transporte, usar emisor por defecto
+            return '1'
         
         transport_upper = transport_raw.upper()
         
@@ -740,8 +741,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         if 'TERCEROS' in transport_upper:
             return '3'
             
-        # Default para casos no reconocidos
-        return False
+        # Default para casos no reconocidos - usar emisor
+        return '1'
 
     def _apply_alternative_giro_if_needed(self, invoice):
         """
