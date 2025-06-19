@@ -48,17 +48,14 @@
     -->
     <template id="dte_certification_fields" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
         
-        <!-- Agregar tipo de transporte ANTES de la sección Transporte existente -->
-        <xpath expr="//Transporte" position="before">
-            <!-- Solo para certificación, agregar TipoTrasporte si está disponible -->
-            <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type">
-                <TipoTrasporte t-out="picking.l10n_cl_dte_gd_transport_type"/>
-            </t>
-        </xpath>
-        
         <!-- Reemplazar sección de Transporte para incluir información de destino -->
         <xpath expr="//Transporte" position="replace">
             <Transporte>
+                <!-- Solo para certificación, agregar TipoTrasporte si está disponible -->
+                <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type">
+                    <TipoTrasporte t-out="picking.l10n_cl_dte_gd_transport_type"/>
+                </t>
+                
                 <!-- Para certificación, usar direcciones apropiadas según tipo de traslado -->
                 <t t-if="picking.l10n_cl_edi_certification_case_id">
                     <!-- Traslado interno: emisor = receptor, destino puede ser específico -->
