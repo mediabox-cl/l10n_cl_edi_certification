@@ -40,6 +40,13 @@
             <IndTraslado t-out="delivery_guide_reason or picking.l10n_cl_delivery_guide_reason or '1'"/>
         </xpath>
         
+        <!-- Agregar TipoDespacho después de IndTraslado para certificación -->
+        <xpath expr="//IndTraslado" position="after">
+            <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type">
+                <TipoDespacho t-out="picking.l10n_cl_dte_gd_transport_type"/>
+            </t>
+        </xpath>
+        
     </template>
     
     <!-- 
@@ -51,11 +58,6 @@
         <!-- Reemplazar sección de Transporte para incluir información de destino -->
         <xpath expr="//Transporte" position="replace">
             <Transporte>
-                <!-- Solo para certificación, agregar TipoTrasporte si está disponible -->
-                <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type">
-                    <TipoTrasporte t-out="picking.l10n_cl_dte_gd_transport_type"/>
-                </t>
-                
                 <!-- Para certificación, usar direcciones apropiadas según tipo de traslado -->
                 <t t-if="picking.l10n_cl_edi_certification_case_id">
                     <!-- Traslado interno: emisor = receptor, destino puede ser específico -->

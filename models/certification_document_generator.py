@@ -718,31 +718,31 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _map_dispatch_transport_to_code(self, transport_raw):
         """
-        Mapea el tipo de transporte a código SII según especificación:
-        1 = Emisor
-        2 = Cliente/Receptor por cuenta propia 
-        3 = Terceros
+        Mapea el tipo de transporte a código SII TipoDespacho según especificación:
+        1 = Despacho por Cuenta del Comprador
+        2 = Despacho por Cuenta del Emisor a Instalaciones del Comprador
+        3 = Despacho por Cuenta del Emisor a Otras Instalaciones
         """
         if not transport_raw:
-            # Para traslados internos sin especificar transporte, usar emisor por defecto
-            return '1'
+            # Para traslados internos sin especificar transporte, usar "emisor a otras instalaciones"
+            return '3'
         
         transport_upper = transport_raw.upper()
         
-        # Emisor del documento (caso: "EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE")
-        if 'EMISOR' in transport_upper:
-            return '1'
-        
-        # Cliente/Receptor (caso: "CLIENTE")
+        # Cliente maneja el transporte (caso: "CLIENTE")
         if 'CLIENTE' in transport_upper:
-            return '2'
+            return '1'  # Despacho por Cuenta del Comprador
         
-        # Terceros
-        if 'TERCEROS' in transport_upper:
-            return '3'
+        # Emisor del documento al cliente (caso: "EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE")
+        if 'EMISOR' in transport_upper and 'CLIENTE' in transport_upper:
+            return '2'  # Despacho por Cuenta del Emisor a Instalaciones del Comprador
+        
+        # Emisor a otras ubicaciones o terceros
+        if 'EMISOR' in transport_upper or 'TERCEROS' in transport_upper:
+            return '3'  # Despacho por Cuenta del Emisor a Otras Instalaciones
             
-        # Default para casos no reconocidos - usar emisor
-        return '1'
+        # Default para casos no reconocidos - emisor a otras instalaciones
+        return '3'
 
     def _apply_alternative_giro_if_needed(self, invoice):
         """
