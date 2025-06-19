@@ -54,7 +54,10 @@
                                         <field name="document_type_raw"/>
                                         <field name="document_type_code"/>
                                         <field name="generation_status"/>
-                                        <field name="generated_account_move_id"/>
+                                        <field name="generated_account_move_id" invisible="document_type_code == '52'"/>
+                                        <field name="generated_stock_picking_id" invisible="document_type_code != '52'"/>
+                                        <button name="action_view_document" string="Ver" type="object" icon="fa-external-link"
+                                                invisible="not (generated_account_move_id or generated_stock_picking_id)"/>
                                     </list>
                                 </field>
                             </page>
@@ -106,6 +109,8 @@
                         <field name="generation_status" widget="statusbar" statusbar_visible="pending,generated,error"/>
                         <button name="action_generate_document" string="Generar Documento" type="object"
                                 class="oe_highlight" invisible="generation_status != 'pending'"/>
+                        <button name="action_view_document" string="Ver Documento Generado" type="object"
+                                class="oe_highlight" invisible="not (generated_account_move_id or generated_stock_picking_id)"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -123,7 +128,8 @@
                             <group>
                                 <field name="dispatch_motive_raw" invisible="document_type_code != '52'"/>
                                 <field name="dispatch_transport_type_raw" invisible="document_type_code != '52'"/>
-                                <field name="generated_account_move_id" readonly="1"/>
+                                <field name="generated_account_move_id" readonly="1" invisible="document_type_code == '52'"/>
+                                <field name="generated_stock_picking_id" readonly="1" invisible="document_type_code != '52'"/>
                                 <field name="error_message" invisible="generation_status != 'error'"/>
                             </group>
                         </group>
@@ -171,7 +177,10 @@
                     <field name="document_type_code"/>
                     <field name="parsed_set_id"/>
                     <field name="generation_status"/>
-                    <field name="generated_account_move_id"/>
+                    <field name="generated_account_move_id" invisible="document_type_code == '52'"/>
+                    <field name="generated_stock_picking_id" invisible="document_type_code != '52'"/>
+                    <button name="action_view_document" string="Ver" type="object" icon="fa-external-link"
+                            invisible="not (generated_account_move_id or generated_stock_picking_id)"/>
                 </list>
             </field>
         </record>
