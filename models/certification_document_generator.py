@@ -1554,8 +1554,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             'location_id': location_src.id,  # Campo correcto para ubicación origen
             'location_dest_id': location_dest.id,
             'origin': f'Certificación SII - Caso {self.dte_case_id.case_number_raw}',
-            # 'l10n_cl_dte_movement_type': movement_config['sii_movement_type'],  # Comentado por ahora
-            'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Campo existe en stock.picking
+            'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Proceso de certificación
+            'l10n_cl_edi_certification_case_id': self.dte_case_id.id,  # Caso DTE específico
+            # Campos específicos de guía de despacho que se configurarán en el método _prepare_dte_values
         }
         
         _logger.info(f"Creando picking con valores: {picking_vals}")

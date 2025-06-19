@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- 
+    Template inheritance para agregar referencias de certificación SII
+    a las guías de despacho generadas durante el proceso de certificación.
+    
+    Este template extiende el template base de l10n_cl_edi_stock para:
+    1. Agregar referencias SET obligatorias para certificación
+    2. Corregir el motivo de traslado según tipo de movimiento
+    3. Mantener compatibilidad con guías normales
+    -->
+    
+    <template id="dte_certification_references" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
+        
+        <!-- Reemplazar la sección de referencias para agregar lógica de certificación -->
+        <xpath expr="//t[@t-if='picking.sale_id.client_order_ref']" position="replace">
+            
+            <!-- Referencias de certificación (prioritarias) -->
+            <t t-if="certification_references">
+                <t t-foreach="certification_references" t-as="ref">
+                    <Referencia>
+                        <NroLinRef t-out="ref['sequence']"/>
+                        <TpoDocRef t-out="ref['document_type']"/>
+                        <FolioRef t-out="ref['folio']"/>
+                        <FchRef t-out="ref['date']"/>
+                        <RazonRef t-out="ref['reason']"/>
+                    </Referencia>
+                </t>
+            </t>
+            
+            <!-- Referencia opcional a orden de compra (si no hay certificación) -->
+            <t t-elif="picking.sale_id.client_order_ref">
+                <Referencia>
+                    <NroLinRef t-out="'1'"/>
+                    <TpoDocRef t-out="'801'"/>
+                    <FolioRef t-out="picking.sale_id.client_order_ref"/>
+                    <FchRef t-out="picking.sale_id.date_order.date()"/>
+                    <RazonRef t-out="'Orden de compra Ref Cliente'"/>
+                </Referencia>
+            </t>
+            
+        </xpath>
+        
+        <!-- Corregir motivo de traslado para certificación -->
+        <xpath expr="//IndTraslado" position="replace">
+            <IndTraslado t-out="delivery_guide_reason or '1'"/>
+        </xpath>
+        
+    </template>
+    
+    <!-- 
+    Template adicional para campos específicos de certificación si es necesario
+    Permite agregar otros campos que requieran lógica específica
+    -->
+    <template id="dte_certification_fields" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
+        
+        <!-- Si necesitamos modificar otros campos específicos para certificación -->
+        <!-- Por ejemplo, campos del emisor, receptor, etc. -->
+        
+        <!-- Por ahora solo comentarios para futuras extensiones -->
+        
+    </template>
+    
+</odoo>

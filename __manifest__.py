@@ -20,7 +20,7 @@
     """,
     'author': 'Tomás Díaz',
     'website': 'https://www.withinplaygames.com',
-    'depends': ['account', 'l10n_cl', 'l10n_cl_edi'],  # Añadir 'mail' si usas chatter
+    'depends': ['account', 'l10n_cl', 'l10n_cl_edi', 'l10n_cl_edi_stock'],  # Agregar l10n_cl_edi_stock para guías
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
@@ -28,6 +28,7 @@
         'views/report_invoice_fix.xml',
         'views/certification_iecv_book_view.xml',
         'views/certification_delivery_guide_book_view.xml',
+        'views/dte_template_certification.xml',  # Template para referencias SET
         'wizard/certification_reset_wizard_view.xml',
         'wizard/iecv_generator_wizard_view.xml',
         'data/l10n_cl_edi_certification_data.xml',
