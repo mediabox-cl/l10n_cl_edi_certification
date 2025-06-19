@@ -23,6 +23,25 @@
                         invisible="not l10n_cl_edi_certification_case_id or l10n_cl_dte_status in ['accepted', 'objected', 'ask_for_status', 'rejected', 'cancelled'] or l10n_cl_draft_status or country_code != 'CL'"/>
             </xpath>
             
+            <!-- Modificar visibilidad del label y div del folio para certificación -->
+            <xpath expr="//label[@for='l10n_latam_document_number']" position="attributes">
+                <attribute name="invisible">l10n_cl_is_return or (not l10n_cl_draft_status and not l10n_latam_document_number and not l10n_cl_edi_certification_case_id)</attribute>
+            </xpath>
+            
+            <xpath expr="//div[field[@name='l10n_latam_document_number']]" position="attributes">
+                <attribute name="invisible">l10n_cl_is_return or (not l10n_cl_draft_status and not l10n_latam_document_number and not l10n_cl_edi_certification_case_id)</attribute>
+            </xpath>
+            
+            <!-- Modificar visibilidad del campo motivo de transferencia para certificación -->
+            <xpath expr="//field[@name='l10n_cl_delivery_guide_reason']" position="attributes">
+                <attribute name="invisible">country_code != 'CL' and not l10n_cl_edi_certification_case_id</attribute>
+            </xpath>
+            
+            <!-- Modificar visibilidad de la pestaña Delivery Guide para certificación -->
+            <xpath expr="//page[@name='electronic_invoice']" position="attributes">
+                <attribute name="invisible">(country_code != 'CL' or not l10n_cl_dte_status) and not l10n_latam_document_number and not l10n_cl_edi_certification_case_id</attribute>
+            </xpath>
+            
             <!-- Agregar información de certificación -->
             <xpath expr="//field[@name='l10n_cl_delivery_guide_reason']" position="after">
                 <field name="l10n_cl_edi_certification_case_id" readonly="1" 
