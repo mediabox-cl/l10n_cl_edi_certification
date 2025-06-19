@@ -35,6 +35,13 @@
             <attribute name="t-if">picking.sale_id.client_order_ref and not certification_references</attribute>
         </xpath>
         
+        <!-- Agregar TipoDespacho ANTES de IndTraslado solo para ventas (no traslados internos) -->
+        <xpath expr="//IndTraslado" position="before">
+            <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type and picking.l10n_cl_delivery_guide_reason == '1'">
+                <TipoDespacho t-out="picking.l10n_cl_dte_gd_transport_type"/>
+            </t>
+        </xpath>
+        
         <!-- Corregir motivo de traslado para certificación -->
         <xpath expr="//IndTraslado" position="replace">
             <IndTraslado t-out="delivery_guide_reason or picking.l10n_cl_delivery_guide_reason or '1'"/>
