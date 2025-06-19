@@ -275,7 +275,14 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _create_sale_order(self):
         """Create sale.order from DTE case"""
-        partner = self.dte_case_id.partner_id
+        # Asegurar que hay un partner asignado al caso
+        if not self.dte_case_id.partner_id:
+            partner = self._get_available_certification_partner()
+            self.dte_case_id.partner_id = partner
+            _logger.info(f"Partner asignado al caso {self.dte_case_id.case_number_raw}: {partner.name}")
+        else:
+            partner = self.dte_case_id.partner_id
+            _logger.info(f"Usando partner existente del caso: {partner.name}")
         
         sale_order_vals = {
             'partner_id': partner.id,
@@ -1429,15 +1436,15 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _get_available_certification_partner(self):
         """
         Obtiene un partner disponible del pool de certificación.
-        Considera tanto facturas como guías de despacho ya generadas.
+        Considera tanto facturas como guías de despacho ya generadas en este proceso.
         """
-        # Buscar partners ya utilizados en casos DTE (facturas)
+        # Buscar partners ya utilizados en casos DTE (facturas) del proceso actual
         used_partners_in_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
             ('partner_id', '!=', False)
         ]).mapped('partner_id')
         
-        # Buscar partners ya utilizados en guías de despacho generadas
+        # Buscar partners ya utilizados en guías de despacho generadas del proceso actual
         used_partners_in_pickings = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
             ('generated_stock_picking_id', '!=', False)
@@ -1450,6 +1457,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Partners usados en guías: {used_partners_in_pickings.mapped('name')}")
         _logger.info(f"Total partners usados: {all_used_partners.mapped('name')}")
         
+        # Buscar un partner no usado en este proceso
         available_partners = self.env['res.partner'].search([
             ('l10n_cl_edi_certification_partner', '=', True),
             ('id', 'not in', all_used_partners.ids)
@@ -1458,7 +1466,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Partners disponibles: {available_partners.mapped('name')}")
         
         if not available_partners:
-            # Si no hay partners disponibles, usar cualquiera del pool
+            # Si no hay partners únicos disponibles, usar cualquiera del pool
             _logger.warning("No hay partners únicos disponibles, reutilizando del pool")
             available_partners = self.env['res.partner'].search([
                 ('l10n_cl_edi_certification_partner', '=', True)
