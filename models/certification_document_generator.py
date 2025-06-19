@@ -717,17 +717,30 @@ class CertificationDocumentGenerator(models.TransientModel):
         return False
 
     def _map_dispatch_transport_to_code(self, transport_raw):
-        """Mapea el tipo de transporte a código SII."""
+        """
+        Mapea el tipo de transporte a código SII según especificación:
+        1 = Emisor
+        2 = Cliente/Receptor por cuenta propia 
+        3 = Terceros
+        """
         if not transport_raw:
             return False
         
         transport_upper = transport_raw.upper()
+        
+        # Emisor del documento (caso: "EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE")
         if 'EMISOR' in transport_upper:
             return '1'
-        if 'CLIENTE' in transport_upper and 'CUENTA' in transport_upper:
+        
+        # Cliente/Receptor (caso: "CLIENTE")
+        if 'CLIENTE' in transport_upper:
             return '2'
+        
+        # Terceros
         if 'TERCEROS' in transport_upper:
             return '3'
+            
+        # Default para casos no reconocidos
         return False
 
     def _apply_alternative_giro_if_needed(self, invoice):

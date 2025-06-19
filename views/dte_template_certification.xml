@@ -48,10 +48,43 @@
     -->
     <template id="dte_certification_fields" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
         
-        <!-- Si necesitamos modificar otros campos específicos para certificación -->
-        <!-- Por ejemplo, campos del emisor, receptor, etc. -->
-        
-        <!-- Por ahora solo comentarios para futuras extensiones -->
+        <!-- Reemplazar sección de Transporte para incluir información de destino -->
+        <xpath expr="//Transporte" position="replace">
+            <Transporte>
+                <!-- Para certificación, usar direcciones apropiadas según tipo de traslado -->
+                <t t-if="picking.l10n_cl_edi_certification_case_id">
+                    <!-- Incluir tipo de transporte si está disponible -->
+                    <t t-if="picking.l10n_cl_dte_gd_transport_type">
+                        <TipoTrasporte t-out="picking.l10n_cl_dte_gd_transport_type"/>
+                    </t>
+                    
+                    <!-- Traslado interno: emisor = receptor, destino puede ser específico -->
+                    <t t-if="picking.l10n_cl_delivery_guide_reason == '5'">
+                        <DirDest t-out="picking.partner_id.street or ''"/>
+                        <CmnaDest t-out="picking.partner_id.city or ''"/>
+                        <CiudadDest t-out="picking.partner_id.city or ''"/>
+                    </t>
+                    <!-- Venta: usar dirección del cliente como destino -->
+                    <t t-elif="picking.l10n_cl_delivery_guide_reason == '1'">
+                        <DirDest t-out="picking.partner_id.street or ''"/>
+                        <CmnaDest t-out="picking.partner_id.city or ''"/>
+                        <CiudadDest t-out="picking.partner_id.city or ''"/>
+                    </t>
+                    <!-- Otros casos -->
+                    <t t-else="">
+                        <DirDest/>
+                        <CmnaDest/>
+                        <CiudadDest/>
+                    </t>
+                </t>
+                <!-- Guías normales (no certificación) - mantener vacío como estaba -->
+                <t t-else="">
+                    <DirDest/>
+                    <CmnaDest/>
+                    <CiudadDest/>
+                </t>
+            </Transporte>
+        </xpath>
         
     </template>
     
