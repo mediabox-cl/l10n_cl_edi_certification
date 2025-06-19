@@ -1551,6 +1551,10 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Determinar motivo de traslado según dispatch_motive_raw del caso
         delivery_guide_reason = self._get_delivery_guide_reason_from_case()
         
+        # Asegurar que el partner tenga configuración para guías de despacho
+        if not partner.l10n_cl_delivery_guide_price:
+            partner.l10n_cl_delivery_guide_price = 'none'  # Para certificación, no mostrar precios
+            
         picking_vals = {
             'partner_id': partner.id,
             'picking_type_id': self._get_picking_type(movement_config).id,
@@ -1802,8 +1806,9 @@ class CertificationDocumentGenerator(models.TransientModel):
         picking.action_assign()
         _logger.info(f"Stock asignado: {picking.name}")
         
-        # Para certificación, marcar como listo pero no transferir automáticamente
-        # Solo necesitamos el documento, no el movimiento físico real
+        # Para certificación, NO marcar como done automáticamente
+        # El usuario necesita validar manualmente que todo esté correcto
+        _logger.info(f"Picking creado en estado '{picking.state}' - Usuario debe validar manualmente")
         
         # Actualizar caso DTE
         self.dte_case_id.write({

@@ -29,6 +29,7 @@
         'views/certification_iecv_book_view.xml',
         'views/certification_delivery_guide_book_view.xml',
         'views/dte_template_certification.xml',  # Template para referencias SET
+        'views/stock_picking_certification_views.xml',  # Vista extendida para stock.picking
         'wizard/certification_reset_wizard_view.xml',
         'wizard/iecv_generator_wizard_view.xml',
         'data/l10n_cl_edi_certification_data.xml',
