@@ -1656,8 +1656,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         Crea las líneas del picking basadas en los items del caso DTE.
         """
         for item in self.dte_case_id.item_ids:
-            # Buscar o crear producto
-            product = self._get_or_create_product_for_item(item)
+            # Buscar o crear producto para guía de despacho (tipo consumible)
+            product = self._get_product_for_delivery_guide(item.name)
             
             # Crear línea de movimiento
             move_vals = {
@@ -1678,30 +1678,36 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"Creando línea de movimiento: {move_vals}")
             self.env['stock.move'].create(move_vals)
 
-    def _get_or_create_product_for_item(self, item):
+    def _get_product_for_delivery_guide(self, item_name):
         """
-        Obtiene o crea un producto para el item de certificación.
+        Obtiene o crea un producto para guías de despacho.
+        Usa tipo 'consu' (consumible) para permitir movimientos de stock.
         """
-        # Buscar producto existente con nombre similar
-        existing_product = self.env['product.product'].search([
-            ('name', '=', item.name),
-            ('type', '=', 'product')
+        # Buscar producto existente tipo consumible
+        product = self.env['product.product'].search([
+            ('name', '=', item_name),
+            ('type', '=', 'consu')
         ], limit=1)
         
-        if existing_product:
-            return existing_product
+        if product:
+            _logger.info("Producto consumible existente encontrado: %s (ID: %s)", product.name, product.id)
+            return product
         
-        # Crear producto temporal para certificación
-        product_vals = {
-            'name': item.name,
-            'type': 'product',
-            'list_price': item.price_unit,
-            'standard_price': item.price_unit,
-            'default_code': f'CERT-{item.id}',
+        # Crear producto consumible para guía de despacho
+        _logger.info("Creando nuevo producto consumible para guía: %s", item_name)
+        product = self.env['product.product'].create({
+            'name': item_name,
+            'type': 'consu',  # Consumible - permite movimientos de stock
+            'invoice_policy': 'delivery',  # Facturar al entregar
+            'list_price': 0,
+            'standard_price': 0,
+            'sale_ok': True,
+            'purchase_ok': True,
             'categ_id': self._get_certification_product_category().id,
-        }
+        })
         
-        return self.env['product.product'].create(product_vals)
+        _logger.info("✓ Producto consumible creado: %s (ID: %s)", product.name, product.id)
+        return product
 
     def _get_certification_product_category(self):
         """Obtiene o crea categoría para productos de certificación."""
