@@ -199,12 +199,29 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
         """
         self.ensure_one()
         
-        # Buscar casos DTE de tipo 52 (guías de despacho)
+        # DEBUG: Buscar todos los casos DTE del proceso primero
+        all_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
+        ])
+        _logger.info(f"DEBUG: Total casos DTE en proceso {self.certification_process_id.id}: {len(all_cases)}")
+        
+        # DEBUG: Buscar casos DTE de tipo 52
+        type_52_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
+            ('document_type_code', '=', '52'),
+        ])
+        _logger.info(f"DEBUG: Casos DTE tipo 52: {len(type_52_cases)}")
+        for case in type_52_cases:
+            _logger.info(f"  - Caso {case.case_number_raw}: picking_id={case.generated_stock_picking_id.id if case.generated_stock_picking_id else 'None'}")
+        
+        # Buscar casos DTE de tipo 52 (guías de despacho) con picking generado
         guide_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
             ('document_type_code', '=', '52'),
             ('generated_stock_picking_id', '!=', False)
         ])
+        
+        _logger.info(f"DEBUG: Casos DTE tipo 52 con picking: {len(guide_cases)}")
         
         return guide_cases.mapped('generated_stock_picking_id')
     
