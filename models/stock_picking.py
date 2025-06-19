@@ -54,7 +54,7 @@ class StockPicking(models.Model):
             'sequence': 1,
             'document_type': 'SET',
             'folio': folio_ref,
-            'date': case.date_case.strftime('%Y-%m-%d') if case.date_case else fields.Date.today().strftime('%Y-%m-%d'),
+            'date': fields.Date.today().strftime('%Y-%m-%d'),  # Usar fecha actual para certificación
             'reason': f'CASO {case.case_number_raw}',
         }]
         
