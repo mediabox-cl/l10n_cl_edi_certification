@@ -40,12 +40,6 @@
             <IndTraslado t-out="delivery_guide_reason or picking.l10n_cl_delivery_guide_reason or '1'"/>
         </xpath>
         
-        <!-- Agregar TipoDespacho después de IndTraslado para certificación -->
-        <xpath expr="//IndTraslado" position="after">
-            <t t-if="picking.l10n_cl_edi_certification_case_id and picking.l10n_cl_dte_gd_transport_type">
-                <TipoDespacho t-out="picking.l10n_cl_dte_gd_transport_type"/>
-            </t>
-        </xpath>
         
     </template>
     
