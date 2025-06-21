@@ -20,7 +20,7 @@
     """,
     'author': 'Tomás Díaz',
     'website': 'https://www.withinplaygames.com',
-    'depends': ['account', 'l10n_cl', 'l10n_cl_edi', 'l10n_cl_edi_stock'],  # Agregar l10n_cl_edi_stock para guías
+    'depends': ['account', 'l10n_cl', 'l10n_cl_edi', 'l10n_cl_edi_stock', 'l10n_cl_edi_exports'],
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
@@ -37,6 +37,7 @@
         'data/l10n_cl_edi_certification_basic_set_04.xml',
         'data/l10n_cl_edi_certification_purchase_book_04.xml',
         'data/l10n_cl_edi_certification_delivery_guides_04.xml',
+        'data/l10n_cl_edi_certification_export_documents_04.xml',
     ],
     'uninstall_hook': 'uninstall_hook',
     'installable': True,

@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET BASICO DOCUMENTOS DE EXPORTACION (1) - ATENCION: 4329509 -->
+        <record id="parsed_set_04_export_1_4329509" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">50</field>
+            <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (1)</field>
+            <field name="set_type_normalized">export_documents</field>
+            <field name="attention_number">4329509</field>
+            <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (1) - NUMERO DE ATENCION: 4329509</field>
+        </record>
+
+        <!-- CASO 4329509-1 (Factura de Exportacion Electronica) -->
+        <record id="case_dte_04_4329509_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_1_4329509"/>
+            <field name="case_number_raw">4329509-1</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="generation_status">pending</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">MIC (MANIFIESTO INTERNACIONAL)</field>
+            <field name="export_currency_raw">FRANCO SZ</field>
+            <field name="export_payment_terms_raw">ANTICIPO</field>
+            <field name="export_sale_modality_raw">EN CONSIGNACION LIBRE</field>
+            <field name="export_sale_clause_raw">CIF</field>
+            <field name="export_total_sale_clause_amount">2788.29</field>
+            <field name="export_transport_way_raw">FERROVIARIO</field>
+            <field name="export_loading_port_raw">IQUIQUE</field>
+            <field name="export_unloading_port_raw">GUAYAQUIL</field>
+            <field name="export_tare_uom_raw">U</field>
+            <field name="export_gross_weight_uom_raw">PAR</field>
+            <field name="export_net_weight_uom_raw">PAR</field>
+            <field name="export_package_type_raw">PLANCHAS</field>
+            <field name="export_total_packages">56</field>
+            <field name="export_freight_amount">1295.76</field>
+            <field name="export_insurance_amount">602.16</field>
+            <field name="export_recipient_country_raw">ECUADOR</field>
+            <field name="export_destination_country_raw">ECUADOR</field>
+            
+            <field name="raw_text_block">CASO 4329509-1
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                            CANTIDAD	UNIDAD MEDIDA	PRECIO UNITARIO
+CHATARRA DE ALUMINIO                565		PAR		    146
+
+
+REFERENCIA:                                  MIC (MANIFIESTO INTERNACIONAL)
+MONEDA DE LA OPERACION:                      FRANCO SZ
+FORMA DE PAGO EXPORTACION:                   ANTICIPO
+MODALIDAD DE VENTA:                          EN CONSIGNACION LIBRE
+CLAUSULA DE VENTA DE EXPORTACION:            CIF
+TOTAL CLAUSULA DE VENTA:                     2788.29
+VIA DE TRANSPORTE:                           FERROVIARIO
+PUERTO DE EMBARQUE:                          IQUIQUE
+PUERTO DE DESEMBARQUE:                       GUAYAQUIL
+UNIDAD DE MEDIDA DE TARA:                    U
+UNIDAD PESO BRUTO:                           PAR
+UNIDAD PESO NETO:                            PAR
+TIPO DE BULTO:                               PLANCHAS
+TOTAL BULTOS:                                     56
+FLETE (**):                                  1295.76
+SEGURO (**):                                  602.16
+PAIS RECEPTOR Y PAIS DESTINO:                ECUADOR</field>
+        </record>
+
+        <!-- Item para la factura de exportación -->
+        <record id="item_04_4329509_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329509_1"/>
+            <field name="sequence">10</field>
+            <field name="name">CHATARRA DE ALUMINIO</field>
+            <field name="quantity">565.0</field>
+            <field name="price_unit">146.0</field>
+            <field name="uom_raw">PAR</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4329509-2 (Nota de Credito de Exportacion Electronica) -->
+        <record id="case_dte_04_4329509_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_1_4329509"/>
+            <field name="case_number_raw">4329509-2</field>
+            <field name="document_type_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">111</field>
+            <field name="generation_status">pending</field>
+            
+            <field name="raw_text_block">CASO 4329509-2
+==============
+DOCUMENTO		NOTA DE CREDITO DE EXPORTACION ELECTRONICA
+REFERENCIA		FACTURA DE EXPORTACION ELECTRONICA CORRESPONDIENTE A CASO 4329509-1
+RAZON REFERENCIA	DEVOLUCION DE MERCADERIA
+
+ITEM                            CANTIDAD	
+CHATARRA DE ALUMINIO                188	
+
+EL PRECIO UNITARIO DEL ITEM DEBE SER EL MISMO DE LA FACTURA</field>
+        </record>
+
+        <!-- Referencia de la nota de crédito -->
+        <record id="reference_04_4329509_2_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_04_4329509_2"/>
+            <field name="sequence">10</field>
+            <field name="referenced_document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="referenced_sii_case_number">4329509-1</field>
+            <field name="referenced_case_dte_id" ref="case_dte_04_4329509_1"/>
+            <field name="reference_reason_raw">DEVOLUCION DE MERCADERIA</field>
+        </record>
+
+        <!-- Item para la nota de crédito -->
+        <record id="item_04_4329509_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329509_2"/>
+            <field name="sequence">10</field>
+            <field name="name">CHATARRA DE ALUMINIO</field>
+            <field name="quantity">188.0</field>
+            <field name="price_unit">146.0</field>
+            <field name="uom_raw">PAR</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4329509-3 (Nota de Debito de Exportacion Electronica) -->
+        <record id="case_dte_04_4329509_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_1_4329509"/>
+            <field name="case_number_raw">4329509-3</field>
+            <field name="document_type_raw">NOTA DE DEBITO DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">112</field>
+            <field name="generation_status">pending</field>
+            
+            <field name="raw_text_block">CASO 4329509-3
+==============
+DOCUMENTO		NOTA DE DEBITO DE EXPORTACION ELECTRONICA
+REFERENCIA		NOTA DE CREDITO CORRESPONDIENTE A CASO 4329509-2
+RAZON REFERENCIA	ANULA NOTA DE CREDITO</field>
+        </record>
+
+        <!-- Referencia de la nota de débito -->
+        <record id="reference_04_4329509_3_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_04_4329509_3"/>
+            <field name="sequence">10</field>
+            <field name="referenced_document_type_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA</field>
+            <field name="referenced_sii_case_number">4329509-2</field>
+            <field name="referenced_case_dte_id" ref="case_dte_04_4329509_2"/>
+            <field name="reference_reason_raw">ANULA NOTA DE CREDITO</field>
+        </record>
+
+        <!-- SET BASICO DOCUMENTOS DE EXPORTACION (2) - ATENCION: 4329510 -->
+        <record id="parsed_set_04_export_2_4329510" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">51</field>
+            <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (2)</field>
+            <field name="set_type_normalized">export_documents</field>
+            <field name="attention_number">4329510</field>
+            <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (2) - NUMERO DE ATENCION: 4329510</field>
+        </record>
+
+        <!-- CASO 4329510-1 (Factura de Exportacion Electronica - Servicios) -->
+        <record id="case_dte_04_4329510_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_2_4329510"/>
+            <field name="case_number_raw">4329510-1</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="generation_status">pending</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">RESOLUCION SNA</field>
+            <field name="export_currency_raw">DOLAR USA</field>
+            <field name="export_payment_terms_raw">ACRED</field>
+            <field name="export_sale_clause_raw">FOB</field>
+            <field name="export_transport_way_raw">AEREO</field>
+            <field name="export_loading_port_raw">ANTOFAGASTA</field>
+            <field name="export_unloading_port_raw">BREMEN</field>
+            <field name="export_recipient_country_raw">ALEMANIA</field>
+            <field name="export_destination_country_raw">ALEMANIA</field>
+            <field name="export_foreign_commission_percent">10.0</field>
+            
+            <field name="raw_text_block">CASO 4329510-1
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                                    VALOR LINEA
+ASESORIAS Y PROYECTOS PROFESIONALES           9
+
+
+REFERENCIA:					RESOLUCION SNA
+MONEDA DE LA OPERACION:				DOLAR USA
+FORMA DE PAGO EXPORTACION:			ACRED
+CLAUSULA DE VENTA DE EXPORTACION:		FOB
+VIA DE TRANSPORTE:				AEREO
+PUERTO DE EMBARQUE:				ANTOFAGASTA
+PUERTO DE DESEMBARQUE:				BREMEN
+PAIS RECEPTOR Y PAIS DESTINO:			ALEMANIA
+
+%10 RECARGO EN LA LINEA DE ITEM POR COMISIONES EN EL EXTERIOR</field>
+        </record>
+
+        <!-- Item para servicios profesionales -->
+        <record id="item_04_4329510_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329510_1"/>
+            <field name="sequence">10</field>
+            <field name="name">ASESORIAS Y PROYECTOS PROFESIONALES</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">9.0</field>
+            <field name="is_exempt">False</field>
+            <field name="item_line_value">9.0</field>
+        </record>
+
+        <!-- CASO 4329510-2 (Factura de Exportacion Electronica - Productos Agrícolas) -->
+        <record id="case_dte_04_4329510_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_2_4329510"/>
+            <field name="case_number_raw">4329510-2</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="generation_status">pending</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">DUS\nAWB</field>
+            <field name="export_currency_raw">DOLAR USA</field>
+            <field name="export_payment_terms_raw">ACRED</field>
+            <field name="export_sale_modality_raw">A FIRME</field>
+            <field name="export_sale_clause_raw">FOB</field>
+            <field name="export_total_sale_clause_amount">530.32</field>
+            <field name="export_transport_way_raw">AEREO</field>
+            <field name="export_loading_port_raw">ANTOFAGASTA</field>
+            <field name="export_unloading_port_raw">BREMEN</field>
+            <field name="export_tare_uom_raw">U</field>
+            <field name="export_gross_weight_uom_raw">U</field>
+            <field name="export_net_weight_uom_raw">U</field>
+            <field name="export_package_type_raw">CONTENEDOR REFRIGERADO</field>
+            <field name="export_total_packages">19</field>
+            <field name="export_freight_amount">46.87</field>
+            <field name="export_insurance_amount">4.14</field>
+            <field name="export_recipient_country_raw">ALEMANIA</field>
+            <field name="export_destination_country_raw">ALEMANIA</field>
+            <field name="export_foreign_commission_percent">11.0</field>
+            
+            <field name="raw_text_block">CASO 4329510-2
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                                                    CANTIDAD	UNIDAD MEDIDA	PRECIO UNITARIO
+CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70         188		KN	    109
+CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS     159		KN	     58
+
+
+REFERENCIA:					DUS
+REFERENCIA:					AWB
+MONEDA DE LA OPERACION:				DOLAR USA
+FORMA DE PAGO EXPORTACION:			ACRED
+MODALIDAD DE VENTA:				A FIRME
+CLAUSULA DE VENTA DE EXPORTACION:		FOB
+TOTAL CLAUSULA DE VENTA:			 530.32
+VIA DE TRANSPORTE:				AEREO
+PUERTO DE EMBARQUE:				ANTOFAGASTA
+PUERTO DE DESEMBARQUE:				BREMEN
+UNIDAD DE MEDIDA DE TARA:			U
+UNIDAD PESO BRUTO:				U
+UNIDAD PESO NETO:				U
+TIPO DE BULTO:					CONTENEDOR REFRIGERADO
+TOTAL BULTOS:					     19
+FLETE (**):					  46.87
+SEGURO (**):					   4.14
+PAIS RECEPTOR Y PAIS DESTINO:			ALEMANIA
+
+COMISIONES EN EL EXTRANJERO (RECARGOS GLOBALES):  11% DEL TOTAL DE LA CLAUSULA
+DESCUENTO LINEA # 1:   5%</field>
+        </record>
+
+        <!-- Items para productos agrícolas -->
+        <record id="item_04_4329510_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329510_2"/>
+            <field name="sequence">10</field>
+            <field name="name">CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70</field>
+            <field name="quantity">188.0</field>
+            <field name="price_unit">109.0</field>
+            <field name="uom_raw">KN</field>
+            <field name="is_exempt">False</field>
+            <field name="discount_percent">5.0</field>
+        </record>
+
+        <record id="item_04_4329510_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329510_2"/>
+            <field name="sequence">20</field>
+            <field name="name">CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS</field>
+            <field name="quantity">159.0</field>
+            <field name="price_unit">58.0</field>
+            <field name="uom_raw">KN</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4329510-3 (Factura de Exportacion Electronica - Servicios Hoteleros) -->
+        <record id="case_dte_04_4329510_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_04_export_2_4329510"/>
+            <field name="case_number_raw">4329510-3</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="generation_status">pending</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_currency_raw">DOLAR USA</field>
+            <field name="export_client_nationality_raw">ALEMANIA</field>
+            
+            <field name="raw_text_block">CASO 4329510-3
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                            VALOR LINEA
+ALOJAMIENTO HABITACIONES             27
+
+
+MONEDA DE LA OPERACION:		DOLAR USA
+NACIONALIDAD:			ALEMANIA</field>
+        </record>
+
+        <!-- Item para servicios hoteleros -->
+        <record id="item_04_4329510_3_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_04_4329510_3"/>
+            <field name="sequence">10</field>
+            <field name="name">ALOJAMIENTO HABITACIONES</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">27.0</field>
+            <field name="is_exempt">False</field>
+            <field name="item_line_value">27.0</field>
+        </record>
+
+    </data>
+</odoo>

@@ -88,6 +88,14 @@ class CertificationCaseDte(models.Model):
     export_tare_uom_raw = fields.Char(string='Unidad Medida Tara (Raw)')
     export_gross_weight_uom_raw = fields.Char(string='Unidad Peso Bruto (Raw)')
     export_net_weight_uom_raw = fields.Char(string='Unidad Peso Neto (Raw)')
+    export_package_type_raw = fields.Char(string='Tipo de Bulto (Raw)')
+    export_total_packages = fields.Integer(string='Total Bultos')
+    export_recipient_country_raw = fields.Char(string='País Receptor (Raw)')
+    export_destination_country_raw = fields.Char(string='País Destino (Raw)')
+    export_freight_amount = fields.Float(string='Monto Flete')
+    export_insurance_amount = fields.Float(string='Monto Seguro')
+    export_client_nationality_raw = fields.Char(string='Nacionalidad Cliente (Raw)')
+    export_foreign_commission_percent = fields.Float(string='% Comisiones Extranjero')
     
     # Texto original
     raw_text_block = fields.Text(string='Bloque de Texto Original del Caso')
