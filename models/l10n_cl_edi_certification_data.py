@@ -98,6 +98,7 @@ class CertificationCaseDTEReference(models.Model):
     sequence = fields.Integer(string='Secuencia', default=10)
 
     reference_document_text_raw = fields.Text(string='Texto Documento Referenciado (Raw)')
+    referenced_document_type_raw = fields.Char(string='Tipo Documento Referenciado (Raw)')
     referenced_sii_case_number = fields.Char(string='Nº Caso SII Referenciado')
     # Campo de enlace directo al caso DTE referenciado
     referenced_case_dte_id = fields.Many2one(
@@ -106,6 +107,7 @@ class CertificationCaseDTEReference(models.Model):
         help='Enlace directo al caso DTE dentro del mismo proceso de certificación'
     )
     reason_raw = fields.Text(string='Razón Referencia (Raw)')
+    reference_reason_raw = fields.Text(string='Razón Referencia (Raw - Alias)', help='Campo alternativo para compatibilidad')
     reference_code = fields.Selection([
         ('1', '1. Anula Documento Referenciado'),
         ('2', '2. Corrige Texto Documento Referenciado'),
