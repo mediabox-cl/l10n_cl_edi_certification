@@ -94,6 +94,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             elif document_type in ['61', '56']:  # Nota de crédito o débito
                 _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
                 return self._generate_credit_or_debit_note()
+            elif document_type in ['110', '111', '112']:  # Documentos de Exportación
+                _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS DE EXPORTACIÓN")
+                return self._generate_export_document()
             else:  # Factura u otro documento original
                 _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS ORIGINALES")
                 return self._generate_original_document()
@@ -157,6 +160,57 @@ class CertificationDocumentGenerator(models.TransientModel):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Factura Generada',
+            'res_model': 'account.move',
+            'res_id': invoice.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def _generate_export_document(self):
+        """Genera documentos de exportación (110, 111, 112) con campos específicos"""
+        _logger.info(f"Generando documento de exportación (tipo {self.dte_case_id.document_type_code})")
+        
+        # Crear sale.order
+        sale_order = self._create_sale_order()
+        _logger.info(f"Sale Order creada: {sale_order.name}")
+        
+        # Confirmar sale.order
+        sale_order.action_confirm()
+        _logger.info(f"Sale Order confirmada: {sale_order.name}")
+        
+        # Crear factura (en borrador)
+        invoice = self._create_invoice_from_sale_order(sale_order)
+        _logger.info(f"Factura de exportación creada en borrador: {invoice.name}")
+        
+        # Configurar campos específicos de DTE y exportación
+        self._configure_dte_fields_on_invoice(invoice)
+        _logger.info(f"Campos DTE configurados en factura: {invoice.name}")
+        
+        # NUEVO: Configurar campos específicos de exportación
+        self._configure_export_fields_on_invoice(invoice)
+        _logger.info(f"Campos de exportación configurados en factura: {invoice.name}")
+
+        # Aplicar descuento global si existe
+        if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
+            _logger.info(f"Aplicando descuento global: {self.dte_case_id.global_discount_percent}%")
+            self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
+            _logger.info(f"Descuento global aplicado en factura: {invoice.name}")
+
+        # Crear referencias de documentos
+        self._create_document_references_on_invoice(invoice)
+        _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
+        
+        # Vincular caso con factura generada
+        self.dte_case_id.generated_account_move_id = invoice.id
+        self.dte_case_id.generation_status = 'generated'
+        _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA DE EXPORTACIÓN {invoice.name} ===")
+        
+        # Log de éxito
+        _logger.info(f"Factura de exportación generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
+        
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Factura de Exportación Generada',
             'res_model': 'account.move',
             'res_id': invoice.id,
             'view_mode': 'form',
@@ -769,6 +823,111 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"   Motivo: CORRIGE GIRO DEL RECEPTOR")
         else:
             _logger.info(f"✓ Giro normal mantenido para caso {case_number}")
+
+    def _configure_export_fields_on_invoice(self, invoice):
+        """
+        Configura campos específicos de exportación en la factura usando campos de l10n_cl_edi_exports.
+        Mapea los campos export_*_raw del caso DTE a los campos estándar de Odoo para exportación.
+        """
+        self.ensure_one()
+        
+        _logger.info(f"Configurando campos de exportación para caso {self.dte_case_id.case_number_raw}")
+        
+        export_values = {}
+        
+        # 1. Puertos de embarque y desembarque
+        if self.dte_case_id.export_loading_port_raw:
+            loading_port = self._map_port_name_to_record(self.dte_case_id.export_loading_port_raw)
+            if loading_port:
+                export_values['l10n_cl_port_origin_id'] = loading_port.id
+                _logger.info(f"Puerto embarque mapeado: {self.dte_case_id.export_loading_port_raw} → {loading_port.name}")
+        
+        if self.dte_case_id.export_unloading_port_raw:
+            unloading_port = self._map_port_name_to_record(self.dte_case_id.export_unloading_port_raw)
+            if unloading_port:
+                export_values['l10n_cl_port_destination_id'] = unloading_port.id
+                _logger.info(f"Puerto desembarque mapeado: {self.dte_case_id.export_unloading_port_raw} → {unloading_port.name}")
+        
+        # 2. País de destino (si es diferente al del partner)
+        if self.dte_case_id.export_destination_country_raw:
+            destination_country = self._map_country_name_to_record(self.dte_case_id.export_destination_country_raw)
+            if destination_country:
+                export_values['l10n_cl_destination_country_id'] = destination_country.id
+                _logger.info(f"País destino mapeado: {self.dte_case_id.export_destination_country_raw} → {destination_country.name}")
+        
+        # 3. Cantidad de bultos
+        if self.dte_case_id.export_total_packages:
+            export_values['l10n_cl_customs_quantity_of_packages'] = self.dte_case_id.export_total_packages
+            _logger.info(f"Total bultos: {self.dte_case_id.export_total_packages}")
+        
+        # 4. Vía de transporte
+        if self.dte_case_id.export_transport_way_raw:
+            transport_code = self._map_transport_way_to_code(self.dte_case_id.export_transport_way_raw)
+            if transport_code:
+                export_values['l10n_cl_customs_transport_type'] = transport_code
+                _logger.info(f"Vía transporte mapeada: {self.dte_case_id.export_transport_way_raw} → {transport_code}")
+        
+        # 5. Modalidad de venta
+        if self.dte_case_id.export_sale_modality_raw:
+            sale_mode_code = self._map_sale_modality_to_code(self.dte_case_id.export_sale_modality_raw)
+            if sale_mode_code:
+                export_values['l10n_cl_customs_sale_mode'] = sale_mode_code
+                _logger.info(f"Modalidad venta mapeada: {self.dte_case_id.export_sale_modality_raw} → {sale_mode_code}")
+        
+        # 6. Incoterm (cláusula de venta)
+        if self.dte_case_id.export_sale_clause_raw:
+            incoterm = self._map_incoterm_to_record(self.dte_case_id.export_sale_clause_raw)
+            if incoterm:
+                export_values['invoice_incoterm_id'] = incoterm.id
+                _logger.info(f"Incoterm mapeado: {self.dte_case_id.export_sale_clause_raw} → {incoterm.code}")
+        
+        # 7. Configurar partner como extranjero si es necesario
+        if self.dte_case_id.export_client_nationality_raw:
+            self._configure_partner_as_foreign(invoice.partner_id)
+        
+        # 8. Campos específicos adicionales (nuevos en account.move)
+        if self.dte_case_id.export_payment_terms_raw:
+            payment_code = self._map_payment_terms_to_code(self.dte_case_id.export_payment_terms_raw)
+            if payment_code:
+                export_values['l10n_cl_export_payment_terms'] = payment_code
+                _logger.info(f"Forma pago exportación: {self.dte_case_id.export_payment_terms_raw} → {payment_code}")
+        
+        if self.dte_case_id.export_reference_text:
+            export_values['l10n_cl_export_reference_text'] = self.dte_case_id.export_reference_text
+            _logger.info(f"Referencia documental: {self.dte_case_id.export_reference_text[:50]}...")
+        
+        if self.dte_case_id.export_package_type_raw:
+            export_values['l10n_cl_export_package_type'] = self.dte_case_id.export_package_type_raw
+            _logger.info(f"Tipo bulto: {self.dte_case_id.export_package_type_raw}")
+        
+        if self.dte_case_id.export_freight_amount:
+            export_values['l10n_cl_export_freight_amount'] = self.dte_case_id.export_freight_amount
+            _logger.info(f"Monto flete: {self.dte_case_id.export_freight_amount}")
+        
+        if self.dte_case_id.export_insurance_amount:
+            export_values['l10n_cl_export_insurance_amount'] = self.dte_case_id.export_insurance_amount
+            _logger.info(f"Monto seguro: {self.dte_case_id.export_insurance_amount}")
+        
+        if self.dte_case_id.export_foreign_commission_percent:
+            export_values['l10n_cl_export_foreign_commission_percent'] = self.dte_case_id.export_foreign_commission_percent
+            _logger.info(f"% Comisiones extranjero: {self.dte_case_id.export_foreign_commission_percent}")
+        
+        # Aplicar todos los valores
+        if export_values:
+            invoice.write(export_values)
+            _logger.info(f"✓ Campos de exportación configurados: {list(export_values.keys())}")
+        else:
+            _logger.warning("No se configuraron campos de exportación")
+        
+        # Log resumen de configuración
+        _logger.info("=== RESUMEN CONFIGURACIÓN EXPORTACIÓN ===")
+        _logger.info(f"Puerto origen: {invoice.l10n_cl_port_origin_id.name if invoice.l10n_cl_port_origin_id else 'No configurado'}")
+        _logger.info(f"Puerto destino: {invoice.l10n_cl_port_destination_id.name if invoice.l10n_cl_port_destination_id else 'No configurado'}")
+        _logger.info(f"País destino: {invoice.l10n_cl_destination_country_id.name if invoice.l10n_cl_destination_country_id else 'No configurado'}")
+        _logger.info(f"Total bultos: {invoice.l10n_cl_customs_quantity_of_packages}")
+        _logger.info(f"Vía transporte: {invoice.l10n_cl_customs_transport_type}")
+        _logger.info(f"Modalidad venta: {invoice.l10n_cl_customs_sale_mode}")
+        _logger.info(f"Incoterm: {invoice.invoice_incoterm_id.code if invoice.invoice_incoterm_id else 'No configurado'}")
 
     def _generate_credit_note_from_case(self, invoice, case_dte):
         """
@@ -1862,3 +2021,154 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Caso DTE actualizado - Picking: {picking.name}, Partner: {picking.partner_id.name}")
         
         return True
+
+    # === MÉTODOS HELPER PARA MAPEO DE EXPORTACIÓN ===
+    
+    def _map_port_name_to_record(self, port_name_raw):
+        """Mapea nombre de puerto a registro l10n_cl.customs_port"""
+        if not port_name_raw:
+            return self.env['l10n_cl.customs_port']
+        
+        # Buscar por nombre exacto primero
+        port = self.env['l10n_cl.customs_port'].search([
+            ('name', '=ilike', port_name_raw.strip())
+        ], limit=1)
+        
+        if not port:
+            # Buscar por coincidencia parcial
+            port = self.env['l10n_cl.customs_port'].search([
+                ('name', 'ilike', port_name_raw.strip())
+            ], limit=1)
+            
+        if port:
+            _logger.info(f"Puerto encontrado: {port_name_raw} → {port.name} (código: {port.code})")
+        else:
+            _logger.warning(f"Puerto no encontrado: {port_name_raw}")
+            
+        return port
+    
+    def _map_country_name_to_record(self, country_name_raw):
+        """Mapea nombre de país a registro res.country"""
+        if not country_name_raw:
+            return self.env['res.country']
+        
+        # Buscar por nombre exacto primero
+        country = self.env['res.country'].search([
+            ('name', '=ilike', country_name_raw.strip())
+        ], limit=1)
+        
+        if not country:
+            # Buscar por nombre de aduana
+            country = self.env['res.country'].search([
+                ('l10n_cl_customs_name', '=ilike', country_name_raw.strip())
+            ], limit=1)
+            
+        if country:
+            _logger.info(f"País encontrado: {country_name_raw} → {country.name} (código SII: {country.l10n_cl_customs_code})")
+        else:
+            _logger.warning(f"País no encontrado: {country_name_raw}")
+            
+        return country
+    
+    def _map_transport_way_to_code(self, transport_way_raw):
+        """Mapea vía de transporte a código l10n_cl_customs_transport_type"""
+        if not transport_way_raw:
+            return False
+        
+        transport_upper = transport_way_raw.upper()
+        
+        # Mapeo basado en códigos estándar l10n_cl_edi_exports
+        if 'MARITIM' in transport_upper:
+            return '1'  # Marítimo
+        elif 'AERE' in transport_upper or 'AEREO' in transport_upper:
+            return '2'  # Aéreo
+        elif 'TERRESTRE' in transport_upper or 'CARRETERO' in transport_upper:
+            return '3'  # Terrestre
+        elif 'FERROVIARIO' in transport_upper or 'FERROCARRIL' in transport_upper:
+            return '4'  # Ferroviario
+        elif 'POSTAL' in transport_upper:
+            return '5'  # Postal
+        elif 'FLUVIAL' in transport_upper:
+            return '6'  # Fluvial
+        elif 'LACUSTRE' in transport_upper:
+            return '7'  # Lacustre
+        elif 'DUCTOS' in transport_upper or 'OLEODUCTO' in transport_upper:
+            return '8'  # Por ductos
+        elif 'INSTALACION' in transport_upper:
+            return '9'  # Instalación fija de transporte
+        elif 'PROPIO' in transport_upper:
+            return '10' # Propio
+        elif 'MULTIMODAL' in transport_upper:
+            return '11' # Multimodal
+        
+        _logger.warning(f"Vía de transporte no reconocida: {transport_way_raw}")
+        return False
+    
+    def _map_sale_modality_to_code(self, sale_modality_raw):
+        """Mapea modalidad de venta a código l10n_cl_customs_sale_mode"""
+        if not sale_modality_raw:
+            return False
+        
+        modality_upper = sale_modality_raw.upper()
+        
+        # Mapeo basado en códigos estándar l10n_cl_edi_exports
+        if 'FIRME' in modality_upper:
+            return '1'  # Venta firme
+        elif 'CONDICIONAL' in modality_upper:
+            return '2'  # Venta condicional
+        elif 'CONSIGNACION' in modality_upper:
+            return '3'  # Consignación
+        elif 'PRECIO GARANTIZADO' in modality_upper:
+            return '4'  # Precio garantizado
+        elif 'OTROS' in modality_upper:
+            return '5'  # Otros
+        
+        _logger.warning(f"Modalidad de venta no reconocida: {sale_modality_raw}")
+        return False
+    
+    def _map_incoterm_to_record(self, incoterm_raw):
+        """Mapea cláusula de venta (Incoterm) a registro account.incoterms"""
+        if not incoterm_raw:
+            return self.env['account.incoterms']
+        
+        # Buscar por código exacto
+        incoterm = self.env['account.incoterms'].search([
+            ('code', '=ilike', incoterm_raw.strip())
+        ], limit=1)
+        
+        if not incoterm:
+            # Buscar por nombre
+            incoterm = self.env['account.incoterms'].search([
+                ('name', 'ilike', incoterm_raw.strip())
+            ], limit=1)
+            
+        if incoterm:
+            _logger.info(f"Incoterm encontrado: {incoterm_raw} → {incoterm.code} ({incoterm.name})")
+        else:
+            _logger.warning(f"Incoterm no encontrado: {incoterm_raw}")
+            
+        return incoterm
+    
+    def _configure_partner_as_foreign(self, partner):
+        """Configura partner como extranjero si es necesario"""
+        if partner.l10n_cl_sii_taxpayer_type != '4':  # 4 = Extranjero
+            partner.write({'l10n_cl_sii_taxpayer_type': '4'})
+            _logger.info(f"Partner {partner.name} configurado como extranjero")
+    
+    def _map_payment_terms_to_code(self, payment_terms_raw):
+        """Mapea forma de pago exportación a código válido"""
+        if not payment_terms_raw:
+            return False
+        
+        payment_upper = payment_terms_raw.upper()
+        
+        if 'ANTICIPO' in payment_upper:
+            return 'ANTICIPO'
+        elif 'ACRED' in payment_upper or 'CREDITO' in payment_upper:
+            return 'ACRED'
+        elif 'COBRANZA' in payment_upper:
+            return 'COBRANZA'
+        elif 'CONTADO' in payment_upper:
+            return 'CONTADO'
+        else:
+            return 'OTROS'

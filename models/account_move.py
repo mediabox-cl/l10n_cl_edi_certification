@@ -10,6 +10,39 @@ class AccountMove(models.Model):
     l10n_cl_edi_certification_id = fields.Many2one('l10n_cl_edi.certification.process', 
                                                string='Proceso Certificación SII',
                                                help='Proceso de certificación al que pertenece este documento')
+    
+    # === CAMPOS ESPECÍFICOS DE EXPORTACIÓN ===
+    # Campos adicionales no cubiertos por l10n_cl_edi_exports
+    
+    # Forma de pago exportación (Tag 14 DTE)
+    l10n_cl_export_payment_terms = fields.Selection([
+        ('ANTICIPO', 'Anticipo'),
+        ('ACRED', 'Carta de Crédito'),
+        ('COBRANZA', 'Cobranza'),
+        ('CONTADO', 'Contado'),
+        ('OTROS', 'Otros')
+    ], string='Forma de Pago Exportación', help='Forma de pago específica para documentos de exportación')
+    
+    # Referencias documentales (GlosaRefOtra)
+    l10n_cl_export_reference_text = fields.Text(string='Referencia Documental Exportación',
+                                                help='Referencias como MIC, DUS, AWB, RESOLUCION SNA, etc.')
+    
+    # Tipo de bulto específico (TipoBulto)
+    l10n_cl_export_package_type = fields.Char(string='Tipo de Bulto Exportación',
+                                              help='Tipo específico de bulto según tabla SII')
+    
+    # Costos de transporte (MntFlete, MntSeguro)
+    l10n_cl_export_freight_amount = fields.Monetary(string='Monto Flete',
+                                                    help='Monto del flete en moneda de la factura',
+                                                    currency_field='currency_id')
+    l10n_cl_export_insurance_amount = fields.Monetary(string='Monto Seguro',
+                                                      help='Monto del seguro en moneda de la factura',
+                                                      currency_field='currency_id')
+    
+    # Comisiones extranjero (como recargo global)
+    l10n_cl_export_foreign_commission_percent = fields.Float(string='% Comisiones Extranjero',
+                                                             help='Porcentaje de comisiones por agentes en el extranjero',
+                                                             digits=(5, 2))
 
     def _l10n_cl_create_dte_envelope(self, receiver_rut='60803000-K'):
         """
