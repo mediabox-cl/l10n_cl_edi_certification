@@ -304,7 +304,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:  # Documentos originales
             # Asignar automáticamente un partner si no lo tiene
             if not self.dte_case_id.partner_id:
-                partner = self._get_available_certification_partner()
+                # Para documentos de exportación, usar partners extranjeros específicos
+                if self.dte_case_id.document_type_code in ['110', '111', '112']:
+                    partner = self._get_export_partner_for_case()
+                else:
+                    partner = self._get_available_certification_partner()
                 self.dte_case_id.partner_id = partner
                 _logger.info(f"Partner asignado automáticamente al caso {self.dte_case_id.case_number_raw}: {partner.name}")
     
@@ -2175,3 +2179,39 @@ class CertificationDocumentGenerator(models.TransientModel):
             return 'CONTADO'
         else:
             return 'OTROS'
+    
+    def _get_export_partner_for_case(self):
+        """Obtiene partner extranjero específico según el caso de exportación"""
+        self.ensure_one()
+        
+        # Determinar país/nacionalidad basado en los datos del caso
+        country_raw = None
+        nationality_raw = None
+        
+        if hasattr(self.dte_case_id, 'export_client_nationality_raw') and self.dte_case_id.export_client_nationality_raw:
+            nationality_raw = self.dte_case_id.export_client_nationality_raw.upper()
+        elif hasattr(self.dte_case_id, 'export_recipient_country_raw') and self.dte_case_id.export_recipient_country_raw:
+            country_raw = self.dte_case_id.export_recipient_country_raw.upper()
+        elif hasattr(self.dte_case_id, 'export_destination_country_raw') and self.dte_case_id.export_destination_country_raw:
+            country_raw = self.dte_case_id.export_destination_country_raw.upper()
+        
+        # Seleccionar partner específico según nacionalidad/país
+        if nationality_raw and 'ALEMANIA' in nationality_raw:
+            # Servicios hoteleros alemanes
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_hospitality', False)
+        elif country_raw and 'ALEMANIA' in country_raw:
+            # Servicios profesionales alemanes
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_services', False)
+        elif country_raw and 'ECUADOR' in country_raw:
+            # Productos ecuatorianos
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_ecuador_products', False)
+        else:
+            # Partner genérico para otros casos
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign', False)
+        
+        if not partner_id:
+            # Fallback al partner genérico si no se encuentra el específico
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign')
+        
+        _logger.info(f"Partner de exportación seleccionado para caso {self.dte_case_id.case_number_raw}: {partner_id.name} (País/Nacionalidad: {country_raw or nationality_raw or 'GENÉRICO'})")
+        return partner_id
