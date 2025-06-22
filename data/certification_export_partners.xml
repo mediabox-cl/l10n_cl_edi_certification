@@ -8,7 +8,7 @@
         <record id="export_partner_ecuador_products" model="res.partner">
             <field name="name">COMERCIALIZADORA ECUADOR LTDA</field>
             <field name="is_company">True</field>
-            <field name="vat">1792060346001</field>  <!-- RUC Ecuador válido -->
+            <field name="vat">1792060346001</field>  <!-- RUC Ecuador válido para Odoo -->
             <field name="country_id" ref="base.ec"/>  <!-- Ecuador -->
             <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
             <field name="l10n_cl_activity_description">Comercialización de productos metálicos</field>
@@ -24,8 +24,7 @@
         <record id="export_partner_germany_services" model="res.partner">
             <field name="name">DEUTSCHE BERATUNG GMBH</field>
             <field name="is_company">True</field>
-            <field name="vat">DE123456789</field>  <!-- USt-IdNr Alemania válido -->
-            <field name="country_id" ref="base.de"/>  <!-- Alemania -->
+            <field name="country_id" ref="base.de"/>  <!-- Alemania (sin VAT para evitar validación) -->
             <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
             <field name="l10n_cl_activity_description">Servicios de consultoría empresarial</field>
             <field name="street">HAUPTSTRASSE 45</field>
@@ -40,8 +39,7 @@
         <record id="export_partner_germany_hospitality" model="res.partner">
             <field name="name">TURISMO ALEMANIA SERVICIOS SA</field>
             <field name="is_company">True</field>
-            <field name="vat">DE987654321</field>  <!-- USt-IdNr Alemania válido -->
-            <field name="country_id" ref="base.de"/>  <!-- Alemania -->
+            <field name="country_id" ref="base.de"/>  <!-- Alemania (sin VAT para evitar validación) -->
             <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
             <field name="l10n_cl_activity_description">Servicios turísticos y hoteleros</field>
             <field name="street">TOURISTENWEG 78</field>
@@ -56,8 +54,7 @@
         <record id="export_partner_generic_foreign" model="res.partner">
             <field name="name">CLIENTE EXTRANJERO GENERICO</field>
             <field name="is_company">True</field>
-            <field name="vat">12-3456789</field>  <!-- EIN Estados Unidos válido -->
-            <field name="country_id" ref="base.us"/>  <!-- Estados Unidos por defecto -->
+            <field name="country_id" ref="base.us"/>  <!-- Estados Unidos (sin VAT para evitar validación) -->
             <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
             <field name="l10n_cl_activity_description">Actividades comerciales internacionales</field>
             <field name="street">INTERNATIONAL BLVD 999</field>
