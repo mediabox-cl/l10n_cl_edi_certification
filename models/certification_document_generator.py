@@ -302,8 +302,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         if self.dte_case_id.document_type_code in ['61', '56']:  # NC/ND
             self._validate_credit_debit_note_requirements()
         else:  # Documentos originales
+            # Asignar automáticamente un partner si no lo tiene
             if not self.dte_case_id.partner_id:
-                raise UserError("El documento original debe tener un partner asociado")
+                partner = self._get_available_certification_partner()
+                self.dte_case_id.partner_id = partner
+                _logger.info(f"Partner asignado automáticamente al caso {self.dte_case_id.case_number_raw}: {partner.name}")
     
     def _validate_credit_debit_note_requirements(self):
         """Valida requisitos específicos para notas de crédito/débito"""
@@ -329,14 +332,9 @@ class CertificationDocumentGenerator(models.TransientModel):
 
     def _create_sale_order(self):
         """Create sale.order from DTE case"""
-        # Asegurar que hay un partner asignado al caso
-        if not self.dte_case_id.partner_id:
-            partner = self._get_available_certification_partner()
-            self.dte_case_id.partner_id = partner
-            _logger.info(f"Partner asignado al caso {self.dte_case_id.case_number_raw}: {partner.name}")
-        else:
-            partner = self.dte_case_id.partner_id
-            _logger.info(f"Usando partner existente del caso: {partner.name}")
+        # El partner ya debe estar asignado por la validación
+        partner = self.dte_case_id.partner_id
+        _logger.info(f"Usando partner del caso: {partner.name}")
         
         sale_order_vals = {
             'partner_id': partner.id,
