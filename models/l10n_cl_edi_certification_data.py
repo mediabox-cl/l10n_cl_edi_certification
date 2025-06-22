@@ -86,6 +86,7 @@ class CertificationCaseDTEItem(models.Model):
     price_unit = fields.Float(string='Precio Unitario')
     discount_percent = fields.Float(string='Descuento (%)')
     is_exempt = fields.Boolean(string='¿Es Exento?')
+    item_line_value = fields.Float(string='Valor Línea', help='Valor total de la línea (cantidad * precio unitario)')
 
 class CertificationCaseDTEReference(models.Model):
     _name = 'l10n_cl_edi.certification.case.dte.reference'
