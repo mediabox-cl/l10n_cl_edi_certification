@@ -383,14 +383,19 @@ class CertificationDocumentGenerator(models.TransientModel):
             # Obtener o crear producto
             product = self._get_product_for_dte_item(item.name)
             
+            # Usar valores directos - los datos del SII ya están correctos
+            quantity = item.quantity or 1.0
+            price_unit = item.price_unit
+            discount = item.discount_percent or 0.0
+            
             # Preparar valores de la línea
             line_vals = {
                 'order_id': sale_order.id,
                 'product_id': product.id,
                 'name': item.name,
-                'product_uom_qty': item.quantity,
-                'price_unit': item.price_unit,
-                'discount': item.discount_percent or 0.0,
+                'product_uom_qty': quantity,
+                'price_unit': price_unit,
+                'discount': discount,
                 'sequence': sequence * 10,
             }
             
