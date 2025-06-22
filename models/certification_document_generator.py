@@ -2078,60 +2078,59 @@ class CertificationDocumentGenerator(models.TransientModel):
         return country
     
     def _map_transport_way_to_code(self, transport_way_raw):
-        """Mapea vía de transporte a código l10n_cl_customs_transport_type"""
+        """Mapea vía de transporte a código l10n_cl_customs_transport_type válido"""
         if not transport_way_raw:
             return False
         
         transport_upper = transport_way_raw.upper()
         
-        # Mapeo basado en códigos estándar l10n_cl_edi_exports
-        if 'MARITIM' in transport_upper:
-            return '1'  # Marítimo
+        # Mapeo usando códigos válidos de Odoo l10n_cl_edi_exports
+        if 'MARITIM' in transport_upper or 'FLUVIAL' in transport_upper or 'LACUSTRE' in transport_upper:
+            return '01'  # Maritime, river and lake
         elif 'AERE' in transport_upper or 'AEREO' in transport_upper:
-            return '2'  # Aéreo
-        elif 'TERRESTRE' in transport_upper or 'CARRETERO' in transport_upper:
-            return '3'  # Terrestre
-        elif 'FERROVIARIO' in transport_upper or 'FERROCARRIL' in transport_upper:
-            return '4'  # Ferroviario
+            return '04'  # Aerial
         elif 'POSTAL' in transport_upper:
-            return '5'  # Postal
-        elif 'FLUVIAL' in transport_upper:
-            return '6'  # Fluvial
-        elif 'LACUSTRE' in transport_upper:
-            return '7'  # Lacustre
-        elif 'DUCTOS' in transport_upper or 'OLEODUCTO' in transport_upper:
-            return '8'  # Por ductos
-        elif 'INSTALACION' in transport_upper:
-            return '9'  # Instalación fija de transporte
-        elif 'PROPIO' in transport_upper:
-            return '10' # Propio
-        elif 'MULTIMODAL' in transport_upper:
-            return '11' # Multimodal
+            return '05'  # Post
+        elif 'FERROVIARIO' in transport_upper or 'FERROCARRIL' in transport_upper:
+            return '06'  # Railway
+        elif 'TERRESTRE' in transport_upper or 'CARRETERO' in transport_upper:
+            return '07'  # Wagoner / Land
+        elif 'DUCTOS' in transport_upper or 'OLEODUCTO' in transport_upper or 'GASODUCTO' in transport_upper:
+            return '08'  # Pipelines, Gas Pipelines
+        elif 'ELECTRICA' in transport_upper or 'ENERGIA' in transport_upper:
+            return '09'  # Power Line (aerial or underground)
+        elif 'COURIER' in transport_upper or 'MENSAJERIA' in transport_upper:
+            return '11'  # Courier/Air Courier
+        else:
+            return '10'  # Other (para casos no reconocidos)
         
-        _logger.warning(f"Vía de transporte no reconocida: {transport_way_raw}")
-        return False
+        _logger.warning(f"Vía de transporte no reconocida: {transport_way_raw}, usando 'Other'")
+        return '10'
     
     def _map_sale_modality_to_code(self, sale_modality_raw):
-        """Mapea modalidad de venta a código l10n_cl_customs_sale_mode"""
+        """Mapea modalidad de venta a código l10n_cl_customs_sale_mode válido"""
         if not sale_modality_raw:
             return False
         
         modality_upper = sale_modality_raw.upper()
         
-        # Mapeo basado en códigos estándar l10n_cl_edi_exports
-        if 'FIRME' in modality_upper:
-            return '1'  # Venta firme
-        elif 'CONDICIONAL' in modality_upper:
-            return '2'  # Venta condicional
-        elif 'CONSIGNACION' in modality_upper:
-            return '3'  # Consignación
-        elif 'PRECIO GARANTIZADO' in modality_upper:
-            return '4'  # Precio garantizado
-        elif 'OTROS' in modality_upper:
-            return '5'  # Otros
+        # Mapeo usando códigos válidos de Odoo l10n_cl_edi_exports
+        if 'FIRME' in modality_upper or 'A FIRME' in modality_upper:
+            return '1'  # Firmly
+        elif 'CONDICIONAL' in modality_upper or 'CONDICION' in modality_upper:
+            return '2'  # Under condition
+        elif 'CONSIGNACION LIBRE' in modality_upper:
+            return '3'  # Under free consignment
+        elif 'CONSIGNACION' in modality_upper and 'MINIMO' in modality_upper:
+            return '4'  # Under consignment with a minimum firmly
+        elif 'SIN PAGO' in modality_upper or 'GRATUITO' in modality_upper:
+            return '9'  # Without payment
+        else:
+            # Para casos no reconocidos, usar consignación libre como default
+            return '3'  # Under free consignment
         
-        _logger.warning(f"Modalidad de venta no reconocida: {sale_modality_raw}")
-        return False
+        _logger.warning(f"Modalidad de venta no reconocida: {sale_modality_raw}, usando 'Under free consignment'")
+        return '3'
     
     def _map_incoterm_to_record(self, incoterm_raw):
         """Mapea cláusula de venta (Incoterm) a registro account.incoterms"""
