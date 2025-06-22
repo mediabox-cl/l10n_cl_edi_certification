@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- Activar monedas necesarias para documentos de exportación -->
+        
+        <!-- Dólar Estadounidense -->
+        <record id="base.USD" model="res.currency">
+            <field name="active">True</field>
+        </record>
+        
+        <!-- Franco Suizo -->
+        <record id="base.CHF" model="res.currency">
+            <field name="active">True</field>
+        </record>
+        
+        <!-- Euro (por si acaso para casos futuros) -->
+        <record id="base.EUR" model="res.currency">
+            <field name="active">True</field>
+        </record>
+        
+    </data>
+</odoo>

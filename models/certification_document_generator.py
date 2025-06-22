@@ -189,6 +189,10 @@ class CertificationDocumentGenerator(models.TransientModel):
         # NUEVO: Configurar campos específicos de exportación
         self._configure_export_fields_on_invoice(invoice)
         _logger.info(f"Campos de exportación configurados en factura: {invoice.name}")
+        
+        # NUEVO: Configurar moneda de exportación
+        self._configure_export_currency_on_invoice(invoice)
+        _logger.info(f"Moneda de exportación configurada en factura: {invoice.name}")
 
         # Aplicar descuento global si existe
         if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
@@ -340,12 +344,15 @@ class CertificationDocumentGenerator(models.TransientModel):
         partner = self.dte_case_id.partner_id
         _logger.info(f"Usando partner del caso: {partner.name}")
         
+        # Determinar moneda para documentos de exportación
+        currency_id = self._get_export_currency_id() or self.env.company.currency_id.id
+        
         sale_order_vals = {
             'partner_id': partner.id,
             'partner_invoice_id': partner.id,
             'partner_shipping_id': partner.id,
             'company_id': self.env.company.id,
-            'currency_id': self.env.company.currency_id.id,
+            'currency_id': currency_id,
             'pricelist_id': partner.property_product_pricelist.id or self.env.company.currency_id.id,
             'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Referencia al proceso de certificación
             'note': f'Orden generada desde caso de certificación DTE {self.dte_case_id.id}',
@@ -2214,3 +2221,72 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         _logger.info(f"Partner de exportación seleccionado para caso {self.dte_case_id.case_number_raw}: {partner_id.name} (País/Nacionalidad: {country_raw or nationality_raw or 'GENÉRICO'})")
         return partner_id
+    
+    def _configure_export_currency_on_invoice(self, invoice):
+        """Configura la moneda correcta para documentos de exportación"""
+        self.ensure_one()
+        
+        if not hasattr(self.dte_case_id, 'export_currency_raw') or not self.dte_case_id.export_currency_raw:
+            _logger.warning(f"No hay moneda de exportación especificada para caso {self.dte_case_id.case_number_raw}")
+            return
+        
+        currency_raw = self.dte_case_id.export_currency_raw.upper()
+        currency = None
+        
+        # Mapear monedas del SII a códigos ISO de Odoo
+        if 'DOLAR USA' in currency_raw or 'DOLLAR' in currency_raw:
+            currency = self.env.ref('base.USD', False)
+        elif 'FRANCO SZ' in currency_raw or 'FRANC' in currency_raw or 'CHF' in currency_raw:
+            currency = self.env.ref('base.CHF', False)
+        elif 'EURO' in currency_raw or 'EUR' in currency_raw:
+            currency = self.env.ref('base.EUR', False)
+        
+        if currency and currency.active:
+            # Cambiar moneda de la factura
+            invoice.write({'currency_id': currency.id})
+            _logger.info(f"Moneda configurada: {currency_raw} → {currency.name} ({currency.symbol})")
+            
+            # Actualizar también el sale.order asociado si existe
+            if hasattr(invoice, 'invoice_origin') and invoice.invoice_origin:
+                sale_order = self.env['sale.order'].search([('name', '=', invoice.invoice_origin)], limit=1)
+                if sale_order:
+                    sale_order.write({'currency_id': currency.id})
+                    _logger.info(f"Moneda también actualizada en sale.order: {sale_order.name}")
+        else:
+            if currency and not currency.active:
+                _logger.warning(f"Moneda {currency.name} no está activa. Activando automáticamente...")
+                currency.write({'active': True})
+                invoice.write({'currency_id': currency.id})
+                _logger.info(f"Moneda activada y configurada: {currency_raw} → {currency.name}")
+            else:
+                _logger.error(f"Moneda no reconocida: {currency_raw}. Manteniendo CLP por defecto.")
+                # Aquí podríamos crear la moneda automáticamente si fuera necesario
+    
+    def _get_export_currency_id(self):
+        """Obtiene el ID de la moneda de exportación para el sale.order"""
+        self.ensure_one()
+        
+        if not hasattr(self.dte_case_id, 'export_currency_raw') or not self.dte_case_id.export_currency_raw:
+            return None
+        
+        currency_raw = self.dte_case_id.export_currency_raw.upper()
+        
+        # Mapear monedas del SII a códigos ISO de Odoo
+        if 'DOLAR USA' in currency_raw or 'DOLLAR' in currency_raw:
+            currency = self.env.ref('base.USD', False)
+        elif 'FRANCO SZ' in currency_raw or 'FRANC' in currency_raw or 'CHF' in currency_raw:
+            currency = self.env.ref('base.CHF', False)
+        elif 'EURO' in currency_raw or 'EUR' in currency_raw:
+            currency = self.env.ref('base.EUR', False)
+        else:
+            return None
+        
+        if currency:
+            # Activar moneda si no está activa
+            if not currency.active:
+                currency.write({'active': True})
+                _logger.info(f"Moneda {currency.name} activada automáticamente")
+            
+            return currency.id
+        
+        return None
