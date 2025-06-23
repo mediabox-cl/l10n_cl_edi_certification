@@ -20,5 +20,6 @@ from . import certification_delivery_guide_book
 from . import account_move
 from . import stock_picking
 from . import sale_order
+from . import sale_order_line
 from . import l10n_cl_edi_util
 from . import res_partner
