@@ -7,7 +7,7 @@
         <!-- Producto: Chatarra de Aluminio (para Ecuador) -->
         <record id="export_product_aluminum_scrap" model="product.product">
             <field name="name">Chatarra de Aluminio</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">1200.0</field>
             <field name="standard_price">800.0</field>
@@ -58,7 +58,7 @@
         <!-- Producto: Productos Agrícolas (genérico) -->
         <record id="export_product_agricultural" model="product.product">
             <field name="name">Productos Agrícolas</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">50.0</field>
             <field name="standard_price">30.0</field>
@@ -75,7 +75,7 @@
         <!-- Producto: Genérico de Exportación -->
         <record id="export_product_generic" model="product.product">
             <field name="name">Producto Exportación Genérico</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">100.0</field>
             <field name="standard_price">70.0</field>
