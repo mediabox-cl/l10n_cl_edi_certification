@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        
+        <!-- Productos específicos para documentos de exportación (SIN IVA) -->
+        
+        <!-- Producto: Chatarra de Aluminio (para Ecuador) -->
+        <record id="export_product_aluminum_scrap" model="product.product">
+            <field name="name">Chatarra de Aluminio</field>
+            <field name="detailed_type">product</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">1200.0</field>
+            <field name="standard_price">800.0</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">True</field>
+            <field name="default_code">EXP-ALU-001</field>
+            <field name="description">Chatarra de aluminio para exportación</field>
+        </record>
+
+        <!-- Producto: Servicios Profesionales (para Alemania) -->
+        <record id="export_product_professional_services" model="product.product">
+            <field name="name">Servicios Profesionales</field>
+            <field name="detailed_type">service</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">150.0</field>
+            <field name="standard_price">100.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">EXP-SRV-001</field>
+            <field name="description">Servicios profesionales para exportación</field>
+        </record>
+
+        <!-- Producto: Servicios Hoteleros (para Alemania) -->
+        <record id="export_product_hotel_services" model="product.product">
+            <field name="name">Servicios Hoteleros</field>
+            <field name="detailed_type">service</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">200.0</field>
+            <field name="standard_price">120.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="default_code">EXP-HTL-001</field>
+            <field name="description">Servicios hoteleros para exportación</field>
+        </record>
+
+        <!-- Producto: Productos Agrícolas (genérico) -->
+        <record id="export_product_agricultural" model="product.product">
+            <field name="name">Productos Agrícolas</field>
+            <field name="detailed_type">product</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50.0</field>
+            <field name="standard_price">30.0</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">True</field>
+            <field name="default_code">EXP-AGR-001</field>
+            <field name="description">Productos agrícolas para exportación</field>
+        </record>
+
+        <!-- Producto: Genérico de Exportación -->
+        <record id="export_product_generic" model="product.product">
+            <field name="name">Producto Exportación Genérico</field>
+            <field name="detailed_type">product</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">100.0</field>
+            <field name="standard_price">70.0</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">True</field>
+            <field name="default_code">EXP-GEN-001</field>
+            <field name="description">Producto genérico para certificación de exportación</field>
+        </record>
+
+    </data>
+</odoo>

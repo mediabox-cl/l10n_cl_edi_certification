@@ -436,8 +436,13 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _get_product_for_dte_item(self, item_name):
         """
         Obtiene o crea un producto para el item del DTE.
-        Crea productos únicos sin SKU genérico para evitar duplicados.
+        Para documentos de exportación, usa productos específicos SIN IVA.
         """
+        # PARA DOCUMENTOS DE EXPORTACIÓN: usar productos específicos sin IVA
+        if self.dte_case_id.document_type_code in ['110', '111', '112']:
+            return self._get_export_product_for_item(item_name)
+        
+        # Para documentos normales, usar la lógica existente
         # Buscar producto existente por nombre exacto
         product = self.env['product.product'].search([
             ('name', '=', item_name)
@@ -461,6 +466,32 @@ class CertificationDocumentGenerator(models.TransientModel):
         })
         
         _logger.info("✓ Producto creado: %s (ID: %s)", product.name, product.id)
+        return product
+    
+    def _get_export_product_for_item(self, item_name):
+        """
+        Obtiene producto específico de exportación SIN IVA según el nombre del item.
+        """
+        item_upper = item_name.upper()
+        
+        # Mapear según el tipo de producto/servicio
+        if 'CHATARRA' in item_upper or 'ALUMINIO' in item_upper:
+            product = self.env.ref('l10n_cl_edi_certification.export_product_aluminum_scrap', False)
+        elif 'SERVICIO' in item_upper and ('PROFESIONAL' in item_upper or 'CONSULTOR' in item_upper):
+            product = self.env.ref('l10n_cl_edi_certification.export_product_professional_services', False)
+        elif 'SERVICIO' in item_upper and ('HOTEL' in item_upper or 'TURISM' in item_upper):
+            product = self.env.ref('l10n_cl_edi_certification.export_product_hotel_services', False)
+        elif 'AGRICOLA' in item_upper or 'FRUTA' in item_upper or 'VERDURA' in item_upper:
+            product = self.env.ref('l10n_cl_edi_certification.export_product_agricultural', False)
+        else:
+            # Producto genérico para otros casos
+            product = self.env.ref('l10n_cl_edi_certification.export_product_generic', False)
+        
+        if not product:
+            # Fallback al producto genérico
+            product = self.env.ref('l10n_cl_edi_certification.export_product_generic')
+        
+        _logger.info(f"✓ Producto de exportación seleccionado: '{item_name}' → {product.name} (SIN IVA)")
         return product
 
     def _configure_dte_fields_on_invoice(self, invoice):
@@ -2290,3 +2321,4 @@ class CertificationDocumentGenerator(models.TransientModel):
             return currency.id
         
         return None
+    
