@@ -16,8 +16,8 @@
             <!-- Agregar MntFlete y MntSeguro para documentos de exportación -->
             <xpath expr="//CodPaisRecep" position="after">
                 <t t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112')">
-                    <MntFlete t-if="getattr(move, 'export_freight_amount', 0) and move.export_freight_amount > 0" t-out="'%.4f' % move.export_freight_amount"/>
-                    <MntSeguro t-if="getattr(move, 'export_insurance_amount', 0) and move.export_insurance_amount > 0" t-out="'%.4f' % move.export_insurance_amount"/>
+                    <MntFlete t-if="move.export_freight_amount and move.export_freight_amount > 0" t-out="'%.4f' % move.export_freight_amount"/>
+                    <MntSeguro t-if="move.export_insurance_amount and move.export_insurance_amount > 0" t-out="'%.4f' % move.export_insurance_amount"/>
                 </t>
             </xpath>
             
