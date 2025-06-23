@@ -933,9 +933,7 @@ class CertificationDocumentGenerator(models.TransientModel):
                     'company_id': self.certification_process_id.company_id.id,
                     'line_ids': [(0, 0, {
                         'value': 'balance',
-                        'months': 0,
-                        'days': 0,
-                        'end_month': False,
+                        'nb_days': 0,
                     })]
                 })
                 _logger.info(f"Término de pago creado: {payment_term.name} (código SII: {sii_code})")
