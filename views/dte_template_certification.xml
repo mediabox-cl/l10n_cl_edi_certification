@@ -23,7 +23,7 @@
             
             <!-- Override TotClauVenta para usar valor específico del test set en exportaciones -->
             <xpath expr="//TotClauVenta" position="replace">
-                <TotClauVenta t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112') and getattr(move, 'export_total_sale_clause_amount', 0)" t-out="'%.2f' % move.export_total_sale_clause_amount"/>
+                <TotClauVenta t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112') and move.export_total_sale_clause_amount and move.export_total_sale_clause_amount > 0" t-out="'%.2f' % move.export_total_sale_clause_amount"/>
                 <TotClauVenta t-elif="move.l10n_latam_document_type_id._is_doc_type_export()" t-out="'%.2f' % move._l10n_cl_get_amounts()['total_amount']"/>
             </xpath>
         </template>
