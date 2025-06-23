@@ -47,25 +47,10 @@ class AccountMove(models.Model):
     def _l10n_cl_create_dte_envelope(self, receiver_rut='60803000-K'):
         """
         Override para procesos de certificación DTE.
-        Para documentos de exportación, reemplaza RUT del receptor por 55555555-5.
         """
-        # Para documentos de exportación, forzar RUT genérico de extranjero
-        if self.l10n_latam_document_type_id.code in ['110', '111', '112']:
-            # Temporalmente cambiar el VAT del partner para la generación del XML
-            original_vat = self.partner_id.vat
-            self.partner_id.vat = '55555555-5'
-            _logger.info(f"✓ Documento de exportación: RUT receptor cambiado de {original_vat} → 55555555-5")
-            
-            try:
-                # Llamar al método original con RUT modificado
-                dte_signed, file_name = super()._l10n_cl_create_dte_envelope(receiver_rut)
-            finally:
-                # Restaurar el VAT original
-                self.partner_id.vat = original_vat
-                _logger.info(f"✓ VAT restaurado a: {original_vat}")
-        else:
-            # Para documentos no-exportación, flujo normal
-            dte_signed, file_name = super()._l10n_cl_create_dte_envelope(receiver_rut)
+        # Para documentos de certificación, usar flujo normal
+        # El RUT genérico 55555555-5 se maneja directamente en el template XML
+        dte_signed, file_name = super()._l10n_cl_create_dte_envelope(receiver_rut)
         
         # Log para certificación
         if hasattr(self, 'l10n_cl_edi_certification_id') or self._context.get('l10n_cl_edi_certification'):

@@ -408,8 +408,12 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'sequence': sequence * 10,
             }
             
-            # Configurar impuestos según si es exento o no
-            if item.is_exempt:
+            # PARA DOCUMENTOS DE EXPORTACIÓN: SIEMPRE SIN IMPUESTOS
+            if self.dte_case_id.document_type_code in ['110', '111', '112']:
+                line_vals['tax_id'] = [(6, 0, [])]  # Sin impuestos para exportación
+                _logger.info(f"Línea de exportación configurada SIN impuestos: {item.name}")
+            # Para documentos normales, configurar impuestos según si es exento o no
+            elif item.is_exempt:
                 line_vals['tax_id'] = [(6, 0, [])]  # Sin impuestos
             else:
                 # Usar el impuesto configurado por defecto
