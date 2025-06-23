@@ -92,8 +92,8 @@ class CertificationCaseDte(models.Model):
     export_total_packages = fields.Integer(string='Total Bultos')
     export_recipient_country_raw = fields.Char(string='País Receptor (Raw)')
     export_destination_country_raw = fields.Char(string='País Destino (Raw)')
-    export_freight_amount = fields.Float(string='Monto Flete')
-    export_insurance_amount = fields.Float(string='Monto Seguro')
+    export_freight_amount = fields.Float(string='Monto Flete', digits=(18, 4), help='MntFlete: Monto del flete con 4 decimales')
+    export_insurance_amount = fields.Float(string='Monto Seguro', digits=(18, 4), help='MntSeguro: Monto del seguro con 4 decimales')
     export_client_nationality_raw = fields.Char(string='Nacionalidad Cliente (Raw)')
     export_foreign_commission_percent = fields.Float(string='% Comisiones Extranjero')
     

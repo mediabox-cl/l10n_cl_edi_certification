@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 class L10nClEdiUtilMixin(models.AbstractModel):
     _inherit = 'l10n_cl.edi.util'
 
+
     def _send_xml_to_sii(self, mode, company_website, params, digital_signature, post='/cgi_dte/UPL/DTEUpload'):
         """
         Override para interceptar y loggear respuestas del SII en formato raw.

@@ -193,6 +193,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         # NUEVO: Configurar moneda de exportación
         self._configure_export_currency_on_invoice(invoice)
         _logger.info(f"Moneda de exportación configurada en factura: {invoice.name}")
+        
 
         # Aplicar descuento global si existe
         if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
@@ -411,7 +412,10 @@ class CertificationDocumentGenerator(models.TransientModel):
             # PARA DOCUMENTOS DE EXPORTACIÓN: SIEMPRE SIN IMPUESTOS
             if self.dte_case_id.document_type_code in ['110', '111', '112']:
                 line_vals['tax_id'] = [(6, 0, [])]  # Sin impuestos para exportación
-                _logger.info(f"Línea de exportación configurada SIN impuestos: {item.name}")
+                # Agregar UOM raw para documentos de exportación
+                if item.uom_raw:
+                    line_vals['uom_raw'] = item.uom_raw
+                _logger.info(f"Línea de exportación configurada SIN impuestos: {item.name}, UOM: {item.uom_raw}")
             # Para documentos normales, configurar impuestos según si es exento o no
             elif item.is_exempt:
                 line_vals['tax_id'] = [(6, 0, [])]  # Sin impuestos
@@ -768,6 +772,33 @@ class CertificationDocumentGenerator(models.TransientModel):
             references_to_create.append(reference_values)
             _logger.info(f"Referencia agregada: {reference_values}")
         
+        # Para documentos de exportación, agregar referencia documental si existe
+        if (self.dte_case_id.document_type_code in ['110', '111', '112'] and 
+            hasattr(self.dte_case_id, 'export_reference_text') and 
+            self.dte_case_id.export_reference_text):
+            
+            _logger.info(f"Agregando referencia documental de exportación: {self.dte_case_id.export_reference_text}")
+            
+            # Buscar tipo de documento para referencia documental (puede ser genérico)
+            doc_ref_type = self.env['l10n_latam.document.type'].search([
+                ('code', '=', 'DOC'),  # Documento genérico
+                ('country_id.code', '=', 'CL')
+            ], limit=1)
+            
+            if not doc_ref_type:
+                # Fallback: usar tipo SET si no existe DOC
+                doc_ref_type = set_doc_type
+            
+            if doc_ref_type:
+                references_to_create.append({
+                    'move_id': invoice.id,
+                    'l10n_cl_reference_doc_type_id': doc_ref_type.id,
+                    'origin_doc_number': 'MIC',  # Código del documento
+                    'reason': self.dte_case_id.export_reference_text,
+                    'date': fields.Date.context_today(self),
+                })
+                _logger.info(f"Referencia documental de exportación agregada: {self.dte_case_id.export_reference_text}")
+        
         # Crear todas las referencias
         if references_to_create:
             _logger.info(f"Creando {len(references_to_create)} referencias")
@@ -873,6 +904,47 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:
             _logger.info(f"✓ Giro normal mantenido para caso {case_number}")
 
+    def _get_or_create_export_payment_term(self, payment_term_raw):
+        """Obtiene o crea término de pago para exportación con código SII"""
+        self.ensure_one()
+        
+        # Mapeo de términos de pago SII para exportación
+        payment_term_mapping = {
+            'ANTICIPO': ('1', 'Anticipo'),
+            'ACRED': ('2', 'Carta de Crédito'),
+            'CONTADO': ('1', 'Contado'),
+            'CREDITO': ('2', 'Crédito'),
+        }
+        
+        if payment_term_raw.upper() in payment_term_mapping:
+            sii_code, name = payment_term_mapping[payment_term_raw.upper()]
+            
+            # Buscar término de pago existente
+            payment_term = self.env['account.payment.term'].search([
+                ('l10n_cl_sii_code', '=', sii_code),
+                ('company_id', 'in', [self.certification_process_id.company_id.id, False])
+            ], limit=1)
+            
+            if not payment_term:
+                # Crear término de pago si no existe
+                payment_term = self.env['account.payment.term'].create({
+                    'name': f'{name} (Exportación)',
+                    'l10n_cl_sii_code': sii_code,
+                    'company_id': self.certification_process_id.company_id.id,
+                    'line_ids': [(0, 0, {
+                        'value': 'balance',
+                        'months': 0,
+                        'days': 0,
+                        'end_month': False,
+                    })]
+                })
+                _logger.info(f"Término de pago creado: {payment_term.name} (código SII: {sii_code})")
+            
+            return payment_term
+        else:
+            _logger.warning(f"Término de pago no reconocido: {payment_term_raw}")
+            return False
+
     def _configure_export_fields_on_invoice(self, invoice):
         """
         Configura campos específicos de exportación en la factura usando campos de l10n_cl_edi_exports.
@@ -950,17 +1022,28 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"Tipo bulto: {self.dte_case_id.export_package_type_raw}")
         
         if self.dte_case_id.export_freight_amount:
-            export_values['l10n_cl_export_freight_amount'] = self.dte_case_id.export_freight_amount
+            export_values['export_freight_amount'] = self.dte_case_id.export_freight_amount
             _logger.info(f"Monto flete: {self.dte_case_id.export_freight_amount}")
         
         if self.dte_case_id.export_insurance_amount:
-            export_values['l10n_cl_export_insurance_amount'] = self.dte_case_id.export_insurance_amount
+            export_values['export_insurance_amount'] = self.dte_case_id.export_insurance_amount
             _logger.info(f"Monto seguro: {self.dte_case_id.export_insurance_amount}")
+        
+        if self.dte_case_id.export_total_sale_clause_amount:
+            export_values['export_total_sale_clause_amount'] = self.dte_case_id.export_total_sale_clause_amount
+            _logger.info(f"Total cláusula venta: {self.dte_case_id.export_total_sale_clause_amount}")
         
         if self.dte_case_id.export_foreign_commission_percent:
             export_values['l10n_cl_export_foreign_commission_percent'] = self.dte_case_id.export_foreign_commission_percent
             _logger.info(f"% Comisiones extranjero: {self.dte_case_id.export_foreign_commission_percent}")
         
+        # Configurar forma de pago para exportación
+        if self.dte_case_id.export_payment_terms_raw:
+            payment_term = self._get_or_create_export_payment_term(self.dte_case_id.export_payment_terms_raw)
+            if payment_term:
+                export_values['invoice_payment_term_id'] = payment_term.id
+                _logger.info(f"Forma de pago configurada: {self.dte_case_id.export_payment_terms_raw} → {payment_term.name}")
+
         # Aplicar todos los valores
         if export_values:
             invoice.write(export_values)

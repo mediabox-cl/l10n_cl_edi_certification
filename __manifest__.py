@@ -21,6 +21,9 @@
     'author': 'Tomás Díaz',
     'website': 'https://www.withinplaygames.com',
     'depends': ['account', 'l10n_cl', 'l10n_cl_edi', 'l10n_cl_edi_stock', 'l10n_cl_edi_exports'],
+    'external_dependencies': {
+        'python': ['lxml'],
+    },
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',

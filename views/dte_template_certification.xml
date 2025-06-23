@@ -7,6 +7,25 @@
             <xpath expr="//RUTRecep" position="replace">
                 <RUTRecep t-out="'55555555-5' if move.l10n_latam_document_type_id.code in ('110', '111', '112') else format_vat(move.commercial_partner_id.vat)"/>
             </xpath>
+            
+            <!-- Override UnmdItem para documentos de exportación -->
+            <xpath expr="//UnmdItem" position="replace">
+                <UnmdItem t-out="getattr(line, 'uom_raw', '') if move.l10n_latam_document_type_id.code in ('110', '111', '112') and hasattr(line, 'uom_raw') and line.uom_raw else format_uom(line.product_uom_id)"/>
+            </xpath>
+            
+            <!-- Agregar MntFlete y MntSeguro para documentos de exportación -->
+            <xpath expr="//CodPaisRecep" position="after">
+                <t t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112')">
+                    <MntFlete t-if="getattr(move, 'export_freight_amount', 0) and move.export_freight_amount > 0" t-out="'%.4f' % move.export_freight_amount"/>
+                    <MntSeguro t-if="getattr(move, 'export_insurance_amount', 0) and move.export_insurance_amount > 0" t-out="'%.4f' % move.export_insurance_amount"/>
+                </t>
+            </xpath>
+            
+            <!-- Override TotClauVenta para usar valor específico del test set en exportaciones -->
+            <xpath expr="//TotClauVenta" position="replace">
+                <TotClauVenta t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112') and getattr(move, 'export_total_sale_clause_amount', 0)" t-out="'%.2f' % move.export_total_sale_clause_amount"/>
+                <TotClauVenta t-elif="move.l10n_latam_document_type_id._is_doc_type_export()" t-out="'%.2f' % move._l10n_cl_get_amounts()['total_amount']"/>
+            </xpath>
         </template>
 
     </data>
