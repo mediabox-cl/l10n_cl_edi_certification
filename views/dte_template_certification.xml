@@ -10,7 +10,12 @@
             
             <!-- Override UnmdItem para documentos de exportación -->
             <xpath expr="//UnmdItem" position="replace">
-                <UnmdItem t-out="getattr(line, 'uom_raw', '') if move.l10n_latam_document_type_id.code in ('110', '111', '112') and hasattr(line, 'uom_raw') and line.uom_raw else format_uom(line.product_uom_id)"/>
+                <t t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112') and hasattr(line, 'uom_raw') and line.uom_raw">
+                    <UnmdItem t-out="line.uom_raw"/>
+                </t>
+                <t t-else="">
+                    <UnmdItem t-out="format_uom(line.product_uom_id) if line.product_uom_id else 'U'"/>
+                </t>
             </xpath>
             
             <!-- Agregar MntFlete y MntSeguro para documentos de exportación -->
