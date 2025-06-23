@@ -932,7 +932,8 @@ class CertificationDocumentGenerator(models.TransientModel):
                     'l10n_cl_sii_code': sii_code,
                     'company_id': self.certification_process_id.company_id.id,
                     'line_ids': [(0, 0, {
-                        'value': 'balance',
+                        'value': 'percent',
+                        'value_amount': 100,
                         'nb_days': 0,
                     })]
                 })
