@@ -9,9 +9,16 @@ class SaleOrderLine(models.Model):
     
     def _prepare_invoice_line(self, **optional_values):
         """Override para pasar uom_raw a la línea de factura"""
+        import logging
+        _logger = logging.getLogger(__name__)
+        
         vals = super()._prepare_invoice_line(**optional_values)
+        _logger.info(f"DEBUG _prepare_invoice_line: self.uom_raw = '{self.uom_raw}' (type: {type(self.uom_raw)})")
         if self.uom_raw:
             vals['uom_raw'] = self.uom_raw
+            _logger.info(f"UOM raw transferido a vals: {self.uom_raw}")
+        else:
+            _logger.warning(f"UOM raw está vacío en sale.order.line: {self.name}")
         return vals
 
 class AccountMoveLine(models.Model):

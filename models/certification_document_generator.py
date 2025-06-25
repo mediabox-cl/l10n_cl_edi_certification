@@ -413,8 +413,12 @@ class CertificationDocumentGenerator(models.TransientModel):
             if self.dte_case_id.document_type_code in ['110', '111', '112']:
                 line_vals['tax_id'] = [(6, 0, [])]  # Sin impuestos para exportación
                 # Agregar UOM raw para documentos de exportación
+                _logger.info(f"DEBUG: item.uom_raw = '{item.uom_raw}' (type: {type(item.uom_raw)})")
                 if item.uom_raw:
                     line_vals['uom_raw'] = item.uom_raw
+                    _logger.info(f"UOM raw asignado: {item.uom_raw}")
+                else:
+                    _logger.warning(f"UOM raw está vacío para item: {item.name}")
                 _logger.info(f"Línea de exportación configurada SIN impuestos: {item.name}, UOM: {item.uom_raw}")
             # Para documentos normales, configurar impuestos según si es exento o no
             elif item.is_exempt:
