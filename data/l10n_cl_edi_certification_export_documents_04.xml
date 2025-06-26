@@ -101,10 +101,12 @@ EL PRECIO UNITARIO DEL ITEM DEBE SER EL MISMO DE LA FACTURA</field>
         <record id="reference_04_4329509_2_1" model="l10n_cl_edi.certification.case.dte.reference">
             <field name="case_dte_id" ref="case_dte_04_4329509_2"/>
             <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA DE EXPORTACION ELECTRONICA CORRESPONDIENTE A CASO 4329509-1</field>
             <field name="referenced_document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
             <field name="referenced_sii_case_number">4329509-1</field>
             <field name="referenced_case_dte_id" ref="case_dte_04_4329509_1"/>
-            <field name="reference_reason_raw">DEVOLUCION DE MERCADERIA</field>
+            <field name="reason_raw">DEVOLUCION DE MERCADERIA</field>
+            <field name="reference_code">3</field>
         </record>
 
         <!-- Item para la nota de crédito -->
@@ -137,10 +139,12 @@ RAZON REFERENCIA	ANULA NOTA DE CREDITO</field>
         <record id="reference_04_4329509_3_1" model="l10n_cl_edi.certification.case.dte.reference">
             <field name="case_dte_id" ref="case_dte_04_4329509_3"/>
             <field name="sequence">10</field>
+            <field name="reference_document_text_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA CORRESPONDIENTE A CASO 4329509-2</field>
             <field name="referenced_document_type_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA</field>
             <field name="referenced_sii_case_number">4329509-2</field>
             <field name="referenced_case_dte_id" ref="case_dte_04_4329509_2"/>
-            <field name="reference_reason_raw">ANULA NOTA DE CREDITO</field>
+            <field name="reason_raw">ANULA NOTA DE CREDITO</field>
+            <field name="reference_code">1</field>
         </record>
 
         <!-- SET BASICO DOCUMENTOS DE EXPORTACION (2) - ATENCION: 4329510 -->
