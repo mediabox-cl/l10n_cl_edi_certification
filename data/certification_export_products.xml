@@ -6,7 +6,7 @@
         
         <!-- Producto: Chatarra de Aluminio (para Ecuador) -->
         <record id="export_product_aluminum_scrap" model="product.product">
-            <field name="name">Chatarra de Aluminio</field>
+            <field name="name">CHATARRA DE ALUMINIO</field>
             <field name="type">consu</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">1200.0</field>
@@ -23,7 +23,7 @@
 
         <!-- Producto: Servicios Profesionales (para Alemania) -->
         <record id="export_product_professional_services" model="product.product">
-            <field name="name">Servicios Profesionales</field>
+            <field name="name">ASESORIAS Y PROYECTOS PROFESIONALES</field>
             <field name="type">service</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">150.0</field>
@@ -40,7 +40,7 @@
 
         <!-- Producto: Servicios Hoteleros (para Alemania) -->
         <record id="export_product_hotel_services" model="product.product">
-            <field name="name">Servicios Hoteleros</field>
+            <field name="name">ALOJAMIENTO HABITACIONES</field>
             <field name="type">service</field>
             <field name="categ_id" ref="product.product_category_all"/>
             <field name="list_price">200.0</field>
@@ -55,7 +55,41 @@
             <field name="description">Servicios hoteleros para exportación</field>
         </record>
 
-        <!-- Producto: Productos Agrícolas (genérico) -->
+        <!-- Producto: Ciruelas (Set 2 - Caso 4329510-2) -->
+        <record id="export_product_ciruelas" model="product.product">
+            <field name="name">CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70</field>
+            <field name="type">consu</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">109.0</field>
+            <field name="standard_price">80.0</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">True</field>
+            <field name="default_code">EXP-CIR-001</field>
+            <field name="description">Ciruelas para exportación - Set 4329510</field>
+        </record>
+
+        <!-- Producto: Pasas de Uva (Set 2 - Caso 4329510-2) -->
+        <record id="export_product_pasas" model="product.product">
+            <field name="name">CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS</field>
+            <field name="type">consu</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">58.0</field>
+            <field name="standard_price">40.0</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="supplier_taxes_id" eval="[(5,)]"/>  <!-- SIN IMPUESTOS -->
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">True</field>
+            <field name="default_code">EXP-PAS-001</field>
+            <field name="description">Pasas de uva para exportación - Set 4329510</field>
+        </record>
+
+        <!-- Producto: Productos Agrícolas (genérico - mantener para otros casos) -->
         <record id="export_product_agricultural" model="product.product">
             <field name="name">Productos Agrícolas</field>
             <field name="type">consu</field>

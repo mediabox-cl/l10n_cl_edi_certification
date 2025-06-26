@@ -486,13 +486,17 @@ class CertificationDocumentGenerator(models.TransientModel):
         """
         item_upper = item_name.upper()
         
-        # Mapear según el tipo de producto/servicio
-        if 'CHATARRA' in item_upper or 'ALUMINIO' in item_upper:
+        # Mapear según el nombre exacto del item
+        if 'CHATARRA' in item_upper and 'ALUMINIO' in item_upper:
             product = self.env.ref('l10n_cl_edi_certification.export_product_aluminum_scrap', False)
-        elif 'SERVICIO' in item_upper and ('PROFESIONAL' in item_upper or 'CONSULTOR' in item_upper):
+        elif 'ASESORIAS' in item_upper and 'PROYECTOS' in item_upper and 'PROFESIONALES' in item_upper:
             product = self.env.ref('l10n_cl_edi_certification.export_product_professional_services', False)
-        elif 'SERVICIO' in item_upper and ('HOTEL' in item_upper or 'TURISM' in item_upper):
+        elif 'ALOJAMIENTO' in item_upper and 'HABITACIONES' in item_upper:
             product = self.env.ref('l10n_cl_edi_certification.export_product_hotel_services', False)
+        elif 'CIRUELAS' in item_upper and 'CALIBRE' in item_upper:
+            product = self.env.ref('l10n_cl_edi_certification.export_product_ciruelas', False)
+        elif 'PASAS' in item_upper and 'UVA' in item_upper and 'FLAME' in item_upper:
+            product = self.env.ref('l10n_cl_edi_certification.export_product_pasas', False)
         elif 'AGRICOLA' in item_upper or 'FRUTA' in item_upper or 'VERDURA' in item_upper:
             product = self.env.ref('l10n_cl_edi_certification.export_product_agricultural', False)
         else:
