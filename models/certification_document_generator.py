@@ -22,6 +22,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         required=True,
         help='Proceso de certificación al que pertenece el caso'
     )
+    for_batch = fields.Boolean(
+        string='Para Batch',
+        default=False,
+        help='Si True, genera documento para proceso batch con nuevos folios CAF'
+    )
 
     # Campos computados para información
     document_type_code = fields.Char(
@@ -35,46 +40,64 @@ class CertificationDocumentGenerator(models.TransientModel):
         readonly=True
     )
 
-    def generate_document(self):
-        """Generate invoice, credit note or debit note from DTE case"""
+    def generate_document(self, for_batch=False):
+        """Generate invoice, credit note or debit note from DTE case
+        
+        Args:
+            for_batch (bool): Si True, genera un nuevo documento para el proceso batch con nuevos folios CAF
+        """
         _logger.info(f"=== INICIANDO GENERACIÓN DE DOCUMENTO PARA CASO {self.dte_case_id.id} ===")
         
-        # **NUEVA VERIFICACIÓN: Comprobar si ya existe una factura vinculada**
-        if self.dte_case_id.generated_account_move_id:
-            _logger.info(f"Caso {self.dte_case_id.id} ya tiene documento vinculado: {self.dte_case_id.generated_account_move_id.name}")
-            if self.dte_case_id.generated_account_move_id.state == 'draft':
-                _logger.info("El documento existente está en borrador, se puede continuar editando")
-                return {
-                    'type': 'ir.actions.act_window',
-                    'name': 'Documento Existente',
-                    'res_model': 'account.move',
-                    'res_id': self.dte_case_id.generated_account_move_id.id,
-                    'view_mode': 'form',
-                    'target': 'current',
-                }
-            else:
-                _logger.info(f"El documento existente está en estado: {self.dte_case_id.generated_account_move_id.state}")
-                raise UserError(f"Este caso DTE ya tiene un documento generado: {self.dte_case_id.generated_account_move_id.name} (Estado: {self.dte_case_id.generated_account_move_id.state})")
+        if for_batch:
+            # **MODO BATCH: Generar nuevo documento con nuevos folios CAF**
+            _logger.info(f"Modo batch: Generando nuevo documento con nuevos folios CAF")
+            
+            # Si ya existe documento batch, reutilizarlo
+            if self.dte_case_id.generated_batch_account_move_id:
+                _logger.info(f"Reutilizando documento batch existente: {self.dte_case_id.generated_batch_account_move_id.name}")
+                return self.dte_case_id.generated_batch_account_move_id
+            
+            # Generar nuevo documento específicamente para batch
+            # (continúa con la lógica normal de generación pero guardará en generated_batch_account_move_id)
+            
+        else:
+            # **MODO NORMAL: Verificar documento individual existente**
+            if self.dte_case_id.generated_account_move_id:
+                _logger.info(f"Caso {self.dte_case_id.id} ya tiene documento vinculado: {self.dte_case_id.generated_account_move_id.name}")
+                if self.dte_case_id.generated_account_move_id.state == 'draft':
+                    _logger.info("El documento existente está en borrador, se puede continuar editando")
+                    return {
+                        'type': 'ir.actions.act_window',
+                        'name': 'Documento Existente',
+                        'res_model': 'account.move',
+                        'res_id': self.dte_case_id.generated_account_move_id.id,
+                        'view_mode': 'form',
+                        'target': 'current',
+                    }
+                else:
+                    _logger.info(f"El documento existente está en estado: {self.dte_case_id.generated_account_move_id.state}")
+                    raise UserError(f"Este caso DTE ya tiene un documento generado: {self.dte_case_id.generated_account_move_id.name} (Estado: {self.dte_case_id.generated_account_move_id.state})")
         
-        # **NUEVA VERIFICACIÓN: Buscar documentos duplicados por referencia**
-        existing_moves = self.env['account.move'].search([
-            ('ref', '=', f'Certificación DTE - Caso {self.dte_case_id.id}'),
-            ('state', '!=', 'cancel')
-        ])
-        if existing_moves:
-            _logger.warning(f"Encontrados documentos existentes con referencia del caso {self.dte_case_id.id}: {existing_moves.mapped('name')}")
-            # Vincular el primer documento encontrado si no hay vinculación
-            if not self.dte_case_id.generated_account_move_id and existing_moves:
-                self.dte_case_id.generated_account_move_id = existing_moves[0]
-                _logger.info(f"Vinculado documento existente {existing_moves[0].name} al caso {self.dte_case_id.id}")
-                return {
-                    'type': 'ir.actions.act_window',
-                    'name': 'Documento Recuperado',
-                    'res_model': 'account.move',
-                    'res_id': existing_moves[0].id,
-                    'view_mode': 'form',
-                    'target': 'current',
-                }
+            # **VERIFICACIÓN: Buscar documentos duplicados por referencia (solo modo normal)**
+            existing_moves = self.env['account.move'].search([
+                ('ref', '=', f'Certificación DTE - Caso {self.dte_case_id.id}'),
+                ('state', '!=', 'cancel')
+            ])
+            if existing_moves:
+                _logger.warning(f"Encontrados documentos existentes con referencia del caso {self.dte_case_id.id}: {existing_moves.mapped('name')}")
+                # Vincular el primer documento encontrado si no hay vinculación
+                if not self.dte_case_id.generated_account_move_id and existing_moves:
+                    self.dte_case_id.generated_account_move_id = existing_moves[0]
+                    _logger.info(f"Vinculado documento existente {existing_moves[0].name} al caso {self.dte_case_id.id}")
+                    return {
+                        'type': 'ir.actions.act_window',
+                        'name': 'Documento Recuperado',
+                        'res_model': 'account.move',
+                        'res_id': existing_moves[0].id,
+                        'view_mode': 'form',
+                        'target': 'current',
+                    }
+        
 
         try:
             # Validar datos requeridos
@@ -138,10 +161,14 @@ class CertificationDocumentGenerator(models.TransientModel):
         self._create_document_references_on_invoice(invoice)
         _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
         
-        # **MEJORAR VINCULACIÓN: Guardar relación y agregar logging**
-        self.dte_case_id.generated_account_move_id = invoice.id
-        self.dte_case_id.generation_status = 'generated'
-        _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
+        # **VINCULACIÓN: Guardar en el campo correcto según el modo**
+        if self.for_batch:
+            self.dte_case_id.generated_batch_account_move_id = invoice.id
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA BATCH {invoice.name} ===")
+        else:
+            self.dte_case_id.generated_account_move_id = invoice.id
+            self.dte_case_id.generation_status = 'generated'
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA {invoice.name} ===")
         
         # Log de éxito
         _logger.info(f"Factura generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
@@ -205,10 +232,14 @@ class CertificationDocumentGenerator(models.TransientModel):
         self._create_document_references_on_invoice(invoice)
         _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
         
-        # Vincular caso con factura generada
-        self.dte_case_id.generated_account_move_id = invoice.id
-        self.dte_case_id.generation_status = 'generated'
-        _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA DE EXPORTACIÓN {invoice.name} ===")
+        # **VINCULACIÓN: Guardar en el campo correcto según el modo (exportación)**
+        if self.for_batch:
+            self.dte_case_id.generated_batch_account_move_id = invoice.id
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA BATCH DE EXPORTACIÓN {invoice.name} ===")
+        else:
+            self.dte_case_id.generated_account_move_id = invoice.id
+            self.dte_case_id.generation_status = 'generated'
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA DE EXPORTACIÓN {invoice.name} ===")
         
         # Log de éxito
         _logger.info(f"Factura de exportación generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")

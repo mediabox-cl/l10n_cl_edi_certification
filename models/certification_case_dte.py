@@ -45,6 +45,12 @@ class CertificationCaseDte(models.Model):
         readonly=True,
         help='Factura generada desde este caso DTE'
     )
+    generated_batch_account_move_id = fields.Many2one(
+        'account.move',
+        string='Factura Batch Generada',
+        readonly=True,
+        help='Factura regenerada para proceso de envío consolidado con nuevos folios CAF'
+    )
     generated_stock_picking_id = fields.Many2one(
         'stock.picking',
         string='Guía de Despacho Generada',

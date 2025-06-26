@@ -264,29 +264,37 @@ class CertificationBatchFile(models.Model):
         
         for case in relevant_cases:
             try:
-                # Utilizar el generador de documentos existente
+                # Utilizar el generador de documentos en modo batch
                 generator = self.env['l10n_cl_edi.certification.document.generator'].create({
                     'dte_case_id': case.id,
-                    'certification_process_id': process.id
+                    'certification_process_id': process.id,
+                    'for_batch': True
                 })
                 
-                # Regenerar documento
-                result = generator.generate_document()
+                # Generar documento batch con nuevos folios CAF
+                result = generator.generate_document(for_batch=True)
                 
-                # Obtener el documento generado/actualizado
-                if case.generated_account_move_id:
-                    document = case.generated_account_move_id
-                    
-                    # Asegurar que el documento esté confirmado
-                    if document.state == 'draft':
-                        document.action_post()
-                    
-                    # Verificar que tenga XML DTE
-                    if document.l10n_cl_dte_file:
-                        regenerated_documents.append(document)
-                        _logger.info(f"Documento regenerado para caso {case.case_number_raw}")
-                    else:
-                        _logger.warning(f"Documento sin XML DTE para caso {case.case_number_raw}")
+                # Obtener el documento generado para batch
+                if isinstance(result, self.env['account.move'].__class__):
+                    # El resultado es directamente el documento
+                    document = result
+                elif case.generated_batch_account_move_id:
+                    # Obtener del campo batch
+                    document = case.generated_batch_account_move_id
+                else:
+                    _logger.warning(f"No se pudo obtener documento batch para caso {case.case_number_raw}")
+                    continue
+                
+                # Asegurar que el documento esté confirmado
+                if document.state == 'draft':
+                    document.action_post()
+                
+                # Verificar que tenga XML DTE
+                if document.l10n_cl_dte_file:
+                    regenerated_documents.append(document)
+                    _logger.info(f"Documento regenerado para caso {case.case_number_raw}")
+                else:
+                    _logger.warning(f"Documento sin XML DTE para caso {case.case_number_raw}")
                 
             except Exception as e:
                 _logger.error(f"Error regenerando documento para caso {case.case_number_raw}: {str(e)}")
