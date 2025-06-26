@@ -149,14 +149,27 @@ class CertificationIECVBookBase(models.Model):
                 record.total_amount = 0
     
     def _get_sales_documents(self):
-        """Obtiene documentos de venta para IEV"""
+        """Obtiene documentos de venta para IEV
+        
+        IMPORTANTE: Usa documentos batch si están disponibles (con nuevos folios CAF)
+        """
         if not self.certification_process_id:
             return self.env['account.move']
         
-        # Obtener documentos del proceso de certificación
-        sales_docs = self.certification_process_id.test_invoice_ids.filtered(
-            lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
-        )
+        # PRIORIDAD 1: Intentar obtener documentos batch (con nuevos folios CAF)
+        batch_docs = self.certification_process_id.get_batch_documents(['33', '34', '56', '61'])
+        
+        if batch_docs:
+            _logger.info(f"Usando {len(batch_docs)} documentos BATCH para IEV (nuevos folios CAF)")
+            sales_docs = batch_docs.filtered(
+                lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
+            )
+        else:
+            _logger.info("No hay documentos batch, usando documentos individuales para IEV")
+            # FALLBACK: Usar documentos individuales si no hay batch
+            sales_docs = self.certification_process_id.test_invoice_ids.filtered(
+                lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
+            )
         
         # Filtrar por período
         if self.period_year and self.period_month:

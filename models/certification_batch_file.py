@@ -127,17 +127,17 @@ class CertificationBatchFile(models.Model):
     @api.model
     def generate_batch_ventas(self, certification_process_id):
         """Generar LIBRO DE VENTAS (IEV)"""
-        return self._generate_batch_file(certification_process_id, 'ventas', 'LIBRO DE VENTAS (IEV)')
+        return self._generate_iecv_book(certification_process_id, 'ventas', 'LIBRO DE VENTAS (IEV)', 'IEV')
 
     @api.model
     def generate_batch_compras(self, certification_process_id):
         """Generar LIBRO DE COMPRAS (IEC)"""
-        return self._generate_batch_file(certification_process_id, 'compras', 'LIBRO DE COMPRAS (IEC)')
+        return self._generate_iecv_book(certification_process_id, 'compras', 'LIBRO DE COMPRAS (IEC)', 'IEC')
 
     @api.model
     def generate_batch_libro_guias(self, certification_process_id):
         """Generar LIBRO DE GUÍAS"""
-        return self._generate_batch_file(certification_process_id, 'libro_guias', 'LIBRO DE GUÍAS')
+        return self._generate_iecv_book(certification_process_id, 'libro_guias', 'LIBRO DE GUÍAS', 'LIBRO_GUIAS')
 
     @api.model
     def generate_batch_exportacion1(self, certification_process_id):
@@ -255,6 +255,88 @@ class CertificationBatchFile(models.Model):
         
         return all_cases.filtered(lambda c: c.document_type_code in relevant_doc_types)
 
+    def _generate_iecv_book(self, certification_process_id, set_type, name, book_type):
+        """Genera libros IECV usando documentos batch con nuevos folios CAF"""
+        _logger.info(f"=== INICIANDO GENERACIÓN LIBRO {book_type.upper()} ===")
+        
+        # Obtener proceso de certificación
+        process = self.env['l10n_cl_edi.certification.process'].browse(certification_process_id)
+        if not process.exists():
+            raise UserError(_('Proceso de certificación no encontrado'))
+
+        try:
+            # 1. Validar prerequisitos
+            self._validate_ready_for_batch_generation(process, set_type)
+            
+            # 2. Asegurar que existan documentos batch para libros
+            if set_type in ['ventas', 'compras']:
+                relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
+                # Para libros, necesitamos generar documentos batch si no existen
+                for case in relevant_cases:
+                    if not case.generated_batch_account_move_id:
+                        _logger.info(f"Generando documento batch faltante para caso {case.case_number_raw}")
+                        # Generar documento batch para este caso
+                        generator = self.env['l10n_cl_edi.certification.document.generator'].create({
+                            'dte_case_id': case.id,
+                            'certification_process_id': process.id,
+                            'for_batch': True
+                        })
+                        generator.generate_document(for_batch=True)
+            
+            # 3. Usar el sistema IECV existente para generar el libro con documentos batch
+            iecv_book = self.env['l10n_cl_edi.certification.iecv_book'].create({
+                'certification_process_id': certification_process_id,
+                'book_type': book_type,
+                'period_year': process.test_invoice_ids[0].invoice_date.year if process.test_invoice_ids else 2024,
+                'period_month': process.test_invoice_ids[0].invoice_date.month if process.test_invoice_ids else 12,
+            })
+            
+            # 4. Generar el XML del libro (usará automáticamente documentos batch)
+            iecv_book.action_generate_xml()
+            
+            # 5. Crear archivo batch con el contenido del libro IECV
+            if iecv_book.xml_file:
+                xml_content = base64.b64decode(iecv_book.xml_file).decode('ISO-8859-1')
+                
+                batch_file = self.create({
+                    'certification_id': certification_process_id,
+                    'name': name,
+                    'set_type': set_type,
+                    'xml_content': xml_content,
+                    'file_data': iecv_book.xml_file,  # Ya está en base64
+                    'document_count': len(iecv_book._get_sales_documents()) if book_type == 'IEV' else len(iecv_book._get_purchase_entries()),
+                    'state': 'generated'
+                })
+                
+                _logger.info(f"Libro {book_type} generado exitosamente")
+                
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Libro Generado'),
+                        'message': _('Se generó exitosamente %s') % name,
+                        'type': 'success',
+                        'sticky': False,
+                    }
+                }
+            else:
+                raise UserError(_('Error: No se pudo generar el XML del libro IECV'))
+                
+        except Exception as e:
+            _logger.error(f"Error generando libro {book_type}: {str(e)}")
+            
+            # Crear registro de error
+            self.create({
+                'certification_id': certification_process_id,
+                'name': f"{name} (Error)",
+                'set_type': set_type,
+                'state': 'error',
+                'error_message': str(e)
+            })
+            
+            raise UserError(_('Error generando libro: %s') % str(e))
+
     def _regenerate_test_documents(self, process, set_type):
         """Regenerar documentos del set con nuevos folios CAF"""
         _logger.info(f"Regenerando documentos para set {set_type}")
@@ -317,8 +399,8 @@ class CertificationBatchFile(models.Model):
                     _logger.warning(f"Documento {document.name} sin archivo DTE")
                     continue
                 
-                # Decodificar XML
-                xml_data = base64.b64decode(document.l10n_cl_dte_file).decode('ISO-8859-1')
+                # Decodificar XML del attachment
+                xml_data = document.sudo().l10n_cl_dte_file.raw.decode('ISO-8859-1')
                 
                 # Parsear con lxml
                 root = etree.fromstring(xml_data.encode('ISO-8859-1'))

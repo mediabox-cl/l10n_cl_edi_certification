@@ -90,18 +90,25 @@ class CertificationIECVBookActions(models.AbstractModel):
         """Validaciones específicas para libro de ventas"""
         documents = self._get_sales_documents()
         if not documents:
-            # Verificar si hay facturas no vinculadas que necesitan recuperación
+            # Verificar si hay documentos batch o individuales
+            batch_docs = self.certification_process_id.get_batch_documents(['33', '34', '56', '61'])
             all_invoices = self.certification_process_id.test_invoice_ids
-            if not all_invoices:
+            
+            if not batch_docs and not all_invoices:
                 raise UserError(_('''No hay documentos de venta para incluir en el libro IEV.
                 
 Esto puede deberse a:
                 1. Las facturas no están vinculadas al proceso de certificación
                 2. No se han generado aún los DTEs
+                3. No se han generado documentos batch para consolidación
                 
-Solución: Use el botón "Recuperar Facturas" en la pestaña Libros IECV'''))
+Solución: 
+- Para proceso normal: Use el botón "Recuperar Facturas" en la pestaña Libros IECV
+- Para consolidación: Genere primero los sets consolidados en la pestaña Finalización'''))
             else:
-                raise UserError(_(f'Las {len(all_invoices)} facturas no coinciden con el período {self.period_display}'))
+                available_docs = len(batch_docs) if batch_docs else len(all_invoices)
+                doc_type = "batch" if batch_docs else "individuales"
+                raise UserError(_(f'Los {available_docs} documentos {doc_type} no coinciden con el período {self.period_display}'))
     
     def _validate_purchase_requirements(self):
         """Validaciones específicas para libro de compras"""

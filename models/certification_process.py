@@ -101,6 +101,13 @@ class CertificationProcess(models.Model):
         compute='_compute_batch_files_count',
         string='Archivos Consolidados'
     )
+    
+    # Campos dinámicos para detectar sets disponibles
+    available_batch_sets = fields.Text(
+        compute='_compute_available_batch_sets',
+        string='Sets Disponibles',
+        help='Sets de documentos disponibles para generar envío consolidado'
+    )
 
     # Checklists
     has_digital_signature = fields.Boolean(compute='_compute_has_digital_signature', string='Firma Digital')
@@ -423,6 +430,100 @@ class CertificationProcess(models.Model):
     def _compute_batch_files_count(self):
         for record in self:
             record.batch_files_count = len(record.generated_batch_files)
+    
+    def _compute_available_batch_sets(self):
+        """Detecta dinámicamente qué tipos de sets están disponibles basado en casos generados"""
+        for record in self:
+            sets_info = record._get_available_sets_info()
+            record.available_batch_sets = str(sets_info)  # Para debugging
+    
+    def _get_available_sets_info(self):
+        """Retorna información de sets disponibles con conteos de documentos"""
+        # Obtener todos los casos DTE del proceso
+        all_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+            ('generation_status', '=', 'generated')  # Solo casos con documentos generados
+        ])
+        
+        # Mapeo de tipos de documento a categorías de sets
+        doc_type_mappings = {
+            'basico': {'types': ['33', '34', '56', '61'], 'name': 'SET BÁSICO', 'icon': 'fa-file-text'},
+            'guias': {'types': ['52'], 'name': 'SET GUÍAS DE DESPACHO', 'icon': 'fa-truck'},
+            'exportacion1': {'types': ['110'], 'name': 'SET EXPORTACIÓN 1', 'icon': 'fa-globe'},
+            'exportacion2': {'types': ['111', '112'], 'name': 'SET EXPORTACIÓN 2', 'icon': 'fa-globe'},
+        }
+        
+        available_sets = {}
+        
+        for set_key, set_info in doc_type_mappings.items():
+            # Contar casos de este tipo
+            matching_cases = all_cases.filtered(lambda c: c.document_type_code in set_info['types'])
+            if matching_cases:
+                available_sets[set_key] = {
+                    'name': set_info['name'],
+                    'icon': set_info['icon'],
+                    'count': len(matching_cases),
+                    'doc_types': list(set(matching_cases.mapped('document_type_code')))
+                }
+        
+        # Agregar libros IECV si hay documentos generados
+        if all_cases:
+            # Libro de ventas
+            sales_cases = all_cases.filtered(lambda c: c.document_type_code in ['33', '34', '56', '61'])
+            if sales_cases:
+                available_sets['ventas'] = {
+                    'name': 'LIBRO DE VENTAS (IEV)',
+                    'icon': 'fa-book',
+                    'count': len(sales_cases),
+                    'doc_types': list(set(sales_cases.mapped('document_type_code')))
+                }
+            
+            # Libro de compras (simulado)
+            available_sets['compras'] = {
+                'name': 'LIBRO DE COMPRAS (IEC)',
+                'icon': 'fa-book',
+                'count': len(all_cases),  # Simula entradas de compra
+                'doc_types': ['simulated']
+            }
+            
+            # Libro de guías
+            guide_cases = all_cases.filtered(lambda c: c.document_type_code in ['52'])
+            if guide_cases:
+                available_sets['libro_guias'] = {
+                    'name': 'LIBRO DE GUÍAS',
+                    'icon': 'fa-book',
+                    'count': len(guide_cases),
+                    'doc_types': list(set(guide_cases.mapped('document_type_code')))
+                }
+        
+        return available_sets
+    
+    def get_batch_documents(self, document_types=None):
+        """Obtiene documentos batch generados para envío consolidado
+        
+        Args:
+            document_types (list): Lista de tipos de documento a filtrar (ej: ['33', '34'])
+            
+        Returns:
+            recordset: Documentos batch (account.move) con nuevos folios CAF
+        """
+        # Obtener todos los casos DTE con documentos batch
+        cases_with_batch = self.env['l10n_cl_edi.certification.case.dte'].search([
+            ('parsed_set_id.certification_process_id', '=', self.id),
+            ('generated_batch_account_move_id', '!=', False)
+        ])
+        
+        # Filtrar por tipos de documento si se especifica
+        if document_types:
+            cases_with_batch = cases_with_batch.filtered(
+                lambda c: c.document_type_code in document_types
+            )
+        
+        # Retornar los documentos batch
+        batch_documents = cases_with_batch.mapped('generated_batch_account_move_id')
+        
+        _logger.info(f"Obtenidos {len(batch_documents)} documentos batch para tipos {document_types}")
+        return batch_documents
     
     def _compute_has_digital_signature(self):
         for record in self:
