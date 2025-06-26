@@ -246,10 +246,10 @@ class CertificationDocumentGenerator(models.TransientModel):
         if ref.referenced_case_dte_id:
             _logger.info(f"   - Tipo caso referenciado: '{ref.referenced_case_dte_id.document_type_code}'")
         
-        if (self.dte_case_id.document_type_code == '56' and  # Es nota de débito
+        if (self.dte_case_id.document_type_code in ['56', '111'] and  # Es nota de débito (nacional o exportación)
             ref.reference_code == '1' and  # Código anulación
             ref.referenced_case_dte_id and 
-            ref.referenced_case_dte_id.document_type_code == '61'):  # Referencia a NC
+            ref.referenced_case_dte_id.document_type_code in ['61', '112']):  # Referencia a NC (nacional o exportación)
             
             _logger.info(f"🎯 DETECTADO: ND que anula NC (caso {self.dte_case_id.case_number_raw})")
             return self._generate_debit_note_from_credit_note()
