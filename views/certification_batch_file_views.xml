@@ -80,11 +80,5 @@
             <field name="view_id" ref="view_l10n_cl_edi_certification_batch_file_list"/>
         </record>
 
-        <!-- Menu Item -->
-        <menuitem id="menu_l10n_cl_edi_certification_batch_files"
-                  name="Archivos Consolidados"
-                  parent="l10n_cl_edi.menu_l10n_cl_edi_certification"
-                  action="action_l10n_cl_edi_certification_batch_file"
-                  sequence="60"/>
     </data>
 </odoo>
