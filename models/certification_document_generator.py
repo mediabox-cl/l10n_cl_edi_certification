@@ -547,6 +547,14 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(self.dte_case_id.dispatch_motive_raw),
                 'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(self.dte_case_id.dispatch_transport_type_raw),
             })
+        elif self.dte_case_id.document_type_code in ['110', '111', '112']:  # Documentos de exportación
+            # Determinar si es un servicio basado en los productos
+            service_indicator = self._determine_export_service_indicator()
+            if service_indicator:
+                invoice_vals['l10n_cl_customs_service_indicator'] = service_indicator
+                _logger.info(f"✓ Indicador de servicio asignado: {service_indicator}")
+            else:
+                _logger.info("✓ No es servicio - productos físicos")
         
         # Verificar configuración de la empresa
         company = self.certification_process_id.company_id
@@ -2411,4 +2419,31 @@ class CertificationDocumentGenerator(models.TransientModel):
             return currency.id
         
         return None
+    
+    def _determine_export_service_indicator(self):
+        """
+        Determina el indicador de servicio para documentos de exportación basado en los tipos de productos
+        """
+        self.ensure_one()
+        
+        # Verificar los items del caso DTE para determinar si son servicios
+        items = self.dte_case_id.item_ids
+        if not items:
+            return None
+        
+        # Analizar el primer item para determinar el tipo
+        first_item = items[0]
+        item_name = first_item.name.upper()
+        
+        # Mapear según el tipo de servicio basado en el nombre del item
+        if 'ALOJAMIENTO' in item_name or 'HABITACION' in item_name or 'HOTEL' in item_name:
+            _logger.info(f"Servicio hotelero detectado: {first_item.name}")
+            return '4'  # Hotel services
+        elif any(keyword in item_name for keyword in ['ASESORIAS', 'CONSULTORIA', 'PROFESIONAL', 'SERVICIO']):
+            _logger.info(f"Servicio profesional detectado: {first_item.name}")
+            return '3'  # Services
+        else:
+            # No es un servicio, probablemente productos físicos
+            _logger.info(f"Producto físico detectado: {first_item.name}")
+            return None
     
