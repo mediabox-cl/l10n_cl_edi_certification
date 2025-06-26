@@ -82,7 +82,7 @@ PAIS RECEPTOR Y PAIS DESTINO:                ECUADOR</field>
             <field name="parsed_set_id" ref="parsed_set_04_export_1_4329509"/>
             <field name="case_number_raw">4329509-2</field>
             <field name="document_type_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA</field>
-            <field name="document_type_code">111</field>
+            <field name="document_type_code">112</field>
             <field name="generation_status">pending</field>
             
             <field name="raw_text_block">CASO 4329509-2
@@ -125,7 +125,7 @@ EL PRECIO UNITARIO DEL ITEM DEBE SER EL MISMO DE LA FACTURA</field>
             <field name="parsed_set_id" ref="parsed_set_04_export_1_4329509"/>
             <field name="case_number_raw">4329509-3</field>
             <field name="document_type_raw">NOTA DE DEBITO DE EXPORTACION ELECTRONICA</field>
-            <field name="document_type_code">112</field>
+            <field name="document_type_code">111</field>
             <field name="generation_status">pending</field>
             
             <field name="raw_text_block">CASO 4329509-3
