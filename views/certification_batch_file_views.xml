@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="view_l10n_cl_edi_certification_batch_file_list" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.batch_file.list</field>
+            <field name="model">l10n_cl_edi.certification.batch_file</field>
+            <field name="arch" type="xml">
+                <list create="false" edit="false" delete="true">
+                    <field name="name"/>
+                    <field name="set_type"/>
+                    <field name="document_count"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'generated'"
+                           decoration-info="state == 'downloaded'"
+                           decoration-danger="state == 'error'"/>
+                    <field name="generation_date"/>
+                    <field name="filename"/>
+                    <button name="action_download_file" string="Descargar" type="object"
+                            class="btn-primary" icon="fa-download"
+                            invisible="state != 'generated'"/>
+                    <button name="action_regenerate" string="Regenerar" type="object"
+                            class="btn-secondary" icon="fa-refresh"
+                            invisible="state == 'generated'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_l10n_cl_edi_certification_batch_file_form" model="ir.ui.view">
+            <field name="name">l10n_cl_edi.certification.batch_file.form</field>
+            <field name="model">l10n_cl_edi.certification.batch_file</field>
+            <field name="arch" type="xml">
+                <form create="false" edit="false">
+                    <header>
+                        <button name="action_download_file" string="Descargar Archivo"
+                                type="object" class="oe_highlight"
+                                invisible="state != 'generated'"
+                                icon="fa-download"/>
+                        <button name="action_regenerate" string="Regenerar"
+                                type="object" class="btn-secondary"
+                                invisible="state == 'generated'"
+                                icon="fa-refresh"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="certification_id" readonly="1"/>
+                                <field name="set_type" readonly="1"/>
+                                <field name="document_count" readonly="1"/>
+                                <field name="generation_date" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="filename" readonly="1"/>
+                                <field name="file_data" readonly="1" invisible="1"/>
+                                <field name="error_message" readonly="1" invisible="state != 'error'"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Contenido XML" invisible="not xml_content">
+                                <field name="xml_content" widget="ace" options="{'mode': 'xml'}" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_l10n_cl_edi_certification_batch_file" model="ir.actions.act_window">
+            <field name="name">Archivos de Envío Consolidado</field>
+            <field name="res_model">l10n_cl_edi.certification.batch_file</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_l10n_cl_edi_certification_batch_file_list"/>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem id="menu_l10n_cl_edi_certification_batch_files"
+                  name="Archivos Consolidados"
+                  parent="l10n_cl_edi.menu_l10n_cl_edi_certification"
+                  action="action_l10n_cl_edi_certification_batch_file"
+                  sequence="60"/>
+    </data>
+</odoo>

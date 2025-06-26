@@ -1536,16 +1536,16 @@ class CertificationDocumentGenerator(models.TransientModel):
         ], limit=1)
         
         if not debit_doc_type:
-            _logger.error("❌ No se encontró tipo de documento '56' para Nota de Débito")
-            raise UserError("No se encontró el tipo de documento Nota de Débito Electrónica (56)")
+            _logger.error(f"❌ No se encontró tipo de documento '{correct_code}' para Nota de Débito")
+            raise UserError(f"No se encontró el tipo de documento {doc_name} ({correct_code})")
         
         # Verificar el tipo actual
         current_type = debit_note.l10n_latam_document_type_id
         _logger.info(f"🔍 Tipo actual ND: {current_type.name} ({current_type.code})")
         
-        if current_type.code != '56':
+        if current_type.code != correct_code:
             # Corregir el tipo de documento
-            _logger.info(f"🔧 Corrigiendo tipo de documento: {current_type.code} → 56")
+            _logger.info(f"🔧 Corrigiendo tipo de documento: {current_type.code} → {correct_code}")
             
             debit_note.write({
                 'l10n_latam_document_type_id': debit_doc_type.id,

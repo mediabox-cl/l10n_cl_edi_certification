@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import certification_process
+from . import certification_batch_file
 from . import l10n_cl_edi_certification_data
 from . import certification_case_dte
 from . import certification_document_generator

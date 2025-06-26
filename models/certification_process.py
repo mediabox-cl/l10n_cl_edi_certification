@@ -18,6 +18,7 @@ class CertificationProcess(models.Model):
         ('preparation', 'Preparación'),
         ('configuration', 'Configuración'),
         ('generation', 'Generación'),
+        ('finalization', 'Finalización'),
         ('completed', 'Completado'),
         ('error', 'Error')
     ], string='Estado', default='preparation')
@@ -88,6 +89,18 @@ class CertificationProcess(models.Model):
     dte_case_to_generate_count = fields.Integer(
         compute='_compute_dte_case_to_generate_count',
         string='Casos DTE Pendientes')
+
+    # Archivos de envío consolidado
+    generated_batch_files = fields.One2many(
+        'l10n_cl_edi.certification.batch_file',
+        'certification_id',
+        string='Archivos de Envío Consolidado'
+    )
+    
+    batch_files_count = fields.Integer(
+        compute='_compute_batch_files_count',
+        string='Archivos Consolidados'
+    )
 
     # Checklists
     has_digital_signature = fields.Boolean(compute='_compute_has_digital_signature', string='Firma Digital')
@@ -406,6 +419,10 @@ class CertificationProcess(models.Model):
                 ('parsed_set_id.certification_process_id', '=', record.id),
                 ('generation_status', '=', 'pending')
             ])
+    
+    def _compute_batch_files_count(self):
+        for record in self:
+            record.batch_files_count = len(record.generated_batch_files)
     
     def _compute_has_digital_signature(self):
         for record in self:
@@ -1237,4 +1254,54 @@ class CertificationProcess(models.Model):
                 'type': 'success',
                 'sticky': False,
             }
+        }
+
+    # ==================== MÉTODOS DE GENERACIÓN BATCH ====================
+
+    def action_generate_batch_basico(self):
+        """Generar SET BÁSICO - Facturas y notas de crédito"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_basico(self.id)
+
+    def action_generate_batch_guias(self):
+        """Generar SET GUÍAS DE DESPACHO"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_guias(self.id)
+
+    def action_generate_batch_ventas(self):
+        """Generar LIBRO DE VENTAS (IEV)"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_ventas(self.id)
+
+    def action_generate_batch_compras(self):
+        """Generar LIBRO DE COMPRAS (IEC)"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_compras(self.id)
+
+    def action_generate_batch_libro_guias(self):
+        """Generar LIBRO DE GUÍAS"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_libro_guias(self.id)
+
+    def action_generate_batch_exportacion1(self):
+        """Generar SET EXPORTACIÓN 1"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion1(self.id)
+
+    def action_generate_batch_exportacion2(self):
+        """Generar SET EXPORTACIÓN 2"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion2(self.id)
+
+    def action_view_batch_files(self):
+        """Ver archivos de envío consolidado generados"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Archivos de Envío Consolidado'),
+            'res_model': 'l10n_cl_edi.certification.batch_file',
+            'view_mode': 'list,form',
+            'domain': [('certification_id', '=', self.id)],
+            'context': {'default_certification_id': self.id},
+            'target': 'current',
         }

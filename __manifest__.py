@@ -27,6 +27,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/certification_process_view.xml',
+        'views/certification_batch_file_views.xml',
         'views/test_set_views.xml',
         'views/report_invoice_fix.xml',
         'views/certification_iecv_book_view.xml',
