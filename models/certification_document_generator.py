@@ -1094,8 +1094,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Factura original: {invoice.name} (ID: {invoice.id})")
         _logger.info(f"Caso DTE: {case_dte.case_number_raw} - {case_dte.document_type_raw}")
         
-        # Validar que es una nota de crédito o débito
-        if case_dte.document_type_code not in ['61', '56']:
+        # Validar que es una nota de crédito o débito (incluye exportación)
+        if case_dte.document_type_code not in ['61', '56', '111', '112']:
             raise UserError(f"El caso {case_dte.case_number_raw} no es una nota de crédito/débito (tipo: {case_dte.document_type_code})")
         
         # **CLAVE 1: Obtener el tipo correcto de documento según el partner**
