@@ -1517,10 +1517,21 @@ class CertificationDocumentGenerator(models.TransientModel):
         """
         Corrige el tipo de documento de la nota de débito.
         El wizard nativo a veces asigna tipo incorrecto.
+        Detecta si es exportación o nacional.
         """
+        # Determinar el código correcto según el tipo de caso
+        if self.dte_case_id.document_type_code == '111':
+            # ND de exportación
+            correct_code = '111'
+            doc_name = 'Nota de Débito de Exportación Electrónica'
+        else:
+            # ND nacional
+            correct_code = '56'
+            doc_name = 'Nota de Débito Electrónica'
+        
         # Buscar el tipo correcto de nota de débito
         debit_doc_type = self.env['l10n_latam.document.type'].search([
-            ('code', '=', '56'),  # Nota de Débito Electrónica
+            ('code', '=', correct_code),
             ('country_id.code', '=', 'CL')
         ], limit=1)
         
