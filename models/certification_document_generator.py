@@ -91,10 +91,10 @@ class CertificationDocumentGenerator(models.TransientModel):
             if document_type == '52':  # Guía de Despacho
                 _logger.info(f"✅ ENTRANDO A FLUJO DE GUÍAS DE DESPACHO")
                 return self._generate_delivery_guide()
-            elif document_type in ['61', '56']:  # Nota de crédito o débito
+            elif document_type in ['61', '56', '111', '112']:  # Nota de crédito o débito (incluye exportación)
                 _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
                 return self._generate_credit_or_debit_note()
-            elif document_type in ['110', '111', '112']:  # Documentos de Exportación
+            elif document_type == '110':  # Facturas de Exportación
                 _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS DE EXPORTACIÓN")
                 return self._generate_export_document()
             else:  # Factura u otro documento original
@@ -1217,11 +1217,16 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:
             _logger.error("❌ No se crearon referencias")
         
-        # **PASO 7: Ajustar líneas según el tipo de nota de crédito**
+        # **PASO 7: Heredar campos de exportación si es NC/ND de exportación**
+        if case_dte.document_type_code in ['111', '112']:  # NC/ND de exportación
+            _logger.info("🌍 Heredando campos de exportación del documento original")
+            self._inherit_export_fields_from_original(credit_note, invoice, case_dte)
+        
+        # **PASO 8: Ajustar líneas según el tipo de nota de crédito**
         _logger.info("Ajustando líneas del documento según tipo de NC")
         self._adjust_credit_note_lines(credit_note, case_dte)
         
-        # **PASO 8: Marcar el caso como generado**
+        # **PASO 9: Marcar el caso como generado**
         case_dte.write({
             'generation_status': 'generated',
             'generated_account_move_id': credit_note.id,
@@ -2450,4 +2455,77 @@ class CertificationDocumentGenerator(models.TransientModel):
             # No es un servicio, probablemente productos físicos
             _logger.info(f"Producto físico detectado: {first_item.name}")
             return None
+    
+    def _inherit_export_fields_from_original(self, credit_note, original_invoice, case_dte):
+        """
+        Hereda campos específicos de exportación del documento original a la NC/ND de exportación.
+        
+        Args:
+            credit_note (account.move): Nota de crédito/débito de exportación creada
+            original_invoice (account.move): Factura de exportación original
+            case_dte (l10n_cl_edi.certification.case.dte): Caso DTE de la NC/ND
+        """
+        self.ensure_one()
+        _logger.info(f"=== HEREDANDO CAMPOS DE EXPORTACIÓN ===")
+        _logger.info(f"De: {original_invoice.name} → A: {credit_note.name}")
+        
+        # Campos de exportación a heredar del documento original
+        export_fields_mapping = {
+            # Puertos
+            'l10n_cl_port_origin_id': original_invoice.l10n_cl_port_origin_id.id if original_invoice.l10n_cl_port_origin_id else False,
+            'l10n_cl_port_destination_id': original_invoice.l10n_cl_port_destination_id.id if original_invoice.l10n_cl_port_destination_id else False,
+            
+            # País de destino
+            'l10n_cl_destination_country_id': original_invoice.l10n_cl_destination_country_id.id if original_invoice.l10n_cl_destination_country_id else False,
+            
+            # Datos aduaneros
+            'l10n_cl_customs_quantity_of_packages': original_invoice.l10n_cl_customs_quantity_of_packages,
+            'l10n_cl_customs_transport_type': original_invoice.l10n_cl_customs_transport_type,
+            'l10n_cl_customs_sale_mode': original_invoice.l10n_cl_customs_sale_mode,
+            'l10n_cl_customs_service_indicator': original_invoice.l10n_cl_customs_service_indicator,
+            
+            # Incoterm
+            'invoice_incoterm_id': original_invoice.invoice_incoterm_id.id if original_invoice.invoice_incoterm_id else False,
+            
+            # Campos específicos de exportación (nuevos)
+            'l10n_cl_export_payment_terms': original_invoice.l10n_cl_export_payment_terms,
+            'l10n_cl_export_reference_text': original_invoice.l10n_cl_export_reference_text,
+            'l10n_cl_export_package_type': original_invoice.l10n_cl_export_package_type,
+            'l10n_cl_export_foreign_commission_percent': original_invoice.l10n_cl_export_foreign_commission_percent,
+            
+            # Campos de flete y seguro (si existen en el documento original)
+            'export_freight_amount': getattr(original_invoice, 'export_freight_amount', 0.0),
+            'export_insurance_amount': getattr(original_invoice, 'export_insurance_amount', 0.0),
+            'export_total_sale_clause_amount': getattr(original_invoice, 'export_total_sale_clause_amount', 0.0),
+            
+            # Términos de pago
+            'invoice_payment_term_id': original_invoice.invoice_payment_term_id.id if original_invoice.invoice_payment_term_id else False,
+        }
+        
+        # Filtrar valores None/False para evitar sobreescribir campos por defecto
+        export_values_to_apply = {}
+        for field, value in export_fields_mapping.items():
+            if value not in (False, None, 0, 0.0, ''):
+                export_values_to_apply[field] = value
+                _logger.info(f"  ✓ {field}: {value}")
+        
+        # Aplicar valores de exportación heredados
+        if export_values_to_apply:
+            try:
+                credit_note.write(export_values_to_apply)
+                _logger.info(f"✅ {len(export_values_to_apply)} campos de exportación heredados correctamente")
+            except Exception as e:
+                _logger.error(f"❌ Error heredando campos de exportación: {str(e)}")
+                # No fallar la creación de la NC/ND por esto
+        else:
+            _logger.info("ℹ️  No hay campos de exportación específicos para heredar")
+        
+        # Log de verificación
+        _logger.info(f"🔍 VERIFICACIÓN POST-HERENCIA:")
+        _logger.info(f"  - Tipo documento NC/ND: {credit_note.l10n_latam_document_type_id.code}")
+        _logger.info(f"  - Puerto origen: {credit_note.l10n_cl_port_origin_id.name if credit_note.l10n_cl_port_origin_id else 'No definido'}")
+        _logger.info(f"  - Puerto destino: {credit_note.l10n_cl_port_destination_id.name if credit_note.l10n_cl_port_destination_id else 'No definido'}")
+        _logger.info(f"  - IndServicio: {credit_note.l10n_cl_customs_service_indicator or 'No definido'}")
+        _logger.info(f"  - Incoterm: {credit_note.invoice_incoterm_id.code if credit_note.invoice_incoterm_id else 'No definido'}")
+        
     

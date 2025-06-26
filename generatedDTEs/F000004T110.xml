@@ -7,20 +7,20 @@
             <RutReceptor>60803000-K</RutReceptor>
             <FchResol>2025-03-26</FchResol>
             <NroResol>0</NroResol>
-            <TmstFirmaEnv>2025-06-26T13:00:26</TmstFirmaEnv>
+            <TmstFirmaEnv>2025-06-26T13:07:13</TmstFirmaEnv>
             <SubTotDTE>
                 <TpoDTE>110</TpoDTE>
                 <NroDTE>1</NroDTE>
             </SubTotDTE>
         </Caratula>
         <DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">
-            <Exportaciones ID="F2T110">
+            <Exportaciones ID="F4T110">
             <Encabezado>
                 <IdDoc>
                     <TipoDTE>110</TipoDTE>
-                    <Folio>2</Folio>
+                    <Folio>4</Folio>
                     <FchEmis>2025-06-26</FchEmis>
-                    <IndServicio>3</IndServicio>
+                    <IndServicio>4</IndServicio>
                     <FmaPago>2</FmaPago>
                     <FchVenc>2025-06-26</FchVenc>
                 </IdDoc>
@@ -37,84 +37,73 @@
                 </Emisor>
                 <Receptor>
                     <RUTRecep>55555555-5</RUTRecep>
-            <RznSocRecep>DEUTSCHE BERATUNG GMBH</RznSocRecep>
+            <RznSocRecep>TURISMO ALEMANIA SERVICIOS SA</RznSocRecep>
                     <Extranjero>
                         <Nacionalidad>563</Nacionalidad>
                         <IdAdicRecep>Alemania</IdAdicRecep>
                     </Extranjero>
-                    <Contacto>+49-421-1234567</Contacto>
-                    <CorreoRecep>kontakt@deutscheberatung.de</CorreoRecep>
-                    <DirRecep>HAUPTSTRASSE 45</DirRecep>
+                    <Contacto>+49-89-7654321</Contacto>
+                    <CorreoRecep>reservas@turismoalemania.de</CorreoRecep>
+                    <DirRecep>TOURISTENWEG 78</DirRecep>
                     <CmnaRecep>N-A</CmnaRecep>
-                    <CiudadRecep>BREMEN</CiudadRecep>
+                    <CiudadRecep>MÜNCHEN</CiudadRecep>
                 </Receptor>
                 <Transporte>
                     <Aduana>
-                        <CodClauVenta>5</CodClauVenta>
-                        <TotClauVenta>9.00</TotClauVenta>
-                        <CodViaTransp>04</CodViaTransp>
-                        <CodPtoEmbarque>903</CodPtoEmbarque>
-                        <CodPtoDesemb>591</CodPtoDesemb>
+                        <TotClauVenta>27.00</TotClauVenta>
                         <TotBultos>1</TotBultos>
                         <CodPaisRecep>563</CodPaisRecep>
                     </Aduana>
                 </Transporte>
                 <Totales>
                     <TpoMoneda>DOLAR USA</TpoMoneda>
-                    <MntExe>9.00</MntExe>
-                    <MntTotal>9.00</MntTotal>
+                    <MntExe>27.00</MntExe>
+                    <MntTotal>27.00</MntTotal>
                 </Totales>
                 <OtraMoneda>
                     <TpoMoneda>PESO CL</TpoMoneda>
                     <TpoCambio>937.89</TpoCambio>
-                    <MntExeOtrMnda>8441</MntExeOtrMnda>
-                    <MntTotOtrMnda>8441</MntTotOtrMnda>
+                    <MntExeOtrMnda>25323</MntExeOtrMnda>
+                    <MntTotOtrMnda>25323</MntTotOtrMnda>
                 </OtraMoneda>
             </Encabezado>
             <Detalle>
                 <NroLinDet>1</NroLinDet>
                 <CdgItem>
                     <TpoCodigo>INT1</TpoCodigo>
-                    <VlrCodigo>EXP-SRV-001</VlrCodigo>
+                    <VlrCodigo>EXP-HTL-001</VlrCodigo>
                 </CdgItem>
                 <IndExe>1</IndExe>
-                <NmbItem>ASESORIAS Y PROYECTOS PROFESIONALES</NmbItem>
-                <DscItem>[EXP-SRV-001] ASESORIAS Y PROYECTOS PROFESIONALES</DscItem>
+                <NmbItem>ALOJAMIENTO HABITACIONES</NmbItem>
+                <DscItem>[EXP-HTL-001] ALOJAMIENTO HABITACIONES</DscItem>
                 <QtyItem>1.000000</QtyItem>
                     <UnmdItem>U</UnmdItem>
-            <PrcItem>9.000000</PrcItem>
+            <PrcItem>27.000000</PrcItem>
                 <OtrMnda>
-                    <PrcOtrMon>8441</PrcOtrMon>
+                    <PrcOtrMon>25323</PrcOtrMon>
                     <Moneda>CLP</Moneda>
                     <FctConv>937.89</FctConv>
-                    <MontoItemOtrMnda>8441</MontoItemOtrMnda>
+                    <MontoItemOtrMnda>25323</MontoItemOtrMnda>
                 </OtrMnda>
-                <MontoItem>9.00</MontoItem>
+                <MontoItem>27.00</MontoItem>
             </Detalle>
             <Referencia>
                 <NroLinRef>1</NroLinRef>
                 <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>4329510-1</FolioRef>
+                <FolioRef>4329510-3</FolioRef>
                 <FchRef>2025-06-26</FchRef>
-                <RazonRef>CASO 4329510-1</RazonRef>
-            </Referencia>
-            <Referencia>
-                <NroLinRef>2</NroLinRef>
-                <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>MIC</FolioRef>
-                <FchRef>2025-06-26</FchRef>
-                <RazonRef>RESOLUCION SNA</RazonRef>
+                <RazonRef>CASO 4329510-3</RazonRef>
             </Referencia>
             <TED version="1.0">
             <DD>
                 <RE>76235291-5</RE>
                 <TD>110</TD>
-                <F>2</F>
+                <F>4</F>
                 <FE>2025-06-26</FE>
                 <RR>55555555-5</RR>
-                <RSR>DEUTSCHE BERATUNG GMBH</RSR>
-                <MNT>9.00</MNT>
-                <IT1>ASESORIAS Y PROYECTOS PROFESIONALES</IT1>
+                <RSR>TURISMO ALEMANIA SERVICIOS SA</RSR>
+                <MNT>27.00</MNT>
+                <IT1>ALOJAMIENTO HABITACIONES</IT1>
                 <CAF version="1.0">
                     <DA>
                         <RE>76235291-5</RE>
@@ -133,12 +122,12 @@
                     </DA>
                     <FRMA algoritmo="SHA1withRSA">DRrfVn3wcyvp4VTngUzO9/KXECtI7rd+GZAYRBOJ1nSOiQVanD9ExcZxOm+ZLbKEZIEB3RPDvM6GmizvUQsu/A==</FRMA>
                 </CAF>
-                <TSTED>2025-06-26T13:00:26</TSTED>
+                <TSTED>2025-06-26T13:07:13</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">gKWFRWkZCi9XSsYU7QgRNkm7xMSPy9tCckC6Z/lCJD7qRtIOo0m0M2gX7TLjh9Z/75ZHFxLgAZ0sc+ZL9a/dyQ==</FRMT>
-            </TED><TmstFirma>2025-06-26T13:00:26</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">KFpwLB5T/pvscvxYvsSE2ro6YnHBHQDgInTZLPM59RCfGDQ9m1m/bIlsTOnEFn0pAsxyPPq6h7sGiysuKUxJYA==</FRMT>
+            </TED><TmstFirma>2025-06-26T13:07:13</TmstFirma>
             </Exportaciones>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F2T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>v8VXZ61zsBEy8BJ4tc1dPod1dw8=</DigestValue></Reference></SignedInfo><SignatureValue>Gh6tgJsQdrQUbdtqPYr047cruz+qWRPqh7C80dUZmsDTCNj+nPSFBWbmwcmqTvDDeDXKTm3GOtxnp6OdRblFoA0z0hs8rj1oh3PoVgjxBiIIg0Z6IMLfY6TDFEhcMWzXL4n1xpdiAwvMwJ5/1i3DcL4I3Vms3zQW9ngRNUzbmOv30UZlvlU+DDXyJZosmfHoyp5KWv1QYd1NkcD8BGR23WdPndrdC7lR78yJf4vtTSS6FvyB/kJSy0jEbvxkK99WeorkFFFvur5gp4MEDAO+jWBSiWZalj6yNKFjUeYXVYA1UTmZXxsSgDebKT1UYbDlnwKgG4UlFk6nzxhQJVDOHw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F4T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>rQGCtrbThnsvXXtIntQgpjwNb30=</DigestValue></Reference></SignedInfo><SignatureValue>M7kQQLr7jWWi4Riu6I7E7cl5cM6m+nPvYM5SIwepr2+23xlZbARbekteyzidadq1GlMYYjVIgO3Y0cAe8F4hKXbFcg2FYfgFL42JMVtJw0yrQj+KI9mLjUu5M6eVNzCteR8WLi6cceNFMBvIOtcGqiar+uNrXeCTtMpX1f15B5nKDcatWvkfANoI/unC4rAyQb5+GJQlAjYyh1Tx190F9umw9KwbZ6dXAHWN0m9HAU6bGqPAX9OVnfX9Tv1+guMv8N9cE1/Fj+pALknM2uM4D0CJOPrfz+dRA/p+DnbSH15I9KA9xb7oUNqstiNRzdfjXbCJvKhP8I5kOLr6rmD4tA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -178,7 +167,7 @@ V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
     </SetDTE>
 
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>T/0eym8gQVgi6xCSxR62cFnK644=</DigestValue></Reference></SignedInfo><SignatureValue>rF9HBsNp7/nlggKVX2TcsUHw17N++G3sRwQjkcMnpY5+SXt1xjXDS8bE0AMRuAsAi/jGmYEcxDkHe9epzMlko+gvmoO2892guaXCViTrY094UImkA3uY2sZ9EY1NGv3hVpMunkw0RZDiL/+aXbp+xYdyTc1upssOaP58uRy4qxe47Xd1HZSGGaOO0nhNIlqvkaOLeTdKOXkwdnkrM+1KEETzBNw+PTtkG3ELwVzUCDdyWKVdLExygzcnHTAK8Y7Pfyvb1EvCQkbWIYvs7dQeDxA4mHLhjNZkHZOb1gaAZ9AehAuHvLaIaenECP/e2eoXMOjzz+dUaWWQrfoTCV0HQA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>LikCbNco5StzgBnFVAPXRHxdMWI=</DigestValue></Reference></SignedInfo><SignatureValue>DeVj5SKaHy0fYfT9DiFOvFkh9D/VJERYFir0sQruV+Pvs3olnyCXSp+b+R52TFyTKXpfoayAwi6B27APDXfpLr6x6OWYNukkz4dFCnkZ4IdTvmkSKOkP0o4gu4d+V6FDfUoED+m5hh7IL8SLEc5EzwyS6oLjhH7weu9dFnMZbCqzydPNIEmtObBpnvq3DSX3CHg5Kejc3/HrBA+wSI9GKBeRL/g8ZneQYkiYEQ3SYF4IY7TqOcDTlbFexqrBgLCWeYtBkdypovuApECA6YqfGgZ5eQ5aAcSZfac7cSUCcTeIPgQXkGJ39qfQRs9e7mUIAhfL7uhIYmedofeTyLZ9vg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
