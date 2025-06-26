@@ -102,10 +102,12 @@ class CertificationProcess(models.Model):
         string='Archivos Consolidados'
     )
     
-    # Campos dinámicos para detectar sets disponibles
-    available_batch_sets = fields.Text(
+    # Sets dinámicos disponibles para consolidación
+    available_batch_set_ids = fields.One2many(
+        'l10n_cl_edi.certification.available_set',
+        'certification_process_id',
+        string='Sets Disponibles para Consolidación',
         compute='_compute_available_batch_sets',
-        string='Sets Disponibles',
         help='Sets de documentos disponibles para generar envío consolidado'
     )
 
@@ -435,7 +437,35 @@ class CertificationProcess(models.Model):
         """Detecta dinámicamente qué tipos de sets están disponibles basado en casos generados"""
         for record in self:
             sets_info = record._get_available_sets_info()
-            record.available_batch_sets = str(sets_info)  # Para debugging
+            
+            # Crear registros transient para cada set disponible
+            available_sets = []
+            sequence = 10
+            
+            for set_key, set_data in sets_info.items():
+                # Determinar secuencia para ordenar sets lógicamente
+                set_sequences = {
+                    'basico': 10,
+                    'guias': 20,
+                    'exportacion1': 30,
+                    'exportacion2': 40,
+                    'ventas': 50,
+                    'compras': 60,
+                    'libro_guias': 70,
+                }
+                
+                available_sets.append((0, 0, {
+                    'name': set_data['name'],
+                    'set_type': set_key,
+                    'document_count': set_data['count'],
+                    'doc_types': ', '.join(set_data['doc_types']),
+                    'icon': set_data['icon'],
+                    'sequence': set_sequences.get(set_key, sequence),
+                    'certification_process_id': record.id,
+                }))
+                sequence += 10
+            
+            record.available_batch_set_ids = available_sets
     
     def _get_available_sets_info(self):
         """Retorna información de sets disponibles con conteos de documentos"""

@@ -292,90 +292,39 @@
                                     <strong>Envío Consolidado SII:</strong> Genere archivos XML consolidados que contengan múltiples DTEs para completar la certificación.
                                 </div>
                                 
-                                <!-- Botones de generación de archivos consolidados -->
-                                <group>
-                                    <group string="Sets de Documentos">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_basico" string="Generar SET BÁSICO"
-                                                        type="object" class="btn-primary btn-block"
-                                                        icon="fa-file-text"
-                                                        help="Facturas y notas de crédito principales"/>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_guias" string="Generar SET GUÍAS"
-                                                        type="object" class="btn-primary btn-block"
-                                                        icon="fa-truck"
-                                                        help="Guías de despacho del set"/>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_exportacion1" string="Generar EXPORTACIÓN 1"
-                                                        type="object" class="btn-primary btn-block"
-                                                        icon="fa-globe"
-                                                        help="Set de documentos exportación tipo 1"/>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_exportacion2" string="Generar EXPORTACIÓN 2"
-                                                        type="object" class="btn-primary btn-block"
-                                                        icon="fa-globe"
-                                                        help="Set de documentos exportación tipo 2"/>
-                                            </div>
-                                        </div>
-                                    </group>
-                                    
-                                    <group string="Libros Electrónicos">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_ventas" string="Generar LIBRO VENTAS"
-                                                        type="object" class="btn-success btn-block"
-                                                        icon="fa-book"
-                                                        help="Libro de ventas (IEV)"/>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <button name="action_generate_batch_compras" string="Generar LIBRO COMPRAS"
-                                                        type="object" class="btn-success btn-block"
-                                                        icon="fa-book"
-                                                        help="Libro de compras (IEC)"/>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <button name="action_generate_batch_libro_guias" string="Generar LIBRO GUÍAS"
-                                                        type="object" class="btn-success btn-block"
-                                                        icon="fa-book"
-                                                        help="Libro de guías electrónicas"/>
-                                            </div>
-                                        </div>
-                                    </group>
-                                </group>
-                                
-                                <!-- Lista de archivos generados -->
-                                <group string="Archivos Consolidados Generados">
-                                    <field name="generated_batch_files" nolabel="1" readonly="1">
-                                        <list create="false" delete="false" edit="false">
+                                <!-- Lista dinámica de sets disponibles -->
+                                <group string="Sets Disponibles para Consolidación">
+                                    <field name="available_batch_set_ids" nolabel="1" readonly="1">
+                                        <list create="false" edit="false" delete="false">
+                                            <field name="sequence" invisible="1"/>
                                             <field name="name"/>
-                                            <field name="set_type"/>
-                                            <field name="document_count"/>
+                                            <field name="document_count" string="Documentos"/>
+                                            <field name="doc_types" string="Tipos"/>
                                             <field name="state" widget="badge"
                                                    decoration-success="state == 'generated'"
-                                                   decoration-info="state == 'downloaded'"
+                                                   decoration-info="state == 'available'"
                                                    decoration-danger="state == 'error'"/>
-                                            <field name="generation_date"/>
+                                            <field name="generation_date" string="Generado"/>
+                                            <field name="filename" string="Archivo"/>
+                                            <button name="action_generate_set" string="Generar" type="object"
+                                                    class="btn-primary" icon="fa-play"
+                                                    invisible="state != 'available'"
+                                                    help="Generar archivo consolidado"/>
                                             <button name="action_download_file" string="Descargar" type="object"
-                                                    class="btn-primary" icon="fa-download"
-                                                    invisible="state != 'generated'"/>
+                                                    class="btn-success" icon="fa-download"
+                                                    invisible="state != 'generated'"
+                                                    help="Descargar archivo XML"/>
                                             <button name="action_regenerate" string="Regenerar" type="object"
-                                                    class="btn-secondary" icon="fa-refresh"
-                                                    invisible="state == 'generated'"/>
+                                                    class="btn-warning" icon="fa-refresh"
+                                                    invisible="state not in ['generated', 'error']"
+                                                    help="Regenerar archivo"/>
                                         </list>
                                     </field>
                                 </group>
                                 
-                                <div class="alert alert-warning" role="alert" invisible="generated_batch_files">
-                                    <strong>No hay archivos consolidados generados</strong>
-                                    <p>Use los botones de arriba para generar archivos XML consolidados con múltiples DTEs.</p>
+                                <div class="alert alert-warning" role="alert" invisible="available_batch_set_ids">
+                                    <strong>No hay sets disponibles para consolidación</strong>
+                                    <p>Genere primero documentos DTE individuales en la pestaña Generación para habilitar la consolidación.</p>
                                 </div>
                             </page>
                         </notebook>
