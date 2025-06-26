@@ -402,7 +402,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             line_vals = {
                 'order_id': sale_order.id,
                 'product_id': product.id,
-                'name': item.name,
+                # NO asignar 'name' - Odoo usará automáticamente product.name para evitar duplicación
                 'product_uom_qty': quantity,
                 'price_unit': price_unit,
                 'discount': discount,

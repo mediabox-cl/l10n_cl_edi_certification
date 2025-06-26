@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<EnvioDTE xmlns="http://www.sii.cl/SiiDte" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sii.cl/SiiDte EnvioDTE_v10.xsd" version="1.0">
+    <SetDTE ID="SetDoc">
+        <Caratula version="1.0">
+            <RutEmisor>76235291-5</RutEmisor>
+            <RutEnvia>17605402-6</RutEnvia>
+            <RutReceptor>60803000-K</RutReceptor>
+            <FchResol>2025-03-26</FchResol>
+            <NroResol>0</NroResol>
+            <TmstFirmaEnv>2025-06-26T12:53:15</TmstFirmaEnv>
+            <SubTotDTE>
+                <TpoDTE>110</TpoDTE>
+                <NroDTE>1</NroDTE>
+            </SubTotDTE>
+        </Caratula>
+        <DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">
+            <Exportaciones ID="F2T110">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>110</TipoDTE>
+                    <Folio>2</Folio>
+                    <FchEmis>2025-06-26</FchEmis>
+                    <IndServicio>3</IndServicio>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-06-26</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>IMPRESION COMERCIALIZACION INFORMATICA PUBLICIDAD DISENO</GiroEmis>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CiudadOrigen>Los Andes</CiudadOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>55555555-5</RUTRecep>
+            <RznSocRecep>DEUTSCHE BERATUNG GMBH</RznSocRecep>
+                    <Extranjero>
+                        <Nacionalidad>563</Nacionalidad>
+                        <IdAdicRecep>Alemania</IdAdicRecep>
+                    </Extranjero>
+                    <Contacto>+49-421-1234567</Contacto>
+                    <CorreoRecep>kontakt@deutscheberatung.de</CorreoRecep>
+                    <DirRecep>HAUPTSTRASSE 45</DirRecep>
+                    <CmnaRecep>N-A</CmnaRecep>
+                    <CiudadRecep>BREMEN</CiudadRecep>
+                </Receptor>
+                <Transporte>
+                    <Aduana>
+                        <CodClauVenta>5</CodClauVenta>
+                        <TotClauVenta>9.00</TotClauVenta>
+                        <CodViaTransp>04</CodViaTransp>
+                        <CodPtoEmbarque>903</CodPtoEmbarque>
+                        <CodPtoDesemb>591</CodPtoDesemb>
+                        <TotBultos>1</TotBultos>
+                        <CodPaisRecep>563</CodPaisRecep>
+                    </Aduana>
+                </Transporte>
+                <Totales>
+                    <TpoMoneda>DOLAR USA</TpoMoneda>
+                    <MntExe>9.00</MntExe>
+                    <MntTotal>9.00</MntTotal>
+                </Totales>
+                <OtraMoneda>
+                    <TpoMoneda>PESO CL</TpoMoneda>
+                    <TpoCambio>937.89</TpoCambio>
+                    <MntExeOtrMnda>8441</MntExeOtrMnda>
+                    <MntTotOtrMnda>8441</MntTotOtrMnda>
+                </OtraMoneda>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <CdgItem>
+                    <TpoCodigo>INT1</TpoCodigo>
+                    <VlrCodigo>EXP-SRV-001</VlrCodigo>
+                </CdgItem>
+                <IndExe>1</IndExe>
+                <NmbItem>ASESORIAS Y PROYECTOS PROFESIONALES</NmbItem>
+                <DscItem>[EXP-SRV-001] ASESORIAS Y PROYECTOS PROFESIONALES ASESORIAS Y PROYECTOS PROFESIONALES</DscItem>
+                <QtyItem>1.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>9.000000</PrcItem>
+                <OtrMnda>
+                    <PrcOtrMon>8441</PrcOtrMon>
+                    <Moneda>CLP</Moneda>
+                    <FctConv>937.89</FctConv>
+                    <MontoItemOtrMnda>8441</MontoItemOtrMnda>
+                </OtrMnda>
+                <MontoItem>9.00</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4329510-1</FolioRef>
+                <FchRef>2025-06-26</FchRef>
+                <RazonRef>CASO 4329510-1</RazonRef>
+            </Referencia>
+            <Referencia>
+                <NroLinRef>2</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>MIC</FolioRef>
+                <FchRef>2025-06-26</FchRef>
+                <RazonRef>RESOLUCION SNA</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>110</TD>
+                <F>2</F>
+                <FE>2025-06-26</FE>
+                <RR>55555555-5</RR>
+                <RSR>DEUTSCHE BERATUNG GMBH</RSR>
+                <MNT>9.00</MNT>
+                <IT1>ASESORIAS Y PROYECTOS PROFESIONALES</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>110</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-06-21</FA>
+                        <RSAPK>
+                            <M>qbfR66Fz4N2J+nVBV3JzepMVLWvwNjPg5gIKMWzp+3pJuzZYOR1tUTl6QDpqJkzTyvjU9HMd+rWmVgGN2l9Ocw==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">DRrfVn3wcyvp4VTngUzO9/KXECtI7rd+GZAYRBOJ1nSOiQVanD9ExcZxOm+ZLbKEZIEB3RPDvM6GmizvUQsu/A==</FRMA>
+                </CAF>
+                <TSTED>2025-06-26T12:53:15</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">Ba7V3RU0abB1nHDxRV/clMSGPqlvPfKwfld0s+18asq71pxMVUbBElBW09BSFywxYJcinZrGihZTAxOm7ZYm2A==</FRMT>
+            </TED><TmstFirma>2025-06-26T12:53:15</TmstFirma>
+            </Exportaciones>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F2T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>+CPtkMh+QZxaFrcSBrabq2iJzgw=</DigestValue></Reference></SignedInfo><SignatureValue>jIF0zUCuEnqGtJb/Ek8+aMBSY2QPEllxRFu+jBWDeEl+mz/lpXtg28rLLVOsiKzLTXxVZMBh57bvR6R1oNP08L4oS/YFQEsXqM+PXNVRckaaeImjsWM52QMsmPJOrpZ4YMxulKsH+v7YhdNPgAAgM0fSiPZu7DP5DgKzRZEDp9uR3vV4E7Awcl/l5SKh2TG8WoY4BUgFLZBqQYteAoCYsR+FrtFAueSdxiNaPSpDLE1OwniGkgSRa3hMV+aEfecvSoBE9lL0qKD9ufZfEtfjFQ8m+OKiYXGieijoD7CK20GB6fwiwSePaEVRdgARtKAHQywtGVTguwT/XgBa8PSLmg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    </SetDTE>
+
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>7gjVo5V1Ypb57MUI4bz73Rd3V84=</DigestValue></Reference></SignedInfo><SignatureValue>CxDx59/Hg42xwelVkKY0aeRBh2cTtyzSCXkYzUZ593KF+phwd1QHU5R+1WA/CqC2jNoHYUHsOFtSW8sYlyOSdPHUQYsvplv/j+Xn4dWJy7FjVv0pGNviMUWf9QwKrTn1Kdz5a9n6lKLUES2pB4KpYJdUjXJuYn44CMtYO41iaaKdcoXqLDjTfj13bLO4/x40jJr9hdZNC5mTjwU7BndyreFosK8S8XzrHMMbp18Vu99nx96hYfZoy/ItIJe7T9x495rMIK8osVpjrgBrqZs5BDS1wwDpKa/PHuxiaWNFV1SYA43NxehW1iK+oJX4RvF/hSlCPcITBk3XXq5dQYa+wQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></EnvioDTE>
