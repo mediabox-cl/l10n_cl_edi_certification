@@ -210,27 +210,56 @@ class CertificationBatchFile(models.Model):
             raise UserError(_('Error generando archivo consolidado: %s') % str(e))
 
     def _validate_ready_for_batch_generation(self, process, set_type):
-        """Validar que todos los documentos estén listos para consolidación"""
-        _logger.info(f"Validando prerequisitos para set {set_type}")
+        """Validar que los documentos estén aceptados por SII para consolidación"""
+        _logger.info(f"Validando prerequisitos SII para set {set_type}")
         
-        # 1. Verificar que existan casos DTE para el tipo de set
+        # 1. Obtener casos DTE con documentos para este tipo de set
         relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
         if not relevant_cases:
             raise UserError(_('No se encontraron casos DTE para el tipo de set: %s') % set_type)
         
-        # 2. Verificar que todos los documentos fueron generados
-        missing_cases = relevant_cases.filtered(lambda c: c.generation_status == 'pending')
-        if missing_cases:
-            case_numbers = ', '.join(missing_cases.mapped('case_number_raw'))
-            raise UserError(_('Faltan por generar documentos del set: %s') % case_numbers)
+        # 2. Verificar que tienen documentos individuales generados
+        cases_without_docs = relevant_cases.filtered(lambda c: not c.generated_account_move_id)
+        if cases_without_docs:
+            case_numbers = ', '.join(cases_without_docs.mapped('case_number_raw'))
+            raise UserError(_('Los siguientes casos no tienen documentos generados: %s') % case_numbers)
         
-        # 3. Verificar estado SII (opcional - con warning)
-        rejected_docs = relevant_cases.filtered(lambda c: c.generated_account_move_id and 
-                                               c.generated_account_move_id.l10n_cl_dte_status == 'rejected')
+        # 3. CRÍTICO: Verificar estado SII - solo aceptados pueden ir a batch
+        accepted_docs = []
+        rejected_docs = []
+        pending_docs = []
+        
+        for case in relevant_cases:
+            if not case.generated_account_move_id:
+                continue
+                
+            doc = case.generated_account_move_id
+            status = doc.l10n_cl_dte_status
+            
+            if status == 'accepted':
+                accepted_docs.append(case)
+            elif status in ['rejected', 'cancelled']:
+                rejected_docs.append(case)
+            else:
+                pending_docs.append(case)
+        
+        # Solo permitir si TODOS están aceptados
         if rejected_docs:
             case_numbers = ', '.join(rejected_docs.mapped('case_number_raw'))
-            # Por ahora solo log warning, no bloquear
-            _logger.warning(f"Documentos rechazados encontrados: {case_numbers}")
+            raise UserError(_(
+                'Los siguientes documentos están RECHAZADOS por SII y deben corregirse antes de la consolidación: %s\n\n'
+                'Estado SII: %s'
+            ) % (case_numbers, ', '.join([c.generated_account_move_id.l10n_cl_dte_status for c in rejected_docs])))
+        
+        if pending_docs:
+            case_numbers = ', '.join(pending_docs.mapped('case_number_raw'))
+            raise UserError(_(
+                'Los siguientes documentos están PENDIENTES de aprobación SII: %s\n\n'
+                'Estado SII: %s\n\n'
+                'Debe esperar a que SII los acepte antes de generar envío consolidado.'
+            ) % (case_numbers, ', '.join([c.generated_account_move_id.l10n_cl_dte_status for c in pending_docs])))
+        
+        _logger.info(f"Validación exitosa: {len(accepted_docs)} documentos aceptados por SII para set {set_type}")
 
     def _get_relevant_cases_for_set_type(self, process, set_type):
         """Obtener casos DTE relevantes según el tipo de set"""
