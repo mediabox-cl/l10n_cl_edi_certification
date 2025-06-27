@@ -48,6 +48,19 @@ class CertificationParsedSet(models.Model):
 
     raw_header_text = fields.Text(string='Texto Cabecera Original del Set')
     # Could also store the full raw text block of the set if needed for reprocessing
+    
+    # Campos para consolidación batch
+    progress_display = fields.Char(
+        string='Progreso',
+        compute='_compute_batch_progress',
+        help='Progreso en formato X/Y documentos aceptados'
+    )
+    
+    batch_ready = fields.Boolean(
+        string='Listo para Batch',
+        compute='_compute_batch_progress',
+        help='Todos los documentos están aceptados por SII'
+    )
 
     @api.depends('set_type_raw', 'attention_number')
     def _compute_name(self):
@@ -56,6 +69,32 @@ class CertificationParsedSet(models.Model):
             if record.attention_number:
                 name += f" (Atención: {record.attention_number})"
             record.name = name
+    
+    @api.depends('dte_case_ids', 'dte_case_ids.generated_account_move_id', 'dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'dte_case_ids.generated_stock_picking_id', 'dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
+    def _compute_batch_progress(self):
+        """Calcula el progreso de documentos aceptados por SII"""
+        for record in self:
+            total_cases = len(record.dte_case_ids)
+            docs_accepted = 0
+            
+            if total_cases == 0:
+                record.progress_display = '0/0'
+                record.batch_ready = False
+                continue
+            
+            for case in record.dte_case_ids:
+                # Determinar el documento generado (account.move o stock.picking)
+                document = None
+                if case.generated_account_move_id:
+                    document = case.generated_account_move_id
+                elif case.generated_stock_picking_id:
+                    document = case.generated_stock_picking_id
+                
+                if document and document.l10n_cl_dte_status == 'accepted':
+                    docs_accepted += 1
+            
+            record.progress_display = f"{docs_accepted}/{total_cases}"
+            record.batch_ready = (docs_accepted == total_cases)
 
 class CertificationInstructionalSet(models.Model):
     _name = 'l10n_cl_edi.certification.instructional_set'

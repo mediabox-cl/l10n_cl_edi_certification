@@ -102,14 +102,12 @@ class CertificationProcess(models.Model):
         string='Archivos Consolidados'
     )
     
-    # Sets dinámicos disponibles para consolidación
+    # Sets para consolidación (simplemente los parsed_sets con vista diferente)
     available_batch_set_ids = fields.One2many(
-        'l10n_cl_edi.certification.available_set',
+        'l10n_cl_edi.certification.parsed_set',
         'certification_process_id',
-        string='Sets Disponibles para Consolidación',
-        compute='_compute_available_batch_sets',
-        store=False,  # No almacenar, siempre computar dinámicamente
-        help='Sets de documentos disponibles para generar envío consolidado'
+        string='Sets para Consolidación',
+        help='Sets de pruebas SII cargados'
     )
     
 
@@ -435,16 +433,6 @@ class CertificationProcess(models.Model):
         for record in self:
             record.batch_files_count = len(record.generated_batch_files)
     
-    @api.depends('parsed_set_ids')  # Se recomputa cuando cambian los parsed_sets
-    def _compute_available_batch_sets(self):
-        """Retorna registros persistentes de sets disponibles"""
-        for record in self:
-            # Buscar registros existentes para este proceso
-            existing_sets = self.env['l10n_cl_edi.certification.available_set'].search([
-                ('certification_process_id', '=', record.id)
-            ])
-            _logger.info(f"🔍 Computed field: proceso {record.id}, encontrados {len(existing_sets)} sets: {existing_sets.ids}")
-            record.available_batch_set_ids = existing_sets
     
     
     def _get_available_sets_info(self):
@@ -560,35 +548,6 @@ class CertificationProcess(models.Model):
         
         return available_sets
     
-    def action_create_available_sets(self):
-        """Crear registros persistentes para sets disponibles (llamar después de cargar sets de pruebas)"""
-        self.ensure_one()
-        
-        # Limpiar registros existentes
-        existing_sets = self.env['l10n_cl_edi.certification.available_set'].search([
-            ('certification_process_id', '=', self.id)
-        ])
-        existing_sets.unlink()
-        
-        # Crear un registro por cada parsed_set
-        created_sets = []
-        for parsed_set in self.parsed_set_ids:
-            created_set = self.env['l10n_cl_edi.certification.available_set'].create({
-                'name': parsed_set.name,
-                'set_type': f'set_{parsed_set.id}',
-                'certification_process_id': self.id,
-                'parsed_set_id': parsed_set.id,
-                'attention_number': parsed_set.attention_number,
-                'icon': self._get_icon_for_set_type(parsed_set.set_type_normalized),
-                'sequence': parsed_set.sequence,
-            })
-            created_sets.append(created_set.id)
-            _logger.info(f"✅ Creado set disponible ID {created_set.id}: {parsed_set.name}")
-        
-        _logger.info(f"📋 Creados {len(self.parsed_set_ids)} registros de sets disponibles para proceso {self.id}: {created_sets}")
-        
-        # Forzar recompute del campo
-        self.invalidate_cache(['available_batch_set_ids'])
     
     def _get_icon_for_set_type(self, set_type_normalized):
         """Retorna icono apropiado según el tipo de set"""
@@ -1035,8 +994,6 @@ class CertificationProcess(models.Model):
 
         self.check_certification_status()
         
-        # Crear registros persistentes de sets disponibles
-        self.action_create_available_sets()
         
         # Retornar acción que recarga la vista actual
         return {

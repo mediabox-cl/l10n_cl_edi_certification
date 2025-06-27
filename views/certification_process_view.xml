@@ -292,14 +292,25 @@
                                     <strong>Envío Consolidado SII:</strong> Genere archivos XML consolidados que contengan múltiples DTEs para completar la certificación.
                                 </div>
                                 
-                                <!-- Lista dinámica de sets disponibles -->
-                                <group string="Sets de Pruebas para Consolidación">
-                                    <!-- DEBUG: Vista simplificada -->
+                                <!-- Lista de sets de pruebas para consolidación -->
+                                <group string="Sets de Pruebas SII para Consolidación">
                                     <field name="available_batch_set_ids" nolabel="1">
-                                        <list>
-                                            <field name="name"/>
-                                            <field name="progress_display"/>
-                                            <field name="state"/>
+                                        <list create="false" edit="false" delete="false"
+                                              decoration-success="batch_ready == True"
+                                              decoration-warning="batch_ready == False">
+                                            <field name="sequence" invisible="1"/>
+                                            <field name="batch_ready" invisible="1"/>
+                                            <field name="name" string="Set de Pruebas SII"/>
+                                            <field name="progress_display" string="Progreso"/>
+                                            <field name="set_type_normalized" string="Tipo"/>
+                                            <field name="attention_number" string="Atención SII"/>
+                                            <button name="action_generate_batch" string="Generar XML" type="object"
+                                                    class="btn-primary" icon="fa-cloud-upload"
+                                                    invisible="batch_ready != True"
+                                                    help="Generar archivo XML consolidado para envío SII"/>
+                                            <button name="%(action_view_dte_cases)d" string="Ver Casos" type="action"
+                                                    class="btn-info" icon="fa-list"
+                                                    help="Ver casos DTE de este set"/>
                                         </list>
                                     </field>
                                 </group>
