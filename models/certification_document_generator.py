@@ -113,16 +113,16 @@ class CertificationDocumentGenerator(models.TransientModel):
             
             if document_type == '52':  # Guía de Despacho
                 _logger.info(f"✅ ENTRANDO A FLUJO DE GUÍAS DE DESPACHO")
-                return self._generate_delivery_guide()
+                return self._generate_delivery_guide(for_batch=for_batch)
             elif document_type in ['61', '56', '111', '112']:  # Nota de crédito o débito (incluye exportación)
                 _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
-                return self._generate_credit_or_debit_note()
+                return self._generate_credit_or_debit_note(for_batch=for_batch)
             elif document_type == '110':  # Facturas de Exportación
                 _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS DE EXPORTACIÓN")
-                return self._generate_export_document()
+                return self._generate_export_document(for_batch=for_batch)
             else:  # Factura u otro documento original
                 _logger.info(f"✅ ENTRANDO A FLUJO DE DOCUMENTOS ORIGINALES")
-                return self._generate_original_document()
+                return self._generate_original_document(for_batch=for_batch)
                 
         except Exception as e:
             _logger.error(f"Error generando documento para caso {self.dte_case_id.id}: {str(e)}")
@@ -131,7 +131,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             self.dte_case_id.error_message = str(e)
             raise UserError(f"Error al generar documento: {str(e)}")
 
-    def _generate_original_document(self):
+    def _generate_original_document(self, for_batch=False):
         """Genera facturas u otros documentos originales usando el flujo sale.order"""
         _logger.info(f"Generando documento original (tipo {self.dte_case_id.document_type_code})")
         
@@ -162,7 +162,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
         
         # **VINCULACIÓN: Guardar en el campo correcto según el modo**
-        if self.for_batch:
+        if for_batch:
             self.dte_case_id.generated_batch_account_move_id = invoice.id
             _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA BATCH {invoice.name} ===")
         else:
@@ -184,16 +184,25 @@ class CertificationDocumentGenerator(models.TransientModel):
         # APLICAR GIRO ALTERNATIVO SI ES NECESARIO
         self._apply_alternative_giro_if_needed(invoice)
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Factura Generada',
-            'res_model': 'account.move',
-            'res_id': invoice.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        # FORZAR CONFIRMACIÓN EN MODO BATCH PARA GENERAR DTE AUTOMÁTICAMENTE
+        if for_batch and invoice.state == 'draft':
+            invoice.action_post()
+            _logger.info(f"Documento confirmado automáticamente en modo batch: {invoice.name}")
+        
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return invoice  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Factura Generada',
+                'res_model': 'account.move',
+                'res_id': invoice.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
-    def _generate_export_document(self):
+    def _generate_export_document(self, for_batch=False):
         """Genera documentos de exportación (110, 111, 112) con campos específicos"""
         _logger.info(f"Generando documento de exportación (tipo {self.dte_case_id.document_type_code})")
         
@@ -233,7 +242,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Referencias de documentos creadas en factura: {invoice.name}")
         
         # **VINCULACIÓN: Guardar en el campo correcto según el modo (exportación)**
-        if self.for_batch:
+        if for_batch:
             self.dte_case_id.generated_batch_account_move_id = invoice.id
             _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA BATCH DE EXPORTACIÓN {invoice.name} ===")
         else:
@@ -244,16 +253,25 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Log de éxito
         _logger.info(f"Factura de exportación generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Factura de Exportación Generada',
-            'res_model': 'account.move',
-            'res_id': invoice.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        # FORZAR CONFIRMACIÓN EN MODO BATCH PARA GENERAR DTE AUTOMÁTICAMENTE
+        if for_batch and invoice.state == 'draft':
+            invoice.action_post()
+            _logger.info(f"Documento de exportación confirmado automáticamente en modo batch: {invoice.name}")
+        
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return invoice  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Factura de Exportación Generada',
+                'res_model': 'account.move',
+                'res_id': invoice.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
-    def _generate_credit_or_debit_note(self):
+    def _generate_credit_or_debit_note(self, for_batch=False):
         """Genera nota de crédito o débito desde documento referenciado"""
         _logger.info(f"=== ENTRANDO A _generate_credit_or_debit_note() ===")
         _logger.info(f"Generando nota de crédito/débito (tipo {self.dte_case_id.document_type_code})")
@@ -283,7 +301,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             ref.referenced_case_dte_id.document_type_code in ['61', '112']):  # Referencia a NC (nacional o exportación)
             
             _logger.info(f"🎯 DETECTADO: ND que anula NC (caso {self.dte_case_id.case_number_raw})")
-            return self._generate_debit_note_from_credit_note()
+            return self._generate_debit_note_from_credit_note(for_batch=for_batch)
         else:
             _logger.info(f"📌 NO ES ND QUE ANULA NC - usando flujo estándar de NC/ND")
         
@@ -315,11 +333,15 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # Generar la nota de crédito/débito
         _logger.info(f"🚀 Generando NC/ND usando flujo estándar")
-        credit_note = self._generate_credit_note_from_case(original_invoice, self.dte_case_id)
+        credit_note = self._generate_credit_note_from_case(original_invoice, self.dte_case_id, for_batch=for_batch)
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': f'Nota de {"Crédito" if self.dte_case_id.document_type_code == "61" else "Débito"} Generada',
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return credit_note  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': f'Nota de {"Crédito" if self.dte_case_id.document_type_code == "61" else "Débito"} Generada',
             'res_model': 'account.move',
             'res_id': credit_note.id,
             'view_mode': 'form',
@@ -872,7 +894,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             return self.env['account.move']
         
         # En modo batch, priorizar documento batch si existe
-        if self.for_batch and referenced_dte_case.generated_batch_account_move_id:
+        if for_batch and referenced_dte_case.generated_batch_account_move_id:
             return referenced_dte_case.generated_batch_account_move_id
         # Sino, usar el documento original
         elif referenced_dte_case.generated_account_move_id:
@@ -1116,7 +1138,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Modalidad venta: {invoice.l10n_cl_customs_sale_mode}")
         _logger.info(f"Incoterm: {invoice.invoice_incoterm_id.code if invoice.invoice_incoterm_id else 'No configurado'}")
 
-    def _generate_credit_note_from_case(self, invoice, case_dte):
+    def _generate_credit_note_from_case(self, invoice, case_dte, for_batch=False):
         """
         Genera nota de crédito desde caso de certificación siguiendo procesos nativos de Odoo.
         CORREGIDO: Configura correctamente el tipo de documento y contexto antes de crear la NC.
@@ -1267,7 +1289,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         self._adjust_credit_note_lines(credit_note, case_dte)
         
         # **PASO 9: Marcar el caso como generado**
-        if self.for_batch:
+        if for_batch:
             # En modo batch, SOLO guardar en el campo batch
             update_vals = {
                 'generated_batch_account_move_id': credit_note.id,
@@ -1288,7 +1310,23 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"   Referencias: {len(credit_note.l10n_cl_reference_ids)}")
         _logger.info(f"   Caso marcado como generado")
         
-        return credit_note
+        # FORZAR CONFIRMACIÓN EN MODO BATCH PARA GENERAR DTE AUTOMÁTICAMENTE
+        if for_batch and credit_note.state == 'draft':
+            credit_note.action_post()
+            _logger.info(f"NC/ND confirmada automáticamente en modo batch: {credit_note.name}")
+        
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return credit_note  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Nota de Crédito Generada',
+                'res_model': 'account.move',
+                'res_id': credit_note.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
     
     def _adjust_credit_note_lines(self, credit_note, case_dte):
         """
@@ -1460,7 +1498,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"  - Monto total NC: ${total_amount:,.0f}")
         _logger.info("  → Esta NC anula completamente la factura original")
 
-    def _generate_debit_note_from_credit_note(self):
+    def _generate_debit_note_from_credit_note(self, for_batch=False):
         """
         Genera nota de débito que anula una nota de crédito usando el wizard nativo.
         Simplificado para sets de pruebas específicos del SII.
@@ -1554,14 +1592,23 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"   Referencias: {len(debit_note.l10n_cl_reference_ids)}")
         _logger.info(f"   Anula NC: {credit_note.name}")
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Nota de Débito Generada',
-            'res_model': 'account.move',
-            'res_id': debit_note.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        # FORZAR CONFIRMACIÓN EN MODO BATCH PARA GENERAR DTE AUTOMÁTICAMENTE
+        if for_batch and debit_note.state == 'draft':
+            debit_note.action_post()
+            _logger.info(f"ND confirmada automáticamente en modo batch: {debit_note.name}")
+        
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return debit_note  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Nota de Débito Generada',
+                'res_model': 'account.move',
+                'res_id': debit_note.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
     
     def _fix_debit_note_document_type(self, debit_note):
         """
@@ -1724,7 +1771,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         }
     }
 
-    def _generate_delivery_guide(self):
+    def _generate_delivery_guide(self, for_batch=False):
         """
         Método principal para generar guías de despacho.
         """
@@ -1732,8 +1779,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"=== INICIANDO GENERACIÓN DE GUÍA DE DESPACHO ===")
         _logger.info(f"Caso: {self.dte_case_id.case_number_raw}")
         
-        # **VERIFICACIÓN: Comprobar si ya existe una guía vinculada**
-        if self.dte_case_id.generated_stock_picking_id:
+        # **VERIFICACIÓN: Comprobar si ya existe una guía vinculada (solo en modo normal)**
+        if not for_batch and self.dte_case_id.generated_stock_picking_id:
             _logger.info(f"Caso {self.dte_case_id.id} ya tiene guía vinculada: {self.dte_case_id.generated_stock_picking_id.name}")
             return {
                 'type': 'ir.actions.act_window',
@@ -1771,14 +1818,18 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         _logger.info(f"✅ GUÍA DE DESPACHO GENERADA EXITOSAMENTE: {picking.name}")
         
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Guía de Despacho Generada',
-            'res_model': 'stock.picking',
-            'res_id': picking.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return picking  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Guía de Despacho Generada',
+                'res_model': 'stock.picking',
+                'res_id': picking.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
 
     def _classify_dispatch_movement(self, dte_case):
         """
