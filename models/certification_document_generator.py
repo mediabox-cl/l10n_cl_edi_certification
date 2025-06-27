@@ -865,11 +865,20 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         referenced_dte_case = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
-            ('case_number_raw', '=', referenced_sii_case_number),
-            ('generated_account_move_id', '!=', False)
+            ('case_number_raw', '=', referenced_sii_case_number)
         ], limit=1)
         
-        return referenced_dte_case.generated_account_move_id
+        if not referenced_dte_case:
+            return self.env['account.move']
+        
+        # En modo batch, priorizar documento batch si existe
+        if self.for_batch and referenced_dte_case.generated_batch_account_move_id:
+            return referenced_dte_case.generated_batch_account_move_id
+        # Sino, usar el documento original
+        elif referenced_dte_case.generated_account_move_id:
+            return referenced_dte_case.generated_account_move_id
+        
+        return self.env['account.move']
 
     def _map_dispatch_motive_to_code(self, motive_raw):
         """Mapea el motivo de traslado a código SII."""

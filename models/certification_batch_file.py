@@ -396,6 +396,24 @@ class CertificationBatchFile(models.Model):
         _logger.info(f"Regenerando documentos para set {set_type}")
         
         relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
+        
+        # Ordenar casos para generar facturas antes que notas de crédito/débito
+        # Esto es crucial para evitar errores de referencia
+        def sort_key(case):
+            doc_type = case.document_type_code
+            # Facturas y guías primero (códigos 33, 34, 52, 110, etc.)
+            if doc_type in ['33', '34', '52', '110']:
+                return 1
+            # Notas de crédito/débito después (códigos 56, 61, 111, 112)
+            elif doc_type in ['56', '61', '111', '112']:
+                return 2
+            # Otros tipos al final
+            else:
+                return 3
+        
+        relevant_cases = relevant_cases.sorted(key=sort_key)
+        _logger.info(f"Casos ordenados para generación: {[f'{c.case_number_raw}({c.document_type_code})' for c in relevant_cases]}")
+        
         regenerated_documents = []
         
         for case in relevant_cases:
