@@ -188,6 +188,16 @@ class CertificationDocumentGenerator(models.TransientModel):
         if for_batch and invoice.state == 'draft':
             invoice.action_post()
             _logger.info(f"Documento confirmado automáticamente en modo batch: {invoice.name}")
+            # Debug: Verificar si el archivo DTE se creó
+            if invoice.l10n_cl_dte_file:
+                _logger.info(f"  ✓ Archivo DTE creado: {invoice.l10n_cl_dte_file.name}")
+            else:
+                _logger.warning(f"  ⚠️  Archivo DTE NO creado para documento {invoice.name}")
+                _logger.warning(f"  - Estado: {invoice.state}")
+                _logger.warning(f"  - País empresa: {invoice.company_id.country_id.code}")
+                _logger.warning(f"  - Proveedor SII: {invoice.company_id.l10n_cl_dte_service_provider}")
+                _logger.warning(f"  - Usa documentos: {invoice.journal_id.l10n_latam_use_documents}")
+                _logger.warning(f"  - Tipo POS: {invoice.journal_id.l10n_cl_point_of_sale_type}")
         
         # RETORNO DIFERENCIADO SEGÚN MODO
         if for_batch:
@@ -257,6 +267,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         if for_batch and invoice.state == 'draft':
             invoice.action_post()
             _logger.info(f"Documento de exportación confirmado automáticamente en modo batch: {invoice.name}")
+            # Debug: Verificar si el archivo DTE se creó
+            if invoice.l10n_cl_dte_file:
+                _logger.info(f"  ✓ Archivo DTE creado: {invoice.l10n_cl_dte_file.name}")
+            else:
+                _logger.warning(f"  ⚠️  Archivo DTE NO creado para documento {invoice.name}")
         
         # RETORNO DIFERENCIADO SEGÚN MODO
         if for_batch:
@@ -307,7 +322,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         # Buscar el documento original generado
         _logger.info(f"🔍 Buscando documento original con caso: {ref.referenced_sii_case_number}")
-        original_invoice = self._get_referenced_move(ref.referenced_sii_case_number)
+        original_invoice = self._get_referenced_move(ref.referenced_sii_case_number, for_batch)
         _logger.info(f"Documento original encontrado: {bool(original_invoice)}")
         
         if not original_invoice:
@@ -821,7 +836,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"Procesando referencia: {ref.reference_document_text_raw} -> {ref.referenced_sii_case_number}")
             
             # Buscar el documento referenciado si existe
-            referenced_move = self._get_referenced_move(ref.referenced_sii_case_number)
+            referenced_move = self._get_referenced_move(ref.referenced_sii_case_number, for_batch)
             
             if referenced_move:
                 _logger.info(f"Documento referenciado encontrado: {referenced_move.name}")
@@ -880,7 +895,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:
             _logger.warning("No hay referencias para crear")
 
-    def _get_referenced_move(self, referenced_sii_case_number):
+    def _get_referenced_move(self, referenced_sii_case_number, for_batch=False):
         """Busca un documento generado basado en el número de caso SII de la referencia."""
         if not referenced_sii_case_number:
             return self.env['account.move']
@@ -1314,6 +1329,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         if for_batch and credit_note.state == 'draft':
             credit_note.action_post()
             _logger.info(f"NC/ND confirmada automáticamente en modo batch: {credit_note.name}")
+            # Debug: Verificar si el archivo DTE se creó
+            if credit_note.l10n_cl_dte_file:
+                _logger.info(f"  ✓ Archivo DTE creado: {credit_note.l10n_cl_dte_file.name}")
+            else:
+                _logger.warning(f"  ⚠️  Archivo DTE NO creado para documento {credit_note.name}")
         
         # RETORNO DIFERENCIADO SEGÚN MODO
         if for_batch:
@@ -1596,6 +1616,11 @@ class CertificationDocumentGenerator(models.TransientModel):
         if for_batch and debit_note.state == 'draft':
             debit_note.action_post()
             _logger.info(f"ND confirmada automáticamente en modo batch: {debit_note.name}")
+            # Debug: Verificar si el archivo DTE se creó
+            if debit_note.l10n_cl_dte_file:
+                _logger.info(f"  ✓ Archivo DTE creado: {debit_note.l10n_cl_dte_file.name}")
+            else:
+                _logger.warning(f"  ⚠️  Archivo DTE NO creado para documento {debit_note.name}")
         
         # RETORNO DIFERENCIADO SEGÚN MODO
         if for_batch:
