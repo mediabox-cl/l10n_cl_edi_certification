@@ -112,13 +112,6 @@ class CertificationProcess(models.Model):
         help='Sets de documentos disponibles para generar envío consolidado'
     )
     
-    # Campo HTML alternativo para mostrar sets
-    available_sets_html = fields.Html(
-        string='Sets Disponibles HTML',
-        compute='_compute_available_sets_html',
-        store=False,
-        help='Vista HTML de sets disponibles como fallback'
-    )
 
     # Checklists
     has_digital_signature = fields.Boolean(compute='_compute_has_digital_signature', string='Firma Digital')
@@ -453,107 +446,29 @@ class CertificationProcess(models.Model):
             sequence = 10
             
             for set_key, set_data in sets_info.items():
-                # Determinar secuencia para ordenar sets lógicamente
-                set_sequences = {
-                    'basico': 10,
-                    'guias': 20,
-                    'exportacion1': 30,
-                    'exportacion2': 40,
-                    'ventas': 50,
-                    'compras': 60,
-                    'libro_guias': 70,
-                }
-                
                 available_sets.append((0, 0, {
                     'name': set_data['name'],
-                    'set_type': set_key,
-                    'document_count': set_data['count'],
+                    'set_type': set_key,  # Usar la clave original (set_123)
+                    'total_cases': set_data['total_cases'],
+                    'docs_generated': set_data['docs_generated'],
+                    'docs_accepted': set_data['docs_accepted'],
+                    'docs_rejected': set_data['docs_rejected'],
+                    'docs_pending': set_data['docs_pending'],
                     'doc_types': ', '.join(set_data['doc_types']),
                     'icon': set_data['icon'],
-                    'sequence': set_sequences.get(set_key, sequence),
+                    'sequence': set_data.get('parsed_set_id', sequence),
                     'certification_process_id': record.id,
+                    'parsed_set_id': set_data.get('parsed_set_id'),
+                    'attention_number': set_data.get('attention_number'),
                 }))
                 sequence += 10
             
             record.available_batch_set_ids = available_sets
             _logger.info(f"Campo available_batch_set_ids actualizado con {len(available_sets)} registros")
     
-    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
-    def _compute_available_sets_html(self):
-        """Genera vista HTML de sets disponibles como alternativa"""
-        for record in self:
-            sets_info = record._get_available_sets_info()
-            
-            if not sets_info:
-                record.available_sets_html = """
-                <div class="alert alert-warning">
-                    <strong>No hay sets disponibles para consolidación</strong>
-                    <p>Genere primero documentos DTE individuales y espere que sean aceptados por SII.</p>
-                </div>
-                """
-                continue
-            
-            # Generar tabla HTML
-            html = """
-            <div class="o_field_widget">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Set</th>
-                            <th>Documentos</th>
-                            <th>Tipos</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            """
-            
-            for set_key, set_data in sets_info.items():
-                # Determinar estado del set
-                existing_batch = record.env['l10n_cl_edi.certification.batch_file'].search([
-                    ('certification_id', '=', record.id),
-                    ('set_type', '=', set_key)
-                ], limit=1)
-                
-                state = 'available'
-                if existing_batch:
-                    state = existing_batch.state
-                
-                state_badge = {
-                    'available': '<span class="badge badge-info">Disponible</span>',
-                    'generated': '<span class="badge badge-success">Generado</span>',
-                    'error': '<span class="badge badge-danger">Error</span>'
-                }.get(state, '<span class="badge badge-secondary">Desconocido</span>')
-                
-                # Botones de acción
-                if state == 'available':
-                    action_btn = f'<button class="btn btn-primary btn-sm" onclick="alert(\'Funcionalidad en desarrollo\')">Generar</button>'
-                elif state == 'generated':
-                    action_btn = f'<button class="btn btn-success btn-sm" onclick="alert(\'Descarga en desarrollo\')">Descargar</button>'
-                else:
-                    action_btn = f'<button class="btn btn-warning btn-sm" onclick="alert(\'Regenerar en desarrollo\')">Regenerar</button>'
-                
-                html += f"""
-                    <tr>
-                        <td><i class="{set_data['icon']}"></i> {set_data['name']}</td>
-                        <td>{set_data['count']}</td>
-                        <td>{', '.join(set_data['doc_types'])}</td>
-                        <td>{state_badge}</td>
-                        <td>{action_btn}</td>
-                    </tr>
-                """
-            
-            html += """
-                    </tbody>
-                </table>
-            </div>
-            """
-            
-            record.available_sets_html = html
     
     def _get_available_sets_info(self):
-        """Retorna información de sets disponibles basado en sets de pruebas SII reales"""
+        """Retorna información de sets disponibles - UN ELEMENTO POR CADA PARSED_SET"""
         _logger.info(f"=== ANALIZANDO SETS DE PRUEBAS SII PARA PROCESO {self.id} ===")
         
         # 1. Obtener todos los sets de pruebas del proceso
@@ -564,12 +479,16 @@ class CertificationProcess(models.Model):
         
         available_sets = {}
         
-        # 2. Procesar cada set de pruebas individualmente
+        # 2. Procesar cada set de pruebas como UN ELEMENTO INDIVIDUAL
         for parsed_set in parsed_sets:
             _logger.info(f"Procesando set: {parsed_set.name} (tipo: {parsed_set.set_type_normalized})")
             
-            # Obtener casos DTE del set con documentos generados y aceptados por SII
-            cases_with_accepted_docs = []
+            # Analizar TODOS los casos del set
+            total_cases = len(parsed_set.dte_case_ids)
+            cases_with_docs = []
+            cases_accepted = []
+            cases_rejected = []
+            cases_pending = []
             
             for case in parsed_set.dte_case_ids:
                 # Determinar el documento generado (account.move o stock.picking)
@@ -582,6 +501,8 @@ class CertificationProcess(models.Model):
                 if not document:
                     _logger.info(f"  Caso {case.case_number_raw}: sin documento generado")
                     continue
+                
+                cases_with_docs.append(case)
                 
                 # Obtener estado SII y tipo de documento
                 status = document.l10n_cl_dte_status
@@ -596,84 +517,81 @@ class CertificationProcess(models.Model):
                 _logger.info(f"  Caso {case.case_number_raw}: doc {document.name}, tipo={doc_type}, estado_SII={status}")
                 
                 if status == 'accepted':
-                    cases_with_accepted_docs.append(case)
+                    cases_accepted.append(case)
                 elif status in ['rejected', 'cancelled']:
+                    cases_rejected.append(case)
                     _logger.warning(f"  ⚠️ Caso {case.case_number_raw}: documento RECHAZADO por SII")
                 else:
+                    cases_pending.append(case)
                     _logger.info(f"  ⏳ Caso {case.case_number_raw}: documento PENDIENTE en SII")
             
-            # Solo incluir sets que tengan AL MENOS un documento aceptado
-            if not cases_with_accepted_docs:
-                _logger.info(f"  ❌ Set {parsed_set.name}: sin documentos aceptados - omitido")
-                continue
+            # 3. Determinar estado del set
+            docs_generated = len(cases_with_docs)
+            docs_accepted = len(cases_accepted)
+            docs_rejected = len(cases_rejected)
+            docs_pending = len(cases_pending)
             
-            _logger.info(f"  ✅ Set {parsed_set.name}: {len(cases_with_accepted_docs)} documentos aceptados")
-            
-            # 3. Mapear set_type_normalized a keys de consolidación
-            set_key_mapping = {
-                'basic': 'basico',
-                'exempt_invoice': 'basico',  # Facturas exentas van al set básico
-                'dispatch_guide': 'guias',
-                'export_documents': 'exportacion1',  # Puede dividirse más tarde según tipos
-                'sales_book': 'ventas',
-                'guides_book': 'libro_guias',
-                'purchase_book': 'compras',
-            }
-            
-            set_key = set_key_mapping.get(parsed_set.set_type_normalized)
-            if not set_key:
-                _logger.warning(f"  ⚠️ Tipo de set no mapeado: {parsed_set.set_type_normalized}")
-                continue
-            
-            # 4. Para export_documents, dividir en exportacion1 y exportacion2 según tipos de documento
-            if parsed_set.set_type_normalized == 'export_documents':
-                # Analizar tipos de documentos en este set
-                doc_types_in_set = list(set([case.document_type_code for case in cases_with_accepted_docs]))
-                _logger.info(f"  Tipos de docs en set exportación: {doc_types_in_set}")
-                
-                # Dividir según tipos de documento
-                if '110' in doc_types_in_set:  # Facturas de exportación
-                    set_key = 'exportacion1'
-                elif any(t in doc_types_in_set for t in ['111', '112']):  # Notas de exportación
-                    set_key = 'exportacion2'
-            
-            # 5. Agregar o combinar en el set existente
-            doc_types = list(set([case.document_type_code for case in cases_with_accepted_docs]))
-            
-            # Nombres e iconos por tipo de set
-            set_info_mapping = {
-                'basico': {'name': 'SET BÁSICO', 'icon': 'fa-file-text'},
-                'guias': {'name': 'SET GUÍAS DE DESPACHO', 'icon': 'fa-truck'},
-                'exportacion1': {'name': 'SET EXPORTACIÓN 1', 'icon': 'fa-globe'},
-                'exportacion2': {'name': 'SET EXPORTACIÓN 2', 'icon': 'fa-globe'},
-                'ventas': {'name': 'LIBRO DE VENTAS (IEV)', 'icon': 'fa-book'},
-                'compras': {'name': 'LIBRO DE COMPRAS (IEC)', 'icon': 'fa-book'},
-                'libro_guias': {'name': 'LIBRO DE GUÍAS', 'icon': 'fa-book'},
-            }
-            
-            set_info = set_info_mapping.get(set_key, {'name': f'SET {set_key.upper()}', 'icon': 'fa-file'})
-            
-            if set_key in available_sets:
-                # Combinar con set existente
-                available_sets[set_key]['count'] += len(cases_with_accepted_docs)
-                available_sets[set_key]['doc_types'] = list(set(available_sets[set_key]['doc_types'] + doc_types))
+            # Estado del set
+            if docs_accepted == total_cases:
+                set_state = 'ready'  # Todos los documentos aceptados - LISTO PARA GENERAR
+            elif docs_rejected > 0:
+                set_state = 'blocked'  # Hay documentos rechazados - BLOQUEADO
+            elif docs_pending > 0:
+                set_state = 'waiting'  # Hay documentos pendientes - ESPERANDO SII
             else:
-                # Crear nuevo set
-                available_sets[set_key] = {
-                    'name': set_info['name'],
-                    'icon': set_info['icon'],
-                    'count': len(cases_with_accepted_docs),
-                    'doc_types': doc_types
-                }
+                set_state = 'incomplete'  # Faltan documentos por generar
             
-            _logger.info(f"  ✅ Agregado a {set_key}: {len(cases_with_accepted_docs)} docs, tipos: {doc_types}")
+            _logger.info(f"  📊 Set {parsed_set.name}: {docs_accepted}/{total_cases} aceptados, {docs_rejected} rechazados, {docs_pending} pendientes, {total_cases - docs_generated} sin generar")
+            _logger.info(f"  📈 Estado del set: {set_state}")
+            
+            # 4. Crear clave única para cada set (usar ID para evitar colisiones)
+            set_key = f"set_{parsed_set.id}"
+            
+            # 5. Obtener tipos de documento del set
+            doc_types = []
+            if cases_accepted:
+                doc_types = list(set([case.document_type_code for case in cases_accepted]))
+            elif cases_with_docs:
+                doc_types = list(set([case.document_type_code for case in cases_with_docs]))
+            else:
+                doc_types = list(set([case.document_type_code for case in parsed_set.dte_case_ids]))
+            
+            # 6. Crear entrada para el set
+            available_sets[set_key] = {
+                'name': parsed_set.name,
+                'icon': self._get_icon_for_set_type(parsed_set.set_type_normalized),
+                'total_cases': total_cases,
+                'docs_generated': docs_generated,
+                'docs_accepted': docs_accepted,
+                'docs_rejected': docs_rejected,
+                'docs_pending': docs_pending,
+                'doc_types': doc_types,
+                'set_state': set_state,
+                'parsed_set_id': parsed_set.id,
+                'attention_number': parsed_set.attention_number,
+            }
+            
+            _logger.info(f"  ✅ Set agregado: {parsed_set.name} - Estado: {set_state} ({docs_accepted}/{total_cases})")
         
-        # 6. Log final
-        _logger.info(f"Sets disponibles encontrados: {list(available_sets.keys())}")
+        # 7. Log final
+        _logger.info(f"Sets disponibles encontrados: {len(available_sets)}")
         for set_key, set_data in available_sets.items():
-            _logger.info(f"  {set_key}: {set_data['count']} docs, tipos: {set_data['doc_types']}")
+            _logger.info(f"  {set_data['name']}: {set_data['docs_accepted']}/{set_data['total_cases']} aceptados, estado: {set_data['set_state']}")
         
         return available_sets
+    
+    def _get_icon_for_set_type(self, set_type_normalized):
+        """Retorna icono apropiado según el tipo de set"""
+        icon_mapping = {
+            'basic': 'fa-file-text',
+            'exempt_invoice': 'fa-file-text-o',
+            'dispatch_guide': 'fa-truck',
+            'export_documents': 'fa-globe',
+            'sales_book': 'fa-book',
+            'guides_book': 'fa-book',
+            'purchase_book': 'fa-book',
+        }
+        return icon_mapping.get(set_type_normalized, 'fa-file')
     
     def get_batch_documents(self, document_types=None):
         """Obtiene documentos batch generados para envío consolidado

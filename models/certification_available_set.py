@@ -36,14 +36,52 @@ class CertificationAvailableSet(models.TransientModel):
         ('error', 'Error')
     ], string='Estado', compute='_compute_state')
     
-    document_count = fields.Integer(
-        string='Cantidad de Documentos',
-        help='Número de documentos que incluirá este set'
+    # Campos de progreso
+    total_cases = fields.Integer(
+        string='Total Casos',
+        help='Número total de casos en el set'
+    )
+    
+    docs_generated = fields.Integer(
+        string='Documentos Generados',
+        help='Número de documentos ya generados'
+    )
+    
+    docs_accepted = fields.Integer(
+        string='Documentos Aceptados',
+        help='Número de documentos aceptados por SII'
+    )
+    
+    docs_rejected = fields.Integer(
+        string='Documentos Rechazados',
+        help='Número de documentos rechazados por SII'
+    )
+    
+    docs_pending = fields.Integer(
+        string='Documentos Pendientes',
+        help='Número de documentos pendientes en SII'
     )
     
     doc_types = fields.Char(
         string='Tipos de Documento',
         help='Códigos de tipos de documento incluidos'
+    )
+    
+    progress_display = fields.Char(
+        string='Progreso',
+        compute='_compute_progress_display',
+        help='Progreso en formato X/Y'
+    )
+    
+    parsed_set_id = fields.Many2one(
+        'l10n_cl_edi.certification.parsed_set',
+        string='Set de Pruebas Original',
+        help='Referencia al parsed set original'
+    )
+    
+    attention_number = fields.Char(
+        string='Número de Atención',
+        help='Número de atención SII del set'
     )
     
     icon = fields.Char(
@@ -91,10 +129,11 @@ class CertificationAvailableSet(models.TransientModel):
             else:
                 record.batch_file_id = False
     
-    @api.depends('batch_file_id', 'batch_file_id.state')
+    @api.depends('docs_accepted', 'total_cases', 'docs_rejected', 'docs_pending', 'batch_file_id', 'batch_file_id.state')
     def _compute_state(self):
-        """Calcula el estado basado en el archivo batch"""
+        """Calcula el estado basado en el progreso de documentos y archivo batch"""
         for record in self:
+            # Si ya hay archivo batch generado, mostrar su estado
             if record.batch_file_id:
                 if record.batch_file_id.state == 'generated':
                     record.state = 'generated'
@@ -103,7 +142,17 @@ class CertificationAvailableSet(models.TransientModel):
                 else:
                     record.state = 'available'
             else:
-                record.state = 'available'
+                # Estado basado en progreso de documentos
+                if record.docs_accepted == record.total_cases and record.total_cases > 0:
+                    record.state = 'available'  # Listo para generar
+                else:
+                    record.state = 'error'  # No disponible para generar
+    
+    @api.depends('docs_accepted', 'total_cases')
+    def _compute_progress_display(self):
+        """Calcula el display de progreso"""
+        for record in self:
+            record.progress_display = f"{record.docs_accepted}/{record.total_cases}"
     
     def action_generate_set(self):
         """Genera el set consolidado"""
