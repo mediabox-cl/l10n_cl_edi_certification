@@ -96,6 +96,39 @@ class CertificationParsedSet(models.Model):
             record.progress_display = f"{docs_accepted}/{total_cases}"
             record.batch_ready = (docs_accepted == total_cases)
 
+    def action_generate_batch(self):
+        """Generar archivo XML consolidado para este set"""
+        self.ensure_one()
+        
+        # Determinar el método de generación basado en el nombre del set
+        # Los sets de exportación necesitan manejo especial
+        if 'EXPORTACIÓN 1' in self.name.upper():
+            method_name = 'action_generate_batch_exportacion1'
+        elif 'EXPORTACIÓN 2' in self.name.upper():
+            method_name = 'action_generate_batch_exportacion2'
+        else:
+            # Mapear otros tipos de set
+            set_type_methods = {
+                'basic': 'action_generate_batch_basico',
+                'dispatch_guide': 'action_generate_batch_guias',
+                'sales_book': 'action_generate_batch_ventas',
+                'purchase_book': 'action_generate_batch_compras', 
+                'guides_book': 'action_generate_batch_libro_guias',
+                'export_documents': 'action_generate_batch_exportacion1',  # Default para export
+            }
+            
+            method_name = set_type_methods.get(self.set_type_normalized)
+            if not method_name:
+                raise UserError(f'Tipo de set no soportado para consolidación: {self.set_type_normalized}')
+        
+        # Llamar al método en el proceso de certificación
+        certification_process = self.certification_process_id
+        if hasattr(certification_process, method_name):
+            method = getattr(certification_process, method_name)
+            return method()
+        else:
+            raise UserError(f'Método de generación no encontrado: {method_name}')
+
 class CertificationInstructionalSet(models.Model):
     _name = 'l10n_cl_edi.certification.instructional_set'
     _description = 'Contenido para Sets Instruccionales (Libro Ventas/Guías)'
