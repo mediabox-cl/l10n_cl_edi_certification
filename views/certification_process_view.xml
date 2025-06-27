@@ -294,39 +294,12 @@
                                 
                                 <!-- Lista dinámica de sets disponibles -->
                                 <group string="Sets de Pruebas para Consolidación">
-                                    <field name="available_batch_set_ids" nolabel="1" readonly="1">
-                                        <list create="false" edit="false" delete="false" 
-                                              decoration-success="state == 'available' and docs_accepted == total_cases"
-                                              decoration-warning="docs_accepted &lt; total_cases and docs_rejected == 0"
-                                              decoration-danger="docs_rejected &gt; 0">
-                                            <field name="sequence" invisible="1"/>
-                                            <field name="parsed_set_id" invisible="1"/>
-                                            <field name="attention_number" invisible="1"/>
-                                            <field name="name" string="Set de Pruebas"/>
-                                            <field name="progress_display" string="Progreso"/>
-                                            <field name="docs_accepted" invisible="1"/>
-                                            <field name="total_cases" invisible="1"/>
-                                            <field name="docs_rejected" invisible="1"/>
-                                            <field name="docs_pending" invisible="1"/>
-                                            <field name="doc_types" string="Tipos Doc"/>
-                                            <field name="state" widget="badge"
-                                                   decoration-success="state == 'available'"
-                                                   decoration-info="state == 'generated'"
-                                                   decoration-danger="state == 'error'"/>
-                                            <field name="generation_date" string="Archivo Generado"/>
-                                            <field name="filename" string="Archivo"/>
-                                            <button name="action_generate_set" string="Generar XML" type="object"
-                                                    class="btn-primary" icon="fa-cloud-upload"
-                                                    invisible="state != 'available'"
-                                                    help="Generar archivo XML consolidado para envío SII"/>
-                                            <button name="action_download_file" string="Descargar" type="object"
-                                                    class="btn-success" icon="fa-download"
-                                                    invisible="state != 'generated'"
-                                                    help="Descargar archivo XML"/>
-                                            <button name="action_regenerate" string="Regenerar" type="object"
-                                                    class="btn-warning" icon="fa-refresh"
-                                                    invisible="state not in ['generated', 'error']"
-                                                    help="Regenerar archivo"/>
+                                    <!-- DEBUG: Vista simplificada -->
+                                    <field name="available_batch_set_ids" nolabel="1">
+                                        <list>
+                                            <field name="name"/>
+                                            <field name="progress_display"/>
+                                            <field name="state"/>
                                         </list>
                                     </field>
                                 </group>
