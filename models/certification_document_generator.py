@@ -1267,10 +1267,20 @@ class CertificationDocumentGenerator(models.TransientModel):
         self._adjust_credit_note_lines(credit_note, case_dte)
         
         # **PASO 9: Marcar el caso como generado**
-        case_dte.write({
-            'generation_status': 'generated',
-            'generated_account_move_id': credit_note.id,
-        })
+        if self.for_batch:
+            # En modo batch, SOLO guardar en el campo batch
+            update_vals = {
+                'generated_batch_account_move_id': credit_note.id,
+            }
+            _logger.info(f"=== CASO {case_dte.id} VINCULADO A NC/ND BATCH {credit_note.name} ===")
+        else:
+            # En modo normal, guardar en el campo individual
+            update_vals = {
+                'generation_status': 'generated',
+                'generated_account_move_id': credit_note.id,
+            }
+        
+        case_dte.write(update_vals)
         
         _logger.info(f"✅ NOTA DE CRÉDITO GENERADA EXITOSAMENTE")
         _logger.info(f"   Documento: {credit_note.name}")
