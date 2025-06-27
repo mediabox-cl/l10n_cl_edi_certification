@@ -108,6 +108,7 @@ class CertificationProcess(models.Model):
         'certification_process_id',
         string='Sets Disponibles para Consolidación',
         compute='_compute_available_batch_sets',
+        store=False,  # No almacenar, siempre computar dinámicamente
         help='Sets de documentos disponibles para generar envío consolidado'
     )
 
