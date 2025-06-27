@@ -434,6 +434,7 @@ class CertificationProcess(models.Model):
         for record in self:
             record.batch_files_count = len(record.generated_batch_files)
     
+    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status')
     def _compute_available_batch_sets(self):
         """Detecta dinámicamente qué tipos de sets están disponibles basado en casos generados"""
         for record in self:
@@ -469,113 +470,109 @@ class CertificationProcess(models.Model):
             record.available_batch_set_ids = available_sets
     
     def _get_available_sets_info(self):
-        """Retorna información de sets disponibles basado en documentos SII aceptados"""
-        _logger.info(f"=== ANALIZANDO DOCUMENTOS SII PARA PROCESO {self.id} ===")
+        """Retorna información de sets disponibles basado en sets de pruebas SII reales"""
+        _logger.info(f"=== ANALIZANDO SETS DE PRUEBAS SII PARA PROCESO {self.id} ===")
         
-        # Obtener casos DTE con documentos individuales generados
-        all_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
-            ('parsed_set_id.certification_process_id', '=', self.id),
-            ('generated_account_move_id', '!=', False)  # Tiene documento vinculado
+        # 1. Obtener todos los sets de pruebas del proceso
+        parsed_sets = self.env['l10n_cl_edi.certification.parsed_set'].search([
+            ('certification_process_id', '=', self.id)
         ])
-        _logger.info(f"Casos con documentos vinculados: {len(all_cases)}")
-        
-        # Analizar estado SII de cada documento
-        accepted_documents = []
-        rejected_documents = []
-        pending_documents = []
-        
-        for case in all_cases:
-            document = case.generated_account_move_id
-            if not document:
-                continue
-                
-            status = document.l10n_cl_dte_status
-            doc_type = document.l10n_latam_document_type_id.code
-            
-            _logger.info(f"Documento {document.name}: tipo={doc_type}, estado_SII={status}")
-            
-            if status == 'accepted':
-                accepted_documents.append(document)
-            elif status in ['rejected', 'cancelled']:
-                rejected_documents.append(document)
-            else:
-                pending_documents.append(document)
-        
-        _logger.info(f"Documentos: {len(accepted_documents)} aceptados, {len(rejected_documents)} rechazados, {len(pending_documents)} pendientes")
-        
-        # Solo proceder si HAY documentos aceptados
-        if not accepted_documents:
-            _logger.info("No hay documentos aceptados por SII - no se pueden generar sets batch")
-            return {}
-        
-        # Si hay documentos rechazados, mostrar warning pero permitir continuar
-        if rejected_documents:
-            _logger.warning(f"ATENCIÓN: {len(rejected_documents)} documentos rechazados - deberían corregirse")
-        
-        # Usar solo documentos aceptados para determinar sets disponibles
-        all_cases = accepted_documents
-        
-        # Mapeo de tipos de documento REAL (del invoice) a categorías de sets
-        doc_type_mappings = {
-            'basico': {'types': ['33', '34', '56', '61'], 'name': 'SET BÁSICO', 'icon': 'fa-file-text'},
-            'guias': {'types': ['52'], 'name': 'SET GUÍAS DE DESPACHO', 'icon': 'fa-truck'},
-            'exportacion1': {'types': ['110'], 'name': 'SET EXPORTACIÓN 1', 'icon': 'fa-globe'},
-            'exportacion2': {'types': ['111', '112'], 'name': 'SET EXPORTACIÓN 2', 'icon': 'fa-globe'},
-        }
+        _logger.info(f"Sets de pruebas encontrados: {len(parsed_sets)}")
         
         available_sets = {}
         
-        for set_key, set_info in doc_type_mappings.items():
-            # Filtrar documentos aceptados por tipo REAL del documento
-            matching_docs = [doc for doc in all_cases 
-                           if doc.l10n_latam_document_type_id.code in set_info['types']]
+        # 2. Procesar cada set de pruebas individualmente
+        for parsed_set in parsed_sets:
+            _logger.info(f"Procesando set: {parsed_set.name} (tipo: {parsed_set.set_type_normalized})")
             
-            if matching_docs:
-                doc_types = list(set([doc.l10n_latam_document_type_id.code for doc in matching_docs]))
+            # Obtener casos DTE del set con documentos generados y aceptados por SII
+            cases_with_accepted_docs = []
+            
+            for case in parsed_set.dte_case_ids:
+                if not case.generated_account_move_id:
+                    _logger.info(f"  Caso {case.case_number_raw}: sin documento generado")
+                    continue
+                    
+                document = case.generated_account_move_id
+                status = document.l10n_cl_dte_status
+                doc_type = document.l10n_latam_document_type_id.code
+                
+                _logger.info(f"  Caso {case.case_number_raw}: doc {document.name}, tipo={doc_type}, estado_SII={status}")
+                
+                if status == 'accepted':
+                    cases_with_accepted_docs.append(case)
+                elif status in ['rejected', 'cancelled']:
+                    _logger.warning(f"  ⚠️ Caso {case.case_number_raw}: documento RECHAZADO por SII")
+                else:
+                    _logger.info(f"  ⏳ Caso {case.case_number_raw}: documento PENDIENTE en SII")
+            
+            # Solo incluir sets que tengan AL MENOS un documento aceptado
+            if not cases_with_accepted_docs:
+                _logger.info(f"  ❌ Set {parsed_set.name}: sin documentos aceptados - omitido")
+                continue
+            
+            _logger.info(f"  ✅ Set {parsed_set.name}: {len(cases_with_accepted_docs)} documentos aceptados")
+            
+            # 3. Mapear set_type_normalized a keys de consolidación
+            set_key_mapping = {
+                'basic': 'basico',
+                'exempt_invoice': 'basico',  # Facturas exentas van al set básico
+                'dispatch_guide': 'guias',
+                'export_documents': 'exportacion1',  # Puede dividirse más tarde según tipos
+                'sales_book': 'ventas',
+                'guides_book': 'libro_guias',
+                'purchase_book': 'compras',
+            }
+            
+            set_key = set_key_mapping.get(parsed_set.set_type_normalized)
+            if not set_key:
+                _logger.warning(f"  ⚠️ Tipo de set no mapeado: {parsed_set.set_type_normalized}")
+                continue
+            
+            # 4. Para export_documents, dividir en exportacion1 y exportacion2 según tipos de documento
+            if parsed_set.set_type_normalized == 'export_documents':
+                # Analizar tipos de documentos en este set
+                doc_types_in_set = list(set([case.document_type_code for case in cases_with_accepted_docs]))
+                _logger.info(f"  Tipos de docs en set exportación: {doc_types_in_set}")
+                
+                # Dividir según tipos de documento
+                if '110' in doc_types_in_set:  # Facturas de exportación
+                    set_key = 'exportacion1'
+                elif any(t in doc_types_in_set for t in ['111', '112']):  # Notas de exportación
+                    set_key = 'exportacion2'
+            
+            # 5. Agregar o combinar en el set existente
+            doc_types = list(set([case.document_type_code for case in cases_with_accepted_docs]))
+            
+            # Nombres e iconos por tipo de set
+            set_info_mapping = {
+                'basico': {'name': 'SET BÁSICO', 'icon': 'fa-file-text'},
+                'guias': {'name': 'SET GUÍAS DE DESPACHO', 'icon': 'fa-truck'},
+                'exportacion1': {'name': 'SET EXPORTACIÓN 1', 'icon': 'fa-globe'},
+                'exportacion2': {'name': 'SET EXPORTACIÓN 2', 'icon': 'fa-globe'},
+                'ventas': {'name': 'LIBRO DE VENTAS (IEV)', 'icon': 'fa-book'},
+                'compras': {'name': 'LIBRO DE COMPRAS (IEC)', 'icon': 'fa-book'},
+                'libro_guias': {'name': 'LIBRO DE GUÍAS', 'icon': 'fa-book'},
+            }
+            
+            set_info = set_info_mapping.get(set_key, {'name': f'SET {set_key.upper()}', 'icon': 'fa-file'})
+            
+            if set_key in available_sets:
+                # Combinar con set existente
+                available_sets[set_key]['count'] += len(cases_with_accepted_docs)
+                available_sets[set_key]['doc_types'] = list(set(available_sets[set_key]['doc_types'] + doc_types))
+            else:
+                # Crear nuevo set
                 available_sets[set_key] = {
                     'name': set_info['name'],
                     'icon': set_info['icon'],
-                    'count': len(matching_docs),
+                    'count': len(cases_with_accepted_docs),
                     'doc_types': doc_types
                 }
-                _logger.info(f"Set {set_key}: {len(matching_docs)} documentos tipos {doc_types}")
-        
-        # Agregar libros IECV si hay documentos aceptados
-        if all_cases:
-            # Libro de ventas - documentos de venta aceptados
-            sales_docs = [doc for doc in all_cases 
-                         if doc.l10n_latam_document_type_id.code in ['33', '34', '56', '61']]
-            if sales_docs:
-                sales_types = list(set([doc.l10n_latam_document_type_id.code for doc in sales_docs]))
-                available_sets['ventas'] = {
-                    'name': 'LIBRO DE VENTAS (IEV)',
-                    'icon': 'fa-book',
-                    'count': len(sales_docs),
-                    'doc_types': sales_types
-                }
-                _logger.info(f"Libro ventas: {len(sales_docs)} documentos tipos {sales_types}")
             
-            # Libro de compras (simulado - siempre disponible si hay docs)
-            available_sets['compras'] = {
-                'name': 'LIBRO DE COMPRAS (IEC)',
-                'icon': 'fa-book',
-                'count': len(all_cases),  # Simula entradas basadas en docs existentes
-                'doc_types': ['simulado']
-            }
-            
-            # Libro de guías - guías de despacho aceptadas
-            guide_docs = [doc for doc in all_cases 
-                         if doc.l10n_latam_document_type_id.code in ['52']]
-            if guide_docs:
-                guide_types = list(set([doc.l10n_latam_document_type_id.code for doc in guide_docs]))
-                available_sets['libro_guias'] = {
-                    'name': 'LIBRO DE GUÍAS',
-                    'icon': 'fa-book',
-                    'count': len(guide_docs),
-                    'doc_types': guide_types
-                }
-                _logger.info(f"Libro guías: {len(guide_docs)} documentos tipos {guide_types}")
+            _logger.info(f"  ✅ Agregado a {set_key}: {len(cases_with_accepted_docs)} docs, tipos: {doc_types}")
         
+        # 6. Log final
         _logger.info(f"Sets disponibles encontrados: {list(available_sets.keys())}")
         for set_key, set_data in available_sets.items():
             _logger.info(f"  {set_key}: {set_data['count']} docs, tipos: {set_data['doc_types']}")

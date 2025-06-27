@@ -262,27 +262,52 @@ class CertificationBatchFile(models.Model):
         _logger.info(f"Validación exitosa: {len(accepted_docs)} documentos aceptados por SII para set {set_type}")
 
     def _get_relevant_cases_for_set_type(self, process, set_type):
-        """Obtener casos DTE relevantes según el tipo de set"""
-        all_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
-            ('parsed_set_id.certification_process_id', '=', process.id)
-        ])
+        """Obtener casos DTE relevantes según el tipo de set basado en sets de pruebas reales"""
+        _logger.info(f"Obteniendo casos para set tipo: {set_type}")
         
-        # Mapeo de tipos de set a tipos de documento
-        set_type_mappings = {
-            'basico': ['33', '34', '56', '61'],  # Facturas, facturas exentas, notas débito, notas crédito
-            'guias': ['52'],  # Guías de despacho
-            'ventas': ['33', '34', '56', '61'],  # Para libro de ventas
-            'compras': ['33', '34', '56', '61'],  # Para libro de compras (simulado)
-            'libro_guias': ['52'],  # Para libro de guías
-            'exportacion1': ['110'],  # Facturas de exportación
-            'exportacion2': ['111', '112'],  # Notas de exportación
+        # Mapeo inverso: de tipos de consolidación a tipos de set normalizados
+        consolidation_to_normalized = {
+            'basico': ['basic', 'exempt_invoice'],
+            'guias': ['dispatch_guide'],
+            'exportacion1': ['export_documents'],  # Se filtrarán por tipo 110
+            'exportacion2': ['export_documents'],  # Se filtrarán por tipos 111, 112
+            'ventas': ['basic', 'exempt_invoice'],  # Para libro de ventas
+            'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (simulado)
+            'libro_guias': ['dispatch_guide'],  # Para libro de guías
         }
         
-        relevant_doc_types = set_type_mappings.get(set_type, [])
-        if not relevant_doc_types:
-            return all_cases  # Si no hay mapeo específico, incluir todos
+        normalized_types = consolidation_to_normalized.get(set_type, [])
+        if not normalized_types:
+            _logger.warning(f"Tipo de set no mapeado: {set_type}")
+            return self.env['l10n_cl_edi.certification.case.dte']
         
-        return all_cases.filtered(lambda c: c.document_type_code in relevant_doc_types)
+        # Obtener parsed sets del tipo normalizado
+        parsed_sets = self.env['l10n_cl_edi.certification.parsed_set'].search([
+            ('certification_process_id', '=', process.id),
+            ('set_type_normalized', 'in', normalized_types)
+        ])
+        _logger.info(f"Sets encontrados para {set_type}: {len(parsed_sets)} ({[s.name for s in parsed_sets]})")
+        
+        # Obtener todos los casos de esos sets
+        all_relevant_cases = self.env['l10n_cl_edi.certification.case.dte']
+        for parsed_set in parsed_sets:
+            all_relevant_cases |= parsed_set.dte_case_ids
+        
+        # Para exportación, filtrar por tipos de documento específicos
+        if set_type == 'exportacion1':
+            # Solo facturas de exportación (110)
+            relevant_cases = all_relevant_cases.filtered(lambda c: c.document_type_code == '110')
+        elif set_type == 'exportacion2':
+            # Solo notas de exportación (111, 112)
+            relevant_cases = all_relevant_cases.filtered(lambda c: c.document_type_code in ['111', '112'])
+        else:
+            relevant_cases = all_relevant_cases
+        
+        _logger.info(f"Casos relevantes para {set_type}: {len(relevant_cases)}")
+        for case in relevant_cases:
+            _logger.info(f"  - Caso {case.case_number_raw}: tipo {case.document_type_code} ({case.document_type_name})")
+        
+        return relevant_cases
 
     def _generate_iecv_book(self, certification_process_id, set_type, name, book_type):
         """Genera libros IECV usando documentos batch con nuevos folios CAF"""
