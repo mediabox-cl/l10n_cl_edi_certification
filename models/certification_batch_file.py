@@ -473,19 +473,62 @@ class CertificationBatchFile(models.Model):
                 
                 # Decodificar XML del attachment
                 xml_data = document.sudo().l10n_cl_dte_file.raw.decode('ISO-8859-1')
+                _logger.info(f"🔍 Debug XML para {document.name}: primeros 200 chars:")
+                _logger.info(f"   {xml_data[:200]}")
                 
                 # Parsear con lxml
                 root = etree.fromstring(xml_data.encode('ISO-8859-1'))
+                _logger.info(f"   Root tag: {root.tag}")
+                _logger.info(f"   Root nsmap: {root.nsmap}")
                 
-                # Buscar nodo DTE (con namespace)
+                # Intentar múltiples estrategias para encontrar DTE
+                dte_node = None
+                
+                # 1. Con namespace SiiDte
                 namespaces = {'sii': 'http://www.sii.cl/SiiDte'}
                 dte_node = root.find('.//sii:DTE', namespaces)
+                if dte_node is not None:
+                    _logger.info(f"   ✓ DTE encontrado con namespace SiiDte")
+                
+                # 2. Sin namespace específico
+                if dte_node is None:
+                    dte_node = root.find('.//DTE')
+                    if dte_node is not None:
+                        _logger.info(f"   ✓ DTE encontrado sin namespace")
+                
+                # 3. Buscar por tag local
+                if dte_node is None:
+                    for elem in root.iter():
+                        if elem.tag.endswith('DTE'):
+                            dte_node = elem
+                            _logger.info(f"   ✓ DTE encontrado por tag local: {elem.tag}")
+                            break
+                
+                # 4. Si el root es un EnvioDTE, buscar SetDTE/DTE
+                if dte_node is None and root.tag.endswith('EnvioDTE'):
+                    for setdte in root.iter():
+                        if setdte.tag.endswith('SetDTE'):
+                            for dte in setdte.iter():
+                                if dte.tag.endswith('DTE'):
+                                    dte_node = dte
+                                    _logger.info(f"   ✓ DTE encontrado en SetDTE")
+                                    break
+                            if dte_node is not None:
+                                break
                 
                 if dte_node is not None:
                     dte_nodes.append(dte_node)
-                    _logger.info(f"DTE extraído de documento {document.name}")
+                    _logger.info(f"✓ DTE extraído de documento {document.name}")
                 else:
-                    _logger.warning(f"No se encontró nodo DTE en documento {document.name}")
+                    _logger.warning(f"⚠️ No se encontró nodo DTE en documento {document.name}")
+                    # Log de estructura XML para debug
+                    _logger.warning(f"   Estructura XML disponible:")
+                    for i, elem in enumerate(root.iter()):
+                        if i < 10:  # Solo primeros 10 elementos
+                            _logger.warning(f"     {i}: {elem.tag}")
+                        else:
+                            _logger.warning(f"     ... (más elementos)")
+                            break
                     
             except Exception as e:
                 _logger.error(f"Error extrayendo DTE de documento {document.name}: {str(e)}")
