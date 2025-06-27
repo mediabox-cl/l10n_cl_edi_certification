@@ -435,36 +435,14 @@ class CertificationProcess(models.Model):
         for record in self:
             record.batch_files_count = len(record.generated_batch_files)
     
-    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
     def _compute_available_batch_sets(self):
-        """Detecta dinámicamente qué tipos de sets están disponibles basado en casos generados"""
+        """Retorna registros persistentes de sets disponibles"""
         for record in self:
-            sets_info = record._get_available_sets_info()
-            
-            # Crear registros transient para cada set disponible
-            available_sets = []
-            sequence = 10
-            
-            for set_key, set_data in sets_info.items():
-                available_sets.append((0, 0, {
-                    'name': set_data['name'],
-                    'set_type': set_key,  # Usar la clave original (set_123)
-                    'total_cases': set_data['total_cases'],
-                    'docs_generated': set_data['docs_generated'],
-                    'docs_accepted': set_data['docs_accepted'],
-                    'docs_rejected': set_data['docs_rejected'],
-                    'docs_pending': set_data['docs_pending'],
-                    'doc_types': ', '.join(set_data['doc_types']),
-                    'icon': set_data['icon'],
-                    'sequence': set_data.get('parsed_set_id', sequence),
-                    'certification_process_id': record.id,
-                    'parsed_set_id': set_data.get('parsed_set_id'),
-                    'attention_number': set_data.get('attention_number'),
-                }))
-                sequence += 10
-            
-            record.available_batch_set_ids = available_sets
-            _logger.info(f"Campo available_batch_set_ids actualizado con {len(available_sets)} registros")
+            # Buscar registros existentes para este proceso
+            existing_sets = self.env['l10n_cl_edi.certification.available_set'].search([
+                ('certification_process_id', '=', record.id)
+            ])
+            record.available_batch_set_ids = existing_sets
     
     
     def _get_available_sets_info(self):
@@ -579,6 +557,30 @@ class CertificationProcess(models.Model):
             _logger.info(f"  {set_data['name']}: {set_data['docs_accepted']}/{set_data['total_cases']} aceptados, estado: {set_data['set_state']}")
         
         return available_sets
+    
+    def action_create_available_sets(self):
+        """Crear registros persistentes para sets disponibles (llamar después de cargar sets de pruebas)"""
+        self.ensure_one()
+        
+        # Limpiar registros existentes
+        existing_sets = self.env['l10n_cl_edi.certification.available_set'].search([
+            ('certification_process_id', '=', self.id)
+        ])
+        existing_sets.unlink()
+        
+        # Crear un registro por cada parsed_set
+        for parsed_set in self.parsed_set_ids:
+            self.env['l10n_cl_edi.certification.available_set'].create({
+                'name': parsed_set.name,
+                'set_type': f'set_{parsed_set.id}',
+                'certification_process_id': self.id,
+                'parsed_set_id': parsed_set.id,
+                'attention_number': parsed_set.attention_number,
+                'icon': self._get_icon_for_set_type(parsed_set.set_type_normalized),
+                'sequence': parsed_set.sequence,
+            })
+        
+        _logger.info(f"Creados {len(self.parsed_set_ids)} registros de sets disponibles para proceso {self.id}")
     
     def _get_icon_for_set_type(self, set_type_normalized):
         """Retorna icono apropiado según el tipo de set"""
@@ -1024,6 +1026,9 @@ class CertificationProcess(models.Model):
                 })
 
         self.check_certification_status()
+        
+        # Crear registros persistentes de sets disponibles
+        self.action_create_available_sets()
         
         # Retornar acción que recarga la vista actual
         return {

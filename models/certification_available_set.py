@@ -4,7 +4,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-class CertificationAvailableSet(models.TransientModel):
+class CertificationAvailableSet(models.Model):
     _name = 'l10n_cl_edi.certification.available_set'
     _description = 'Set Disponible para Consolidación'
     _order = 'sequence, name'
@@ -36,40 +36,46 @@ class CertificationAvailableSet(models.TransientModel):
         ('error', 'Error')
     ], string='Estado', compute='_compute_state')
     
-    # Campos de progreso
+    # Campos de progreso (computed dinámicamente)
     total_cases = fields.Integer(
         string='Total Casos',
+        compute='_compute_progress_stats',
         help='Número total de casos en el set'
     )
     
     docs_generated = fields.Integer(
         string='Documentos Generados',
+        compute='_compute_progress_stats',
         help='Número de documentos ya generados'
     )
     
     docs_accepted = fields.Integer(
         string='Documentos Aceptados',
+        compute='_compute_progress_stats',
         help='Número de documentos aceptados por SII'
     )
     
     docs_rejected = fields.Integer(
         string='Documentos Rechazados',
+        compute='_compute_progress_stats',
         help='Número de documentos rechazados por SII'
     )
     
     docs_pending = fields.Integer(
         string='Documentos Pendientes',
+        compute='_compute_progress_stats',
         help='Número de documentos pendientes en SII'
     )
     
     doc_types = fields.Char(
         string='Tipos de Documento',
+        compute='_compute_progress_stats',
         help='Códigos de tipos de documento incluidos'
     )
     
     progress_display = fields.Char(
         string='Progreso',
-        compute='_compute_progress_display',
+        compute='_compute_progress_stats',
         help='Progreso en formato X/Y'
     )
     
@@ -129,6 +135,70 @@ class CertificationAvailableSet(models.TransientModel):
             else:
                 record.batch_file_id = False
     
+    @api.depends('parsed_set_id', 'parsed_set_id.dte_case_ids', 'parsed_set_id.dte_case_ids.generated_account_move_id', 'parsed_set_id.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_id.dte_case_ids.generated_stock_picking_id', 'parsed_set_id.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
+    def _compute_progress_stats(self):
+        """Calcula estadísticas de progreso dinámicamente"""
+        for record in self:
+            if not record.parsed_set_id:
+                # Valores por defecto si no hay parsed_set
+                record.total_cases = 0
+                record.docs_generated = 0
+                record.docs_accepted = 0
+                record.docs_rejected = 0
+                record.docs_pending = 0
+                record.doc_types = ''
+                record.progress_display = '0/0'
+                continue
+            
+            # Analizar todos los casos del set
+            total_cases = len(record.parsed_set_id.dte_case_ids)
+            docs_generated = 0
+            docs_accepted = 0
+            docs_rejected = 0
+            docs_pending = 0
+            doc_types_set = set()
+            
+            for case in record.parsed_set_id.dte_case_ids:
+                # Determinar el documento generado (account.move o stock.picking)
+                document = None
+                if case.generated_account_move_id:
+                    document = case.generated_account_move_id
+                elif case.generated_stock_picking_id:
+                    document = case.generated_stock_picking_id
+                
+                if not document:
+                    continue
+                
+                docs_generated += 1
+                
+                # Obtener estado SII y tipo de documento
+                status = document.l10n_cl_dte_status
+                
+                # Para account.move usar l10n_latam_document_type_id, para stock.picking usar l10n_latam_document_type_id también
+                if hasattr(document, 'l10n_latam_document_type_id') and document.l10n_latam_document_type_id:
+                    doc_type = document.l10n_latam_document_type_id.code
+                else:
+                    # Fallback al código del caso
+                    doc_type = case.document_type_code
+                
+                doc_types_set.add(doc_type)
+                
+                if status == 'accepted':
+                    docs_accepted += 1
+                elif status in ['rejected', 'cancelled']:
+                    docs_rejected += 1
+                else:
+                    docs_pending += 1
+            
+            # Asignar valores calculados
+            record.total_cases = total_cases
+            record.docs_generated = docs_generated
+            record.docs_accepted = docs_accepted
+            record.docs_rejected = docs_rejected
+            record.docs_pending = docs_pending
+            record.doc_types = ', '.join(sorted(doc_types_set))
+            record.progress_display = f"{docs_accepted}/{total_cases}"
+    
     @api.depends('docs_accepted', 'total_cases', 'docs_rejected', 'docs_pending', 'batch_file_id', 'batch_file_id.state')
     def _compute_state(self):
         """Calcula el estado basado en el progreso de documentos y archivo batch"""
@@ -147,12 +217,6 @@ class CertificationAvailableSet(models.TransientModel):
                     record.state = 'available'  # Listo para generar
                 else:
                     record.state = 'error'  # No disponible para generar
-    
-    @api.depends('docs_accepted', 'total_cases')
-    def _compute_progress_display(self):
-        """Calcula el display de progreso"""
-        for record in self:
-            record.progress_display = f"{record.docs_accepted}/{record.total_cases}"
     
     def action_generate_set(self):
         """Genera el set consolidado"""
