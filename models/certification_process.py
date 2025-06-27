@@ -111,6 +111,14 @@ class CertificationProcess(models.Model):
         store=False,  # No almacenar, siempre computar dinámicamente
         help='Sets de documentos disponibles para generar envío consolidado'
     )
+    
+    # Campo HTML alternativo para mostrar sets
+    available_sets_html = fields.Html(
+        string='Sets Disponibles HTML',
+        compute='_compute_available_sets_html',
+        store=False,
+        help='Vista HTML de sets disponibles como fallback'
+    )
 
     # Checklists
     has_digital_signature = fields.Boolean(compute='_compute_has_digital_signature', string='Firma Digital')
@@ -434,7 +442,7 @@ class CertificationProcess(models.Model):
         for record in self:
             record.batch_files_count = len(record.generated_batch_files)
     
-    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status')
+    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
     def _compute_available_batch_sets(self):
         """Detecta dinámicamente qué tipos de sets están disponibles basado en casos generados"""
         for record in self:
@@ -468,6 +476,81 @@ class CertificationProcess(models.Model):
                 sequence += 10
             
             record.available_batch_set_ids = available_sets
+            _logger.info(f"Campo available_batch_set_ids actualizado con {len(available_sets)} registros")
+    
+    @api.depends('parsed_set_ids', 'parsed_set_ids.dte_case_ids', 'parsed_set_ids.dte_case_ids.generated_account_move_id', 'parsed_set_ids.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id', 'parsed_set_ids.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
+    def _compute_available_sets_html(self):
+        """Genera vista HTML de sets disponibles como alternativa"""
+        for record in self:
+            sets_info = record._get_available_sets_info()
+            
+            if not sets_info:
+                record.available_sets_html = """
+                <div class="alert alert-warning">
+                    <strong>No hay sets disponibles para consolidación</strong>
+                    <p>Genere primero documentos DTE individuales y espere que sean aceptados por SII.</p>
+                </div>
+                """
+                continue
+            
+            # Generar tabla HTML
+            html = """
+            <div class="o_field_widget">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Set</th>
+                            <th>Documentos</th>
+                            <th>Tipos</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            """
+            
+            for set_key, set_data in sets_info.items():
+                # Determinar estado del set
+                existing_batch = record.env['l10n_cl_edi.certification.batch_file'].search([
+                    ('certification_id', '=', record.id),
+                    ('set_type', '=', set_key)
+                ], limit=1)
+                
+                state = 'available'
+                if existing_batch:
+                    state = existing_batch.state
+                
+                state_badge = {
+                    'available': '<span class="badge badge-info">Disponible</span>',
+                    'generated': '<span class="badge badge-success">Generado</span>',
+                    'error': '<span class="badge badge-danger">Error</span>'
+                }.get(state, '<span class="badge badge-secondary">Desconocido</span>')
+                
+                # Botones de acción
+                if state == 'available':
+                    action_btn = f'<button class="btn btn-primary btn-sm" onclick="alert(\'Funcionalidad en desarrollo\')">Generar</button>'
+                elif state == 'generated':
+                    action_btn = f'<button class="btn btn-success btn-sm" onclick="alert(\'Descarga en desarrollo\')">Descargar</button>'
+                else:
+                    action_btn = f'<button class="btn btn-warning btn-sm" onclick="alert(\'Regenerar en desarrollo\')">Regenerar</button>'
+                
+                html += f"""
+                    <tr>
+                        <td><i class="{set_data['icon']}"></i> {set_data['name']}</td>
+                        <td>{set_data['count']}</td>
+                        <td>{', '.join(set_data['doc_types'])}</td>
+                        <td>{state_badge}</td>
+                        <td>{action_btn}</td>
+                    </tr>
+                """
+            
+            html += """
+                    </tbody>
+                </table>
+            </div>
+            """
+            
+            record.available_sets_html = html
     
     def _get_available_sets_info(self):
         """Retorna información de sets disponibles basado en sets de pruebas SII reales"""
@@ -489,13 +572,26 @@ class CertificationProcess(models.Model):
             cases_with_accepted_docs = []
             
             for case in parsed_set.dte_case_ids:
-                if not case.generated_account_move_id:
+                # Determinar el documento generado (account.move o stock.picking)
+                document = None
+                if case.generated_account_move_id:
+                    document = case.generated_account_move_id
+                elif case.generated_stock_picking_id:
+                    document = case.generated_stock_picking_id
+                
+                if not document:
                     _logger.info(f"  Caso {case.case_number_raw}: sin documento generado")
                     continue
-                    
-                document = case.generated_account_move_id
+                
+                # Obtener estado SII y tipo de documento
                 status = document.l10n_cl_dte_status
-                doc_type = document.l10n_latam_document_type_id.code
+                
+                # Para account.move usar l10n_latam_document_type_id, para stock.picking usar l10n_latam_document_type_id también
+                if hasattr(document, 'l10n_latam_document_type_id') and document.l10n_latam_document_type_id:
+                    doc_type = document.l10n_latam_document_type_id.code
+                else:
+                    # Fallback al código del caso
+                    doc_type = case.document_type_code
                 
                 _logger.info(f"  Caso {case.case_number_raw}: doc {document.name}, tipo={doc_type}, estado_SII={status}")
                 

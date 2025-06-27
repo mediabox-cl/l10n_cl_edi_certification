@@ -294,6 +294,11 @@
                                 
                                 <!-- Lista dinámica de sets disponibles -->
                                 <group string="Sets Disponibles para Consolidación">
+                                    <!-- DEBUG: Campo HTML como fallback -->
+                                    <field name="available_sets_html" nolabel="1" readonly="1"/>
+                                    
+                                    <!-- Lista One2many original (comentada temporalmente para debug) -->
+                                    <!--
                                     <field name="available_batch_set_ids" nolabel="1" readonly="1">
                                         <list create="false" edit="false" delete="false">
                                             <field name="sequence" invisible="1"/>
@@ -320,6 +325,7 @@
                                                     help="Regenerar archivo"/>
                                         </list>
                                     </field>
+                                    -->
                                 </group>
                                 
                                 <div class="alert alert-warning" role="alert" invisible="available_batch_set_ids">
