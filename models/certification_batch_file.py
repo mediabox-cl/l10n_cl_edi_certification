@@ -177,7 +177,7 @@ class CertificationBatchFile(models.Model):
                 'name': name,
                 'set_type': set_type,
                 'xml_content': consolidated_xml,
-                'file_data': base64.b64encode(consolidated_xml.encode('utf-8')),
+                'file_data': base64.b64encode(consolidated_xml.encode('ISO-8859-1')),
                 'document_count': len(dte_nodes),
                 'state': 'generated'
             })
@@ -557,40 +557,26 @@ class CertificationBatchFile(models.Model):
         for dte_node in dte_nodes:
             set_dte.append(dte_node)
         
-        # Usar el template de Odoo para EnvioDTE como lo hace el sistema base
+        # Construir XML consolidado manualmente (bypass template incompatible)
         company = process.company_id
         digital_signature_sudo = company.sudo()._get_digital_signature(user_id=self.env.user.id)
         
-        # Obtener el template de envío DTE del sistema base
-        template = self.env.ref('l10n_cl_edi.envio_dte')
-        
-        # Convertir DTEs a markup para el template
-        dtes_markup = []
-        for dte_node in dte_nodes:
-            # Quitar declaración XML si existe
-            dte_string = etree.tostring(dte_node, encoding='unicode', pretty_print=True)
-            dte_string = dte_string.replace('<?xml version="1.0" encoding="ISO-8859-1" ?>', '')
-            dtes_markup.append(dte_string)
-        
-        # Renderizar usando template de Odoo (como hace _l10n_cl_create_dte_envelope)
-        dte_rendered = self.env['ir.qweb']._render(template.id, {
-            'RutEmisor': self.env['account.move']._l10n_cl_format_vat(company.vat),
-            'RutEnvia': digital_signature_sudo.subject_serial_number,
-            'RutReceptor': '60803000-K',
-            'FchResol': company.l10n_cl_dte_resolution_date,
-            'NroResol': company.l10n_cl_dte_resolution_number,
-            'TmstFirmaEnv': self.env['account.move']._get_cl_current_strftime(),
-            'dte_nodes': dtes_markup,  # Lista de DTEs como strings
-            'doc_counts': self._get_doc_counts(dte_nodes),  # Para SubTotDTE
-            '__keep_empty_lines': True,
-        })
-        
-        # Limpiar declaración XML duplicada
-        dte_rendered = dte_rendered.replace('<?xml version="1.0" encoding="ISO-8859-1" ?>', '')
+        # Convertir estructura lxml a string con encoding correcto
+        try:
+            xml_string = etree.tostring(
+                envio_root, 
+                encoding='ISO-8859-1', 
+                xml_declaration=True, 
+                pretty_print=True
+            ).decode('ISO-8859-1')
+            _logger.info(f"XML consolidado generado exitosamente con {len(dte_nodes)} DTEs")
+        except Exception as e:
+            _logger.error(f"Error generando XML consolidado: {str(e)}")
+            raise UserError(_('Error al construir XML consolidado: %s') % str(e))
         
         # Firmar usando el método estándar de Odoo
         signed_xml = self.env['account.move']._sign_full_xml(
-            dte_rendered, 
+            xml_string, 
             digital_signature_sudo, 
             'SetDoc',
             'env',  # Tipo de envío
@@ -608,11 +594,12 @@ class CertificationBatchFile(models.Model):
         
         # RutEmisor
         rut_emisor = etree.SubElement(caratula, 'RutEmisor')
-        rut_emisor.text = company.vat or '11111111-1'
+        rut_emisor.text = self.env['account.move']._l10n_cl_format_vat(company.vat)
         
-        # RutEnvia (mismo que emisor por ahora)
+        # RutEnvia (del certificado digital)
+        digital_signature_sudo = company.sudo()._get_digital_signature(user_id=self.env.user.id)
         rut_envia = etree.SubElement(caratula, 'RutEnvia')
-        rut_envia.text = company.vat or '11111111-1'
+        rut_envia.text = digital_signature_sudo.subject_serial_number if digital_signature_sudo else company.vat
         
         # RutReceptor (siempre SII)
         rut_receptor = etree.SubElement(caratula, 'RutReceptor')
@@ -629,20 +616,10 @@ class CertificationBatchFile(models.Model):
         
         # TmstFirmaEnv
         tmst_firma = etree.SubElement(caratula, 'TmstFirmaEnv')
-        tmst_firma.text = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        tmst_firma.text = self.env['account.move']._get_cl_current_strftime()
         
-        # Contar documentos por tipo para SubTotDTE
-        doc_counts = {}
-        for dte_node in dte_nodes:
-            # Extraer tipo de documento del DTE
-            doc_encabezado = dte_node.find('.//{http://www.sii.cl/SiiDte}Encabezado')
-            if doc_encabezado is not None:
-                id_doc = doc_encabezado.find('.//{http://www.sii.cl/SiiDte}IdDoc')
-                if id_doc is not None:
-                    tipo_dte = id_doc.find('.//{http://www.sii.cl/SiiDte}TipoDTE')
-                    if tipo_dte is not None:
-                        doc_type = tipo_dte.text
-                        doc_counts[doc_type] = doc_counts.get(doc_type, 0) + 1
+        # Contar documentos por tipo para SubTotDTE usando método existente
+        doc_counts = self._get_doc_counts(dte_nodes)
         
         # Agregar SubTotDTE para cada tipo
         for doc_type, count in doc_counts.items():
@@ -655,3 +632,22 @@ class CertificationBatchFile(models.Model):
             nro_doc_elem.text = str(count)
         
         return caratula
+    
+    def _get_doc_counts(self, dte_nodes):
+        """
+        Count documents by type for SubTotDTE elements.
+        Returns dict with document type as key and count as value.
+        """
+        doc_counts = {}
+        for dte_node in dte_nodes:
+            # Extract document type from DTE node
+            doc_encabezado = dte_node.find('.//{http://www.sii.cl/SiiDte}Encabezado')
+            if doc_encabezado is not None:
+                id_doc = doc_encabezado.find('.//{http://www.sii.cl/SiiDte}IdDoc')
+                if id_doc is not None:
+                    tipo_dte = id_doc.find('.//{http://www.sii.cl/SiiDte}TipoDTE')
+                    if tipo_dte is not None:
+                        doc_type = tipo_dte.text
+                        doc_counts[doc_type] = doc_counts.get(doc_type, 0) + 1
+        
+        return doc_counts
