@@ -473,35 +473,27 @@ class CertificationBatchFile(models.Model):
                 
                 # Decodificar XML del attachment
                 xml_data = document.sudo().l10n_cl_dte_file.raw.decode('ISO-8859-1')
-                _logger.info(f"🔍 Debug XML para {document.name}: primeros 200 chars:")
-                _logger.info(f"   {xml_data[:200]}")
                 
                 # Parsear con lxml
                 root = etree.fromstring(xml_data.encode('ISO-8859-1'))
-                _logger.info(f"   Root tag: {root.tag}")
-                _logger.info(f"   Root nsmap: {root.nsmap}")
                 
                 # Intentar múltiples estrategias para encontrar DTE
                 dte_node = None
                 
+                # Buscar nodo DTE con múltiples estrategias
                 # 1. Con namespace SiiDte
                 namespaces = {'sii': 'http://www.sii.cl/SiiDte'}
                 dte_node = root.find('.//sii:DTE', namespaces)
-                if dte_node is not None:
-                    _logger.info(f"   ✓ DTE encontrado con namespace SiiDte")
                 
                 # 2. Sin namespace específico
                 if dte_node is None:
                     dte_node = root.find('.//DTE')
-                    if dte_node is not None:
-                        _logger.info(f"   ✓ DTE encontrado sin namespace")
                 
-                # 3. Buscar por tag local
+                # 3. Buscar por tag local (funciona para archivos DTE directos)
                 if dte_node is None:
                     for elem in root.iter():
                         if elem.tag.endswith('DTE'):
                             dte_node = elem
-                            _logger.info(f"   ✓ DTE encontrado por tag local: {elem.tag}")
                             break
                 
                 # 4. Si el root es un EnvioDTE, buscar SetDTE/DTE
@@ -511,7 +503,6 @@ class CertificationBatchFile(models.Model):
                             for dte in setdte.iter():
                                 if dte.tag.endswith('DTE'):
                                     dte_node = dte
-                                    _logger.info(f"   ✓ DTE encontrado en SetDTE")
                                     break
                             if dte_node is not None:
                                 break
@@ -543,11 +534,15 @@ class CertificationBatchFile(models.Model):
         """Construir XML consolidado con carátula y múltiples DTEs"""
         _logger.info(f"Construyendo XML consolidado para {len(dte_nodes)} DTEs")
         
-        # Crear estructura base del EnvioDTE
-        envio_root = etree.Element('EnvioDTE')
-        envio_root.set('xmlns', 'http://www.sii.cl/SiiDte')
-        envio_root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-        envio_root.set('xsi:schemaLocation', 'http://www.sii.cl/SiiDte EnvioDTE_v10.xsd')
+        # Crear estructura base del EnvioDTE con namespaces correctos
+        nsmap = {
+            None: 'http://www.sii.cl/SiiDte',  # Namespace por defecto
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+        }
+        
+        envio_root = etree.Element('EnvioDTE', nsmap=nsmap)
+        envio_root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation', 
+                       'http://www.sii.cl/SiiDte EnvioDTE_v10.xsd')
         envio_root.set('version', '1.0')
         
         # Crear SetDTE
@@ -562,10 +557,47 @@ class CertificationBatchFile(models.Model):
         for dte_node in dte_nodes:
             set_dte.append(dte_node)
         
-        # Convertir a string con encoding correcto
-        xml_string = etree.tostring(envio_root, encoding='ISO-8859-1', xml_declaration=True, pretty_print=True)
+        # Usar el template de Odoo para EnvioDTE como lo hace el sistema base
+        company = process.company_id
+        digital_signature_sudo = company.sudo()._get_digital_signature(user_id=self.env.user.id)
         
-        return xml_string.decode('ISO-8859-1')
+        # Obtener el template de envío DTE del sistema base
+        template = self.env.ref('l10n_cl_edi.envio_dte')
+        
+        # Convertir DTEs a markup para el template
+        dtes_markup = []
+        for dte_node in dte_nodes:
+            # Quitar declaración XML si existe
+            dte_string = etree.tostring(dte_node, encoding='unicode', pretty_print=True)
+            dte_string = dte_string.replace('<?xml version="1.0" encoding="ISO-8859-1" ?>', '')
+            dtes_markup.append(dte_string)
+        
+        # Renderizar usando template de Odoo (como hace _l10n_cl_create_dte_envelope)
+        dte_rendered = self.env['ir.qweb']._render(template.id, {
+            'RutEmisor': self.env['account.move']._l10n_cl_format_vat(company.vat),
+            'RutEnvia': digital_signature_sudo.subject_serial_number,
+            'RutReceptor': '60803000-K',
+            'FchResol': company.l10n_cl_dte_resolution_date,
+            'NroResol': company.l10n_cl_dte_resolution_number,
+            'TmstFirmaEnv': self.env['account.move']._get_cl_current_strftime(),
+            'dte_nodes': dtes_markup,  # Lista de DTEs como strings
+            'doc_counts': self._get_doc_counts(dte_nodes),  # Para SubTotDTE
+            '__keep_empty_lines': True,
+        })
+        
+        # Limpiar declaración XML duplicada
+        dte_rendered = dte_rendered.replace('<?xml version="1.0" encoding="ISO-8859-1" ?>', '')
+        
+        # Firmar usando el método estándar de Odoo
+        signed_xml = self.env['account.move']._sign_full_xml(
+            dte_rendered, 
+            digital_signature_sudo, 
+            'SetDoc',
+            'env',  # Tipo de envío
+            False   # No es voucher
+        )
+        
+        return signed_xml
 
     def _build_consolidated_caratula(self, process, dte_nodes, set_type):
         """Generar carátula consolidada con SubTotDTE"""
