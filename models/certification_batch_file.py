@@ -566,7 +566,7 @@ class CertificationBatchFile(models.Model):
             xml_string = etree.tostring(
                 envio_root, 
                 encoding='ISO-8859-1', 
-                xml_declaration=True, 
+                xml_declaration=False, 
                 pretty_print=True
             ).decode('ISO-8859-1')
             _logger.info(f"XML consolidado generado exitosamente con {len(dte_nodes)} DTEs")
