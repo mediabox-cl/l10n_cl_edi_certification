@@ -218,8 +218,10 @@ class CertificationBatchFile(models.Model):
         if not relevant_cases:
             raise UserError(_('No se encontraron casos DTE para el tipo de set: %s') % set_type)
         
-        # 2. Verificar que tienen documentos individuales generados
-        cases_without_docs = relevant_cases.filtered(lambda c: not c.generated_account_move_id)
+        # 2. Verificar que tienen documentos individuales generados (factura O guía)
+        cases_without_docs = relevant_cases.filtered(
+            lambda c: not c.generated_account_move_id and not c.generated_stock_picking_id
+        )
         if cases_without_docs:
             case_numbers = ', '.join(cases_without_docs.mapped('case_number_raw'))
             raise UserError(_('Los siguientes casos no tienen documentos generados: %s') % case_numbers)
@@ -230,10 +232,11 @@ class CertificationBatchFile(models.Model):
         pending_docs = []
         
         for case in relevant_cases:
-            if not case.generated_account_move_id:
+            # Obtener el documento correcto (factura o guía)
+            doc = case.generated_account_move_id or case.generated_stock_picking_id
+            if not doc:
                 continue
                 
-            doc = case.generated_account_move_id
             status = doc.l10n_cl_dte_status
             
             if status == 'accepted':
@@ -246,18 +249,20 @@ class CertificationBatchFile(models.Model):
         # Solo permitir si TODOS están aceptados
         if rejected_docs:
             case_numbers = ', '.join(rejected_docs.mapped('case_number_raw'))
+            doc_statuses = [c.generated_account_move_id.l10n_cl_dte_status if c.generated_account_move_id else c.generated_stock_picking_id.l10n_cl_dte_status for c in rejected_docs]
             raise UserError(_(
                 'Los siguientes documentos están RECHAZADOS por SII y deben corregirse antes de la consolidación: %s\n\n'
                 'Estado SII: %s'
-            ) % (case_numbers, ', '.join([c.generated_account_move_id.l10n_cl_dte_status for c in rejected_docs])))
+            ) % (case_numbers, ', '.join(doc_statuses)))
         
         if pending_docs:
             case_numbers = ', '.join(pending_docs.mapped('case_number_raw'))
+            doc_statuses = [c.generated_account_move_id.l10n_cl_dte_status if c.generated_account_move_id else c.generated_stock_picking_id.l10n_cl_dte_status for c in pending_docs]
             raise UserError(_(
                 'Los siguientes documentos están PENDIENTES de aprobación SII: %s\n\n'
                 'Estado SII: %s\n\n'
                 'Debe esperar a que SII los acepte antes de generar envío consolidado.'
-            ) % (case_numbers, ', '.join([c.generated_account_move_id.l10n_cl_dte_status for c in pending_docs])))
+            ) % (case_numbers, ', '.join(doc_statuses)))
         
         _logger.info(f"Validación exitosa: {len(accepted_docs)} documentos aceptados por SII para set {set_type}")
 
