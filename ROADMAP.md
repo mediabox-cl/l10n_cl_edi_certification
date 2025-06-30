@@ -1,110 +1,29 @@
-# Roadmap: Módulo de Certificación SII Chile
+# ROADMAP del Módulo de Certificación SII (l10n_cl_edi_certification)
 
-## Visión General
-Este roadmap define las próximas etapas de desarrollo para el módulo de Certificación SII de Chile, con el objetivo de facilitar el proceso oficial de certificación ante el Servicio de Impuestos Internos (SII).
+Este documento detalla las tareas completadas y los próximos pasos en el desarrollo y depuración del módulo.
 
-## Principios Guía
-- **Utilizar funcionalidad existente**: Aprovechar las capacidades del módulo l10n_cl_edi siempre que sea posible
-- **Foco en seguimiento**: El módulo debe coordinar y dar seguimiento al proceso, no reimplementar funcionalidad
-- **Automatización de tareas repetitivas**: Facilitar los pasos mecánicos pero mantener control en decisiones críticas
+## 1. Análisis Inicial del Código Base
 
-## Plan de Desarrollo
+*   **Estado**: Completado.
+*   **Descripción**: Se realizó un análisis exhaustivo de la estructura del módulo, modelos clave (`CertificationProcess`, `CertificationCaseDte`, `CertificationDocumentGenerator`, `CertificationBatchFile`), y el flujo de generación de DTEs individuales y consolidados.
+*   **Documentación Generada**: `GEMINI_ANALYSIS.md`
 
-### Fase 1: Procesamiento del Set de Pruebas
+## 2. Corrección de Generación de Envío Consolidado (SET BÁSICO)
 
-#### 1.1 Parser para Archivos Set de Pruebas (Alta Prioridad)
-- Desarrollar parser para archivos de texto del SII (formato .txt)
-- Identificar los diferentes casos de prueba dentro del archivo
-- Extraer la información necesaria para cada caso (montos, productos, fechas, etc.)
+*   **Problema Identificado**: Error `Unicode strings with encoding declaration are not supported` al firmar el XML consolidado del SET BÁSICO.
+*   **Causa Raíz**: La función `etree.tostring` estaba incluyendo la declaración XML (`<?xml ...?>`) cuando la función de firma de Odoo esperaba un fragmento sin ella.
+*   **Solución Implementada**: Se modificó `models/certification_batch_file.py` para cambiar `xml_declaration=True` a `xml_declaration=False` en la llamada a `etree.tostring`.
+*   **Estado**: **Completado y Verificado**. El archivo `BASICO_762352915.xml` se generó y validó correctamente.
 
-#### 1.2 Generación Automática de Maestros (Alta Prioridad)
-- Crear productos automáticamente basados en el set de pruebas
-- Generar partners necesarios para los documentos
-- Configurar impuestos y otros datos requeridos
+## 3. Corrección de Generación de Envío Consolidado (SET GUÍAS DE DESPACHO)
 
-#### 1.3 Generación de Documentos (Alta Prioridad)
-- Implementar la creación automática de documentos según los casos
-- Configurar referencias y datos adicionales
-- Asegurar que los documentos cumplan con los requisitos SII
-
-### Fase 2: Integración con CAFs
-
-#### 2.1 Acceso a Gestión de CAFs (Media Prioridad)
-- Integrar acceso directo a la funcionalidad de carga de CAFs
-- Implementar validaciones para verificar CAFs necesarios
-- Mostrar estado de CAFs requeridos vs. disponibles
-
-#### 2.2 Validación de Asignación de CAFs (Media Prioridad)
-- Verificar asignación correcta de CAFs a documentos
-- Reportar problemas o inconsistencias
-- Guiar en la resolución de problemas
-
-### Fase 3: Seguimiento del Envío de Documentos
-
-#### 3.1 Integración con Flujo de Envío (Media Prioridad)
-- Utilizar funcionalidad existente de envío de documentos
-- Implementar seguimiento del estado de envío
-- Reportar resultados y problemas
-
-#### 3.2 Panel de Control de Estado (Media Prioridad)
-- Desarrollar dashboard para visualizar estado de documentos
-- Agrupar por casos del set de pruebas
-- Mostrar estado de cada documento en el proceso
-
-### Fase 4: Integración con Etapa de Intercambio
-
-#### 4.1 Seguimiento de Intercambio (Baja Prioridad)
-- Implementar registro de intercambios de documentos
-- Utilizar funcionalidad existente para intercambios
-- Validar requisitos del SII para esta etapa
-
-### Fase 5: Gestión de Muestras de Impresión
-
-#### 5.1 Generación de Muestras (Media Prioridad)
-- Integrar con funcionalidad existente de generación de PDFs
-- Facilitar agrupación de documentos para envío de muestras
-- Verificar presencia de timbre electrónico
-
-#### 5.2 Control de Envío de Muestras (Baja Prioridad)
-- Registrar envío de muestras
-- Seguimiento de aprobación
-
-### Fase 6: Declaración y Cierre de Certificación
-
-#### 6.1 Asistente de Verificación Final (Baja Prioridad)
-- Verificar que todos los pasos han sido completados correctamente
-- Generar reporte de estado para revisión
-- Preparar declaración final
-
-#### 6.2 Registro de Certificación (Baja Prioridad)
-- Implementar registro formal de certificación completada
-- Almacenar datos relevantes (fechas, resoluciones, etc.)
-- Generar documentación de referencia
-
-## Cronograma Propuesto
-
-| Fase | Actividad | Prioridad | Semanas Estimadas |
-|------|-----------|-----------|-------------------|
-| 1.1 | Parser para Set de Pruebas | Alta | 2 |
-| 1.2 | Generación de Maestros | Alta | 1 |
-| 1.3 | Generación de Documentos | Alta | 2 |
-| 2.1 | Acceso a Gestión CAFs | Media | 1 |
-| 2.2 | Validación de CAFs | Media | 1 |
-| 3.1 | Integración con Envío | Media | 2 |
-| 3.2 | Panel de Control | Media | 2 |
-| 4.1 | Seguimiento de Intercambio | Baja | 1 |
-| 5.1 | Gestión de Muestras | Media | 1 |
-| 5.2 | Control de Envío | Baja | 1 |
-| 6.1 | Verificación Final | Baja | 1 |
-| 6.2 | Registro de Certificación | Baja | 1 |
-
-## Próximos Pasos Inmediatos
-1. Desarrollar el parser para el set de pruebas
-2. Implementar la creación de maestros (productos, partners)
-3. Desarrollar la generación automática de documentos
-
-## Consideraciones Técnicas
-- El módulo debe ser compatible con instalaciones existentes de l10n_cl
-- Se debe mantener trazabilidad completa del proceso
-- Las acciones automáticas deben ser reversibles o tener opciones de corrección manual
-- Considerar implementar un modelo de "Sesión de Certificación" para manejar múltiples intentos
+*   **Problema Identificado**: Error `Los siguientes casos no tienen documentos generados` al intentar generar el envío consolidado de Guías de Despacho.
+*   **Causa Raíz (Inicial)**: La validación en `_validate_ready_for_batch_generation` solo verificaba `generated_account_move_id`, ignorando `generated_stock_picking_id`.
+*   **Solución Implementada (Parcial)**: Se modificó `models/certification_batch_file.py` para que la validación considere ambos tipos de documentos.
+*   **Nuevo Problema Identificado**: Después de la corrección parcial, el log mostró que las guías se creaban en estado 'assigned' pero no se generaba su DTE.
+*   **Causa Raíz (Actual)**: El método `_finalize_delivery_guide` en `models/certification_document_generator.py` no invoca la lógica de generación de DTE para `stock.picking` en modo batch. El método `create_delivery_guide()` del módulo base (`l10n_cl_edi_stock`) es el responsable de esto.
+*   **Estado**: **Completado y Verificado**.
+*   **Solución Implementada**:
+    1.  Se añadió `generated_batch_stock_picking_id` a `models/certification_case_dte.py`.
+    2.  Se modificó `_finalize_delivery_guide` en `models/certification_document_generator.py` para llamar a `picking.create_delivery_guide()` en modo batch, asegurando la generación del DTE de la guía.
+    3.  Se actualizó `_regenerate_test_documents` en `models/certification_batch_file.py` para manejar correctamente la obtención y verificación del DTE (`l10n_cl_dte_file`) tanto de `account.move` como de `stock.picking` en modo batch.

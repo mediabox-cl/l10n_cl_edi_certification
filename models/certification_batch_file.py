@@ -434,21 +434,21 @@ class CertificationBatchFile(models.Model):
                 result = generator.generate_document(for_batch=True)
                 
                 # Obtener el documento generado para batch
-                if isinstance(result, self.env['account.move'].__class__):
-                    # El resultado es directamente el documento
-                    document = result
-                elif case.generated_batch_account_move_id:
-                    # Obtener del campo batch
-                    document = case.generated_batch_account_move_id
+                document = None
+                if case.document_type_code == '52': # Guía de Despacho
+                    document = case.generated_batch_stock_picking_id
                 else:
+                    document = case.generated_batch_account_move_id
+
+                if not document:
                     _logger.warning(f"No se pudo obtener documento batch para caso {case.case_number_raw}")
                     continue
                 
-                # Asegurar que el documento esté confirmado
-                if document.state == 'draft':
+                # Asegurar que el documento esté confirmado (solo para account.move)
+                if document._name == 'account.move' and document.state == 'draft':
                     document.action_post()
                 
-                # Verificar que tenga XML DTE
+                # Verificar que tenga XML DTE (l10n_cl_dte_file existe en ambos modelos)
                 if document.l10n_cl_dte_file:
                     regenerated_documents.append(document)
                     _logger.info(f"Documento regenerado para caso {case.case_number_raw}")

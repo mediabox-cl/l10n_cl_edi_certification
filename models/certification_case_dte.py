@@ -57,6 +57,12 @@ class CertificationCaseDte(models.Model):
         readonly=True,
         help='Guía de despacho generada desde este caso DTE'
     )
+    generated_batch_stock_picking_id = fields.Many2one(
+        'stock.picking',
+        string='Guía de Despacho Batch Generada',
+        readonly=True,
+        help='Guía de despacho regenerada para proceso de envío consolidado con nuevos folios CAF'
+    )
     
     # Relaciones con items y referencias
     item_ids = fields.One2many(

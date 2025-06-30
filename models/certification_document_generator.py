@@ -2288,24 +2288,37 @@ class CertificationDocumentGenerator(models.TransientModel):
         """
         Finaliza la guía y actualiza estados del caso.
         """
-        # Confirmar picking
-        picking.action_confirm()
-        _logger.info(f"Picking confirmado: {picking.name}")
-        
-        # Asignar disponibilidad (asigna stock automáticamente para certificación)
-        picking.action_assign()
-        _logger.info(f"Stock asignado: {picking.name}")
-        
-        # Para certificación, NO marcar como done automáticamente
-        # El usuario necesita validar manualmente que todo esté correcto
-        _logger.info(f"Picking creado en estado '{picking.state}' - Usuario debe validar manualmente")
-        
-        # Actualizar caso DTE
-        self.dte_case_id.write({
-            'generated_stock_picking_id': picking.id,
-            'generation_status': 'generated',
-            # NO sobrescribir partner_id aquí - mantener la lógica de herencia automática
-        })
+        if for_batch:
+            # En modo batch, llamar a create_delivery_guide para generar el DTE
+            # Esto reemplaza action_confirm() y action_assign() para el modo batch
+            _logger.info(f"Modo batch: Llamando a create_delivery_guide para picking {picking.name}")
+            picking.create_delivery_guide()
+            _logger.info(f"Guía de despacho DTE generada para picking {picking.name}")
+            
+            # Actualizar caso DTE con el picking batch
+            self.dte_case_id.write({
+                'generated_batch_stock_picking_id': picking.id,
+                'generation_status': 'generated',
+            })
+        else:
+            # Confirmar picking
+            picking.action_confirm()
+            _logger.info(f"Picking confirmado: {picking.name}")
+            
+            # Asignar disponibilidad (asigna stock automáticamente para certificación)
+            picking.action_assign()
+            _logger.info(f"Stock asignado: {picking.name}")
+            
+            # Para certificación, NO marcar como done automáticamente
+            # El usuario necesita validar manualmente que todo esté correcto
+            _logger.info(f"Picking creado en estado '{picking.state}' - Usuario debe validar manualmente")
+            
+            # Actualizar caso DTE
+            self.dte_case_id.write({
+                'generated_stock_picking_id': picking.id,
+                'generation_status': 'generated',
+                # NO sobrescribir partner_id aquí - mantener la lógica de herencia automática
+            })
         
         _logger.info(f"Caso DTE actualizado - Picking: {picking.name}, Partner: {picking.partner_id.name}")
         
