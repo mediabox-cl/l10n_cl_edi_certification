@@ -1838,7 +1838,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"Líneas de picking creadas")
         
         # 6. Finalizar y procesar
-        self._finalize_delivery_guide(picking, movement_config)
+        self._finalize_delivery_guide(picking, movement_config, for_batch=for_batch)
         _logger.info(f"Guía de despacho finalizada")
         
         _logger.info(f"✅ GUÍA DE DESPACHO GENERADA EXITOSAMENTE: {picking.name}")
@@ -2284,7 +2284,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.warning(f"No se pudo mapear motivo de traslado: '{dispatch_motive}'. Usando fallback.")
         return '1'  # Venta por defecto
 
-    def _finalize_delivery_guide(self, picking, movement_config):
+    def _finalize_delivery_guide(self, picking, movement_config, for_batch=False):
         """
         Finaliza la guía y actualiza estados del caso.
         """
