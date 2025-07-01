@@ -237,7 +237,8 @@ class CertificationBatchFile(models.Model):
                 
             status = doc.l10n_cl_dte_status
             
-            if status == 'accepted':
+            # Para certificación, considerar documentos en estados válidos como "aceptados"
+            if status in ['not_sent', 'accepted', 'objected', 'manual']:
                 accepted_docs.append(case)
             elif status in ['rejected', 'cancelled']:
                 rejected_docs.append(case)
@@ -246,7 +247,7 @@ class CertificationBatchFile(models.Model):
         
         # Solo permitir si TODOS están aceptados
         if rejected_docs:
-            case_numbers = ', '.join(rejected_docs.mapped('case_number_raw'))
+            case_numbers = ', '.join([c.case_number_raw for c in rejected_docs])
             doc_statuses = [c.generated_account_move_id.l10n_cl_dte_status if c.generated_account_move_id else c.generated_stock_picking_id.l10n_cl_dte_status for c in rejected_docs]
             raise UserError(_(
                 'Los siguientes documentos están RECHAZADOS por SII y deben corregirse antes de la consolidación: %s\n\n'
@@ -254,7 +255,7 @@ class CertificationBatchFile(models.Model):
             ) % (case_numbers, ', '.join(doc_statuses)))
         
         if pending_docs:
-            case_numbers = ', '.join(pending_docs.mapped('case_number_raw'))
+            case_numbers = ', '.join([c.case_number_raw for c in pending_docs])
             doc_statuses = [c.generated_account_move_id.l10n_cl_dte_status if c.generated_account_move_id else c.generated_stock_picking_id.l10n_cl_dte_status for c in pending_docs]
             raise UserError(_(
                 'Los siguientes documentos están PENDIENTES de aprobación SII: %s\n\n'
