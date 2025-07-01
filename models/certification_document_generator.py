@@ -2040,9 +2040,13 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Determinar tipo de transporte según dispatch_transport_type_raw del caso
         transport_type = self._map_dispatch_transport_to_code(self.dte_case_id.dispatch_transport_type_raw)
         
-        # Asegurar que el partner tenga configuración para guías de despacho
-        if not partner.l10n_cl_delivery_guide_price:
-            partner.l10n_cl_delivery_guide_price = 'none'  # Para certificación, no mostrar precios
+        # Configurar partner para guías de despacho según tipo de movimiento
+        if movement_config['requires_price']:  # Casos de venta
+            partner.l10n_cl_delivery_guide_price = 'product'
+            _logger.info(f"✓ Partner configurado para mostrar precios en guía de venta: {partner.name}")
+        else:  # Casos de traslado interno
+            partner.l10n_cl_delivery_guide_price = 'none'
+            _logger.info(f"✓ Partner configurado para NO mostrar precios en traslado interno: {partner.name}")
             
         picking_vals = {
             'partner_id': partner.id,
@@ -2154,8 +2158,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         Crea las líneas del picking basadas en los items del caso DTE.
         """
         for item in self.dte_case_id.item_ids:
-            # Buscar o crear producto para guía de despacho (tipo consumible)
-            product = self._get_product_for_delivery_guide(item.name)
+            # Buscar o crear producto para guía de despacho con precio del item
+            product = self._get_product_for_delivery_guide(item.name, item.price_unit)
             
             # Crear línea de movimiento
             move_vals = {
@@ -2168,18 +2172,14 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'location_dest_id': picking.location_dest_id.id,
             }
             
-            # Para ventas, agregar información de precio
-            if movement_config['requires_price'] and item.price_unit > 0:
-                # El precio se maneja en la factura posterior, no en el picking
-                pass
-            
-            _logger.info(f"Creando línea de movimiento: {move_vals}")
+            _logger.info(f"Creando línea de movimiento: {move_vals} (producto con precio: {product.list_price})")
             self.env['stock.move'].create(move_vals)
 
-    def _get_product_for_delivery_guide(self, item_name):
+    def _get_product_for_delivery_guide(self, item_name, item_price_unit=0):
         """
         Obtiene o crea un producto para guías de despacho.
         Usa tipo 'consu' (consumible) para permitir movimientos de stock.
+        Asigna precio según el item del caso DTE para cumplir especificaciones SII.
         """
         # Buscar producto existente tipo consumible
         product = self.env['product.product'].search([
@@ -2189,22 +2189,26 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         if product:
             _logger.info("Producto consumible existente encontrado: %s (ID: %s)", product.name, product.id)
+            # Actualizar precio si es diferente (para casos de venta)
+            if item_price_unit > 0 and product.list_price != item_price_unit:
+                product.list_price = item_price_unit
+                _logger.info("✓ Precio actualizado: %s → %s", product.name, item_price_unit)
             return product
         
         # Crear producto consumible para guía de despacho
-        _logger.info("Creando nuevo producto consumible para guía: %s", item_name)
+        _logger.info("Creando nuevo producto consumible para guía: %s (precio: %s)", item_name, item_price_unit)
         product = self.env['product.product'].create({
             'name': item_name,
             'type': 'consu',  # Consumible - permite movimientos de stock
             'invoice_policy': 'delivery',  # Facturar al entregar
-            'list_price': 0,
-            'standard_price': 0,
+            'list_price': item_price_unit,  # Precio del caso DTE
+            'standard_price': item_price_unit,  # Costo igual al precio para certificación
             'sale_ok': True,
             'purchase_ok': True,
             'categ_id': self._get_certification_product_category().id,
         })
         
-        _logger.info("✓ Producto consumible creado: %s (ID: %s)", product.name, product.id)
+        _logger.info("✓ Producto consumible creado: %s (ID: %s, precio: %s)", product.name, product.id, item_price_unit)
         return product
 
     def _get_certification_product_category(self):
