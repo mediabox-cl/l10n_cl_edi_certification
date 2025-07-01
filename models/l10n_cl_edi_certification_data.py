@@ -61,6 +61,13 @@ class CertificationParsedSet(models.Model):
         compute='_compute_batch_progress',
         help='Todos los documentos están aceptados por SII'
     )
+    
+    # Campo para verificar si existe archivo batch generado
+    batch_file_exists = fields.Boolean(
+        string='Archivo Batch Existe',
+        compute='_compute_batch_file_exists',
+        help='Indica si ya existe un archivo batch generado para este set'
+    )
 
     @api.depends('set_type_raw', 'attention_number')
     def _compute_name(self):
@@ -96,6 +103,34 @@ class CertificationParsedSet(models.Model):
             record.progress_display = f"{docs_accepted}/{total_cases}"
             record.batch_ready = (docs_accepted == total_cases)
 
+    @api.depends('certification_process_id', 'set_type_normalized')
+    def _compute_batch_file_exists(self):
+        """Verifica si existe un archivo batch generado para este set"""
+        for record in self:
+            # Mapear el tipo de set al tipo usado en batch_file
+            set_type_mapping = {
+                'basic': 'basico',
+                'dispatch_guide': 'guias',
+                'export_documents': 'exportacion1',  # Asumir exportacion1 por defecto
+                'sales_book': 'ventas',
+                'guides_book': 'libro_guias',
+                'purchase_book': 'compras',
+            }
+            
+            batch_set_type = set_type_mapping.get(record.set_type_normalized)
+            if not batch_set_type:
+                record.batch_file_exists = False
+                continue
+            
+            # Buscar archivo batch existente
+            batch_file = self.env['l10n_cl_edi.certification.batch_file'].search([
+                ('certification_id', '=', record.certification_process_id.id),
+                ('set_type', '=', batch_set_type),
+                ('state', '=', 'generated')
+            ], limit=1)
+            
+            record.batch_file_exists = bool(batch_file)
+
     def action_generate_batch(self):
         """Generar archivo XML consolidado para este set"""
         self.ensure_one()
@@ -128,6 +163,106 @@ class CertificationParsedSet(models.Model):
             return method()
         else:
             raise UserError(f'Método de generación no encontrado: {method_name}')
+    
+    def action_reset_batch(self):
+        """Resetea solo documentos batch para este set"""
+        self.ensure_one()
+        
+        if not self.dte_case_ids:
+            raise UserError(_('No hay casos DTE para resetear'))
+        
+        # Contar documentos batch antes del reset
+        cases_with_batch = self.dte_case_ids.filtered(
+            lambda c: c.generated_batch_account_move_id or c.generated_batch_stock_picking_id
+        )
+        
+        _logger.info(f"🔄 RESET BATCH: Procesando {len(cases_with_batch)} casos con documentos batch en set {self.name}")
+        
+        # Desvincular solo campos batch (no individuales)
+        for case in cases_with_batch:
+            case_updates = {}
+            
+            # Desvincular documento batch de facturas/notas
+            if case.generated_batch_account_move_id:
+                _logger.info(f"  ⚠️  Desvinculando factura batch: {case.generated_batch_account_move_id.name} del caso {case.case_number_raw}")
+                case_updates['generated_batch_account_move_id'] = False
+            
+            # Desvincular documento batch de guías  
+            if case.generated_batch_stock_picking_id:
+                _logger.info(f"  ⚠️  Desvinculando guía batch: {case.generated_batch_stock_picking_id.name} del caso {case.case_number_raw}")
+                case_updates['generated_batch_stock_picking_id'] = False
+            
+            # Aplicar cambios al caso
+            if case_updates:
+                case.write(case_updates)
+        
+        # Eliminar archivo batch existente si existe
+        set_type_mapping = {
+            'basic': 'basico',
+            'dispatch_guide': 'guias',
+            'export_documents': 'exportacion1',
+            'sales_book': 'ventas',
+            'guides_book': 'libro_guias',
+            'purchase_book': 'compras',
+        }
+        
+        batch_set_type = set_type_mapping.get(self.set_type_normalized)
+        if batch_set_type:
+            batch_files = self.env['l10n_cl_edi.certification.batch_file'].search([
+                ('certification_id', '=', self.certification_process_id.id),
+                ('set_type', '=', batch_set_type)
+            ])
+            if batch_files:
+                _logger.info(f"🗑️  Eliminando {len(batch_files)} archivo(s) batch para set {self.name}")
+                batch_files.unlink()
+        
+        _logger.info(f"✅ RESET BATCH COMPLETADO: Set {self.name} listo para regenerar")
+        
+        # Mostrar mensaje de éxito
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Reset Completado'),
+                'message': _('Documentos batch desvinculados. Puede generar nuevamente el XML.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def action_regenerate_batch(self):
+        """Regenera el archivo batch existente"""
+        return self.action_generate_batch()
+    
+    def action_download_batch(self):
+        """Descarga el archivo batch generado"""
+        self.ensure_one()
+        
+        # Mapear tipo de set a tipo de batch_file
+        set_type_mapping = {
+            'basic': 'basico',
+            'dispatch_guide': 'guias',
+            'export_documents': 'exportacion1',
+            'sales_book': 'ventas',
+            'guides_book': 'libro_guias',
+            'purchase_book': 'compras',
+        }
+        
+        batch_set_type = set_type_mapping.get(self.set_type_normalized)
+        if not batch_set_type:
+            raise UserError(_('Tipo de set no soportado para descarga batch'))
+        
+        # Buscar archivo batch
+        batch_file = self.env['l10n_cl_edi.certification.batch_file'].search([
+            ('certification_id', '=', self.certification_process_id.id),
+            ('set_type', '=', batch_set_type),
+            ('state', '=', 'generated')
+        ], limit=1)
+        
+        if not batch_file:
+            raise UserError(_('No hay archivo batch generado para este set'))
+        
+        return batch_file.action_download_file()
 
 class CertificationInstructionalSet(models.Model):
     _name = 'l10n_cl_edi.certification.instructional_set'
