@@ -197,7 +197,7 @@ class CertificationAvailableSet(models.Model):
                 doc_types_set.add(doc_type)
                 
                 # Para certificación, considerar documentos en estados válidos como "aceptados"
-                if status in ['draft', 'sent', 'accepted']:
+                if status in ['not_sent', 'accepted', 'objected', 'manual']:
                     docs_accepted += 1
                 elif status in ['rejected', 'cancelled']:
                     docs_rejected += 1
