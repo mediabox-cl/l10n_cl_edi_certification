@@ -138,16 +138,16 @@ class CertificationBatchFile(models.Model):
         return self._generate_iecv_book(certification_process_id, 'libro_guias', 'LIBRO DE GUÍAS', 'LIBRO_GUIAS')
 
     @api.model
-    def generate_batch_exportacion1(self, certification_process_id):
+    def generate_batch_exportacion1(self, certification_process_id, parsed_set_id=None):
         """Generar SET EXPORTACIÓN 1"""
-        return self._generate_batch_file(certification_process_id, 'exportacion1', 'SET EXPORTACIÓN 1')
+        return self._generate_batch_file(certification_process_id, 'exportacion1', 'SET EXPORTACIÓN 1', parsed_set_id=parsed_set_id)
 
     @api.model
-    def generate_batch_exportacion2(self, certification_process_id):
+    def generate_batch_exportacion2(self, certification_process_id, parsed_set_id=None):
         """Generar SET EXPORTACIÓN 2"""
-        return self._generate_batch_file(certification_process_id, 'exportacion2', 'SET EXPORTACIÓN 2')
+        return self._generate_batch_file(certification_process_id, 'exportacion2', 'SET EXPORTACIÓN 2', parsed_set_id=parsed_set_id)
 
-    def _generate_batch_file(self, certification_process_id, set_type, name):
+    def _generate_batch_file(self, certification_process_id, set_type, name, parsed_set_id=None):
         """Motor principal de generación de archivos consolidados"""
         _logger.info(f"=== INICIANDO GENERACIÓN BATCH {set_type.upper()} ===")
         
@@ -158,10 +158,10 @@ class CertificationBatchFile(models.Model):
 
         try:
             # 1. Validar prerequisitos
-            self._validate_ready_for_batch_generation(process, set_type)
+            self._validate_ready_for_batch_generation(process, set_type, parsed_set_id=parsed_set_id)
             
             # 2. Regenerar documentos del set con nuevos folios
-            regenerated_documents = self._regenerate_test_documents(process, set_type)
+            regenerated_documents = self._regenerate_test_documents(process, set_type, parsed_set_id=parsed_set_id)
             
             # 3. Extraer nodos DTE de los XMLs individuales
             dte_nodes = self._extract_dte_nodes(regenerated_documents)
@@ -207,12 +207,12 @@ class CertificationBatchFile(models.Model):
             
             raise UserError(_('Error generando archivo consolidado: %s') % str(e))
 
-    def _validate_ready_for_batch_generation(self, process, set_type):
+    def _validate_ready_for_batch_generation(self, process, set_type, parsed_set_id=None):
         """Validar que los documentos estén aceptados por SII para consolidación"""
         _logger.info(f"Validando prerequisitos SII para set {set_type}")
         
         # 1. Obtener casos DTE con documentos para este tipo de set
-        relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
+        relevant_cases = self._get_relevant_cases_for_set_type(process, set_type, parsed_set_id=parsed_set_id)
         if not relevant_cases:
             raise UserError(_('No se encontraron casos DTE para el tipo de set: %s') % set_type)
         
@@ -265,37 +265,48 @@ class CertificationBatchFile(models.Model):
         
         _logger.info(f"Validación exitosa: {len(accepted_docs)} documentos aceptados por SII para set {set_type}")
 
-    def _get_relevant_cases_for_set_type(self, process, set_type):
+    def _get_relevant_cases_for_set_type(self, process, set_type, parsed_set_id=None):
         """Obtener casos DTE relevantes según el tipo de set basado en sets de pruebas reales"""
         _logger.info(f"Obteniendo casos para set tipo: {set_type}")
         
-        # Mapeo inverso: de tipos de consolidación a tipos de set normalizados
-        consolidation_to_normalized = {
-            'basico': ['basic', 'exempt_invoice'],
-            'guias': ['dispatch_guide'],
-            'exportacion1': ['export_documents'],  # Se filtrarán por tipo 110
-            'exportacion2': ['export_documents'],  # Se filtrarán por tipos 111, 112
-            'ventas': ['basic', 'exempt_invoice'],  # Para libro de ventas
-            'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (simulado)
-            'libro_guias': ['dispatch_guide'],  # Para libro de guías
-        }
-        
-        normalized_types = consolidation_to_normalized.get(set_type, [])
-        if not normalized_types:
-            _logger.warning(f"Tipo de set no mapeado: {set_type}")
-            return self.env['l10n_cl_edi.certification.case.dte']
-        
-        # Obtener parsed sets del tipo normalizado
-        parsed_sets = self.env['l10n_cl_edi.certification.parsed_set'].search([
-            ('certification_process_id', '=', process.id),
-            ('set_type_normalized', 'in', normalized_types)
-        ])
-        _logger.info(f"Sets encontrados para {set_type}: {len(parsed_sets)} ({[s.name for s in parsed_sets]})")
-        
-        # Obtener todos los casos de esos sets
-        all_relevant_cases = self.env['l10n_cl_edi.certification.case.dte']
-        for parsed_set in parsed_sets:
-            all_relevant_cases |= parsed_set.dte_case_ids
+        # Si se especifica un parsed_set_id, usar solo ese set específico
+        if parsed_set_id:
+            parsed_set = self.env['l10n_cl_edi.certification.parsed_set'].browse(parsed_set_id)
+            if not parsed_set.exists():
+                _logger.warning(f"Set específico no encontrado: {parsed_set_id}")
+                return self.env['l10n_cl_edi.certification.case.dte']
+            
+            _logger.info(f"Usando set específico: {parsed_set.name}")
+            all_relevant_cases = parsed_set.dte_case_ids
+        else:
+            # Lógica original para compatibilidad con otros métodos
+            # Mapeo inverso: de tipos de consolidación a tipos de set normalizados
+            consolidation_to_normalized = {
+                'basico': ['basic', 'exempt_invoice'],
+                'guias': ['dispatch_guide'],
+                'exportacion1': ['export_documents'],  # Se filtrarán por tipo 110
+                'exportacion2': ['export_documents'],  # Se filtrarán por tipos 111, 112
+                'ventas': ['basic', 'exempt_invoice'],  # Para libro de ventas
+                'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (simulado)
+                'libro_guias': ['dispatch_guide'],  # Para libro de guías
+            }
+            
+            normalized_types = consolidation_to_normalized.get(set_type, [])
+            if not normalized_types:
+                _logger.warning(f"Tipo de set no mapeado: {set_type}")
+                return self.env['l10n_cl_edi.certification.case.dte']
+            
+            # Obtener parsed sets del tipo normalizado
+            parsed_sets = self.env['l10n_cl_edi.certification.parsed_set'].search([
+                ('certification_process_id', '=', process.id),
+                ('set_type_normalized', 'in', normalized_types)
+            ])
+            _logger.info(f"Sets encontrados para {set_type}: {len(parsed_sets)} ({[s.name for s in parsed_sets]})")
+            
+            # Obtener todos los casos de esos sets
+            all_relevant_cases = self.env['l10n_cl_edi.certification.case.dte']
+            for parsed_set in parsed_sets:
+                all_relevant_cases |= parsed_set.dte_case_ids
         
         # Para exportación, filtrar por tipos de documento específicos
         if set_type == 'exportacion1':
@@ -395,11 +406,11 @@ class CertificationBatchFile(models.Model):
             
             raise UserError(_('Error generando libro: %s') % str(e))
 
-    def _regenerate_test_documents(self, process, set_type):
+    def _regenerate_test_documents(self, process, set_type, parsed_set_id=None):
         """Regenerar documentos del set con nuevos folios CAF"""
         _logger.info(f"Regenerando documentos para set {set_type}")
         
-        relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
+        relevant_cases = self._get_relevant_cases_for_set_type(process, set_type, parsed_set_id=parsed_set_id)
         
         # Ordenar casos para generar facturas antes que notas de crédito/débito
         # Esto es crucial para evitar errores de referencia

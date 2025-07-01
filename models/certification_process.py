@@ -1449,15 +1449,15 @@ class CertificationProcess(models.Model):
         self.ensure_one()
         return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_libro_guias(self.id)
 
-    def action_generate_batch_exportacion1(self):
+    def action_generate_batch_exportacion1(self, parsed_set_id=None):
         """Generar SET EXPORTACIÓN 1"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion1(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion1(self.id, parsed_set_id=parsed_set_id)
 
-    def action_generate_batch_exportacion2(self):
+    def action_generate_batch_exportacion2(self, parsed_set_id=None):
         """Generar SET EXPORTACIÓN 2"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion2(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion2(self.id, parsed_set_id=parsed_set_id)
 
     def action_view_batch_files(self):
         """Ver archivos de envío consolidado generados"""

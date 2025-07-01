@@ -175,11 +175,12 @@ class CertificationParsedSet(models.Model):
             if not method_name:
                 raise UserError(f'Tipo de set no soportado para consolidación: {self.set_type_normalized}')
         
-        # Llamar al método en el proceso de certificación
+        # Llamar al método en el proceso de certificación pasando el contexto del set
         certification_process = self.certification_process_id
         if hasattr(certification_process, method_name):
             method = getattr(certification_process, method_name)
-            return method()
+            # Pasar el set específico como contexto para que solo procese SUS casos
+            return method(parsed_set_id=self.id)
         else:
             raise UserError(f'Método de generación no encontrado: {method_name}')
     
