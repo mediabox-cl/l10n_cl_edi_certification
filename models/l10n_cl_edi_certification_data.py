@@ -68,6 +68,19 @@ class CertificationParsedSet(models.Model):
         compute='_compute_batch_file_exists',
         help='Indica si ya existe un archivo batch generado para este set'
     )
+    
+    # Campos relacionados al archivo batch
+    filename = fields.Char(
+        string='Nombre del Archivo',
+        compute='_compute_batch_file_exists',
+        help='Nombre del archivo batch generado'
+    )
+    
+    generation_date = fields.Datetime(
+        string='Fecha de Generación',
+        compute='_compute_batch_file_exists',
+        help='Fecha de generación del archivo batch'
+    )
 
     @api.depends('set_type_raw', 'attention_number')
     def _compute_name(self):
@@ -120,6 +133,8 @@ class CertificationParsedSet(models.Model):
             batch_set_type = set_type_mapping.get(record.set_type_normalized)
             if not batch_set_type:
                 record.batch_file_exists = False
+                record.filename = ''
+                record.generation_date = False
                 continue
             
             # Buscar archivo batch existente
@@ -130,6 +145,8 @@ class CertificationParsedSet(models.Model):
             ], limit=1)
             
             record.batch_file_exists = bool(batch_file)
+            record.filename = batch_file.filename if batch_file else ''
+            record.generation_date = batch_file.generation_date if batch_file else False
 
     def action_generate_batch(self):
         """Generar archivo XML consolidado para este set"""
