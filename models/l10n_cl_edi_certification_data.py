@@ -110,7 +110,9 @@ class CertificationParsedSet(models.Model):
                 elif case.generated_stock_picking_id:
                     document = case.generated_stock_picking_id
                 
-                if document and document.l10n_cl_dte_status == 'accepted':
+                # Para certificación, considerar documentos generados (no necesariamente aceptados por SII)
+                # Los estados válidos son: draft, sent, accepted
+                if document and document.l10n_cl_dte_status in ['draft', 'sent', 'accepted']:
                     docs_accepted += 1
             
             record.progress_display = f"{docs_accepted}/{total_cases}"
