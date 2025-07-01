@@ -55,7 +55,6 @@ class CertificationBatchFile(models.Model):
     state = fields.Selection([
         ('draft', 'Borrador'),
         ('generated', 'Generado'),
-        ('downloaded', 'Descargado'),
         ('error', 'Error')
     ], string='Estado', default='draft')
     
@@ -81,8 +80,7 @@ class CertificationBatchFile(models.Model):
         if not self.file_data:
             raise UserError(_('No hay archivo disponible para descargar.'))
         
-        # Marcar como descargado
-        self.state = 'downloaded'
+        # Sin cambio de estado - mantener 'generated' para permitir múltiples descargas
         
         return {
             'type': 'ir.actions.act_url',

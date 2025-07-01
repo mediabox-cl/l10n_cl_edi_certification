@@ -12,16 +12,12 @@
                     <field name="document_count"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'generated'"
-                           decoration-info="state == 'downloaded'"
                            decoration-danger="state == 'error'"/>
                     <field name="generation_date"/>
                     <field name="filename"/>
                     <button name="action_download_file" string="Descargar" type="object"
                             class="btn-primary" icon="fa-download"
                             invisible="state != 'generated'"/>
-                    <button name="action_regenerate" string="Regenerar" type="object"
-                            class="btn-secondary" icon="fa-refresh"
-                            invisible="state == 'generated'"/>
                 </list>
             </field>
         </record>
@@ -37,10 +33,6 @@
                                 type="object" class="oe_highlight"
                                 invisible="state != 'generated'"
                                 icon="fa-download"/>
-                        <button name="action_regenerate" string="Regenerar"
-                                type="object" class="btn-secondary"
-                                invisible="state == 'generated'"
-                                icon="fa-refresh"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>

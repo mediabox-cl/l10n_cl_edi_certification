@@ -122,6 +122,13 @@ class CertificationAvailableSet(models.Model):
         string='Mensaje de Error'
     )
     
+    # Campo para verificar si existe archivo batch generado
+    batch_file_exists = fields.Boolean(
+        string='Archivo Batch Existe',
+        compute='_compute_batch_file_exists',
+        help='Indica si ya existe un archivo batch generado para este set'
+    )
+    
     @api.depends('certification_process_id', 'set_type')
     def _compute_batch_file(self):
         """Busca el archivo batch generado para este set"""
@@ -134,6 +141,12 @@ class CertificationAvailableSet(models.Model):
                 record.batch_file_id = batch_file
             else:
                 record.batch_file_id = False
+    
+    @api.depends('batch_file_id', 'batch_file_id.state')
+    def _compute_batch_file_exists(self):
+        """Verifica si existe un archivo batch generado"""
+        for record in self:
+            record.batch_file_exists = bool(record.batch_file_id and record.batch_file_id.state == 'generated')
     
     @api.depends('parsed_set_id', 'parsed_set_id.dte_case_ids', 'parsed_set_id.dte_case_ids.generated_account_move_id', 'parsed_set_id.dte_case_ids.generated_account_move_id.l10n_cl_dte_status', 'parsed_set_id.dte_case_ids.generated_stock_picking_id', 'parsed_set_id.dte_case_ids.generated_stock_picking_id.l10n_cl_dte_status')
     def _compute_progress_stats(self):
@@ -260,3 +273,63 @@ class CertificationAvailableSet(models.Model):
         
         # Generar nuevamente
         return self.action_generate_set()
+    
+    # Métodos alias para botones de la vista principal
+    def action_regenerate_batch(self):
+        """Alias para regenerar desde vista principal"""
+        return self.action_regenerate()
+    
+    def action_download_batch(self):
+        """Alias para descargar desde vista principal"""
+        return self.action_download_file()
+    
+    def action_reset_batch(self):
+        """Resetea solo documentos batch y permite regenerar con nueva lógica"""
+        self.ensure_one()
+        
+        if not self.parsed_set_id:
+            raise UserError(_('No hay set de pruebas asociado para resetear'))
+        
+        # Contar documentos batch antes del reset
+        cases_with_batch = self.parsed_set_id.dte_case_ids.filtered(
+            lambda c: c.generated_batch_account_move_id or c.generated_batch_stock_picking_id
+        )
+        
+        _logger.info(f"🔄 RESET BATCH: Procesando {len(cases_with_batch)} casos con documentos batch")
+        
+        # Desvincular solo campos batch (no individuales)
+        for case in cases_with_batch:
+            case_updates = {}
+            
+            # Desvincular documento batch de facturas/notas
+            if case.generated_batch_account_move_id:
+                _logger.info(f"  ⚠️  Desvinculando factura batch: {case.generated_batch_account_move_id.name} del caso {case.case_number_raw}")
+                case_updates['generated_batch_account_move_id'] = False
+            
+            # Desvincular documento batch de guías  
+            if case.generated_batch_stock_picking_id:
+                _logger.info(f"  ⚠️  Desvinculando guía batch: {case.generated_batch_stock_picking_id.name} del caso {case.case_number_raw}")
+                case_updates['generated_batch_stock_picking_id'] = False
+            
+            # Aplicar cambios al caso
+            if case_updates:
+                case.write(case_updates)
+        
+        # Eliminar archivo batch existente si existe
+        if self.batch_file_id:
+            _logger.info(f"🗑️  Eliminando archivo batch: {self.batch_file_id.filename}")
+            self.batch_file_id.unlink()
+        
+        _logger.info(f"✅ RESET BATCH COMPLETADO: Set {self.name} listo para regenerar")
+        
+        # Mostrar mensaje de éxito
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Reset Completado'),
+                'message': _('Documentos batch desvinculados. Puede generar nuevamente el XML.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }

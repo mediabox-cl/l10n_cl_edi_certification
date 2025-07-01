@@ -377,13 +377,28 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:  # Documentos originales
             # Asignar automáticamente un partner si no lo tiene
             if not self.dte_case_id.partner_id:
-                # Para documentos de exportación, usar partners extranjeros específicos
-                if self.dte_case_id.document_type_code in ['110', '111', '112']:
-                    partner = self._get_export_partner_for_case()
+                # PRIORIDAD 1: Si es batch y existe documento individual, reutilizar su partner
+                if self.for_batch:
+                    individual_partner = self._get_partner_from_individual_document(self.dte_case_id)
+                    if individual_partner:
+                        partner = individual_partner
+                        _logger.info(f"🔄 BATCH: Reutilizando partner de documento individual: {partner.name}")
+                    else:
+                        # Fallback a lógica normal
+                        if self.dte_case_id.document_type_code in ['110', '111', '112']:
+                            partner = self._get_export_partner_for_case()
+                        else:
+                            partner = self._get_available_certification_partner()
+                        _logger.info(f"📄 BATCH: Sin documento individual, usando partner nuevo: {partner.name}")
                 else:
-                    partner = self._get_available_certification_partner()
+                    # MODO NORMAL: Lógica original
+                    if self.dte_case_id.document_type_code in ['110', '111', '112']:
+                        partner = self._get_export_partner_for_case()
+                    else:
+                        partner = self._get_available_certification_partner()
+                    _logger.info(f"📄 NORMAL: Partner asignado al caso {self.dte_case_id.case_number_raw}: {partner.name}")
+                
                 self.dte_case_id.partner_id = partner
-                _logger.info(f"Partner asignado automáticamente al caso {self.dte_case_id.case_number_raw}: {partner.name}")
     
     def _validate_credit_debit_note_requirements(self):
         """Valida requisitos específicos para notas de crédito/débito"""
@@ -1879,7 +1894,16 @@ class CertificationDocumentGenerator(models.TransientModel):
     def _get_dispatch_partner(self, dte_case, movement_config):
         """
         Obtiene el partner apropiado según el tipo de movimiento.
+        Para documentos batch, reutiliza el partner del documento individual si existe.
         """
+        # PRIORIDAD 1: Si es batch y existe documento individual, reutilizar su partner
+        if self.for_batch:
+            individual_partner = self._get_partner_from_individual_document(dte_case)
+            if individual_partner:
+                _logger.info(f"🔄 BATCH: Reutilizando partner de documento individual: {individual_partner.name}")
+                return individual_partner
+        
+        # PRIORIDAD 2: Lógica normal según tipo de movimiento
         if movement_config['partner_type'] == 'company_self':
             # Para traslados internos, usar la empresa misma
             company_partner = self.certification_process_id.company_id.partner_id
@@ -1894,6 +1918,22 @@ class CertificationDocumentGenerator(models.TransientModel):
             
         else:
             raise UserError(_('Tipo de partner no reconocido: %s') % movement_config['partner_type'])
+
+    def _get_partner_from_individual_document(self, dte_case):
+        """
+        Obtiene el partner del documento individual correspondiente al caso DTE.
+        Retorna None si no existe documento individual.
+        """
+        # Para guías de despacho
+        if dte_case.document_type_code == '52' and dte_case.generated_stock_picking_id:
+            return dte_case.generated_stock_picking_id.partner_id
+            
+        # Para facturas y notas de crédito/débito  
+        elif dte_case.generated_account_move_id:
+            return dte_case.generated_account_move_id.partner_id
+            
+        # No hay documento individual
+        return None
 
     def _get_available_certification_partner(self):
         """

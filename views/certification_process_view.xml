@@ -296,18 +296,42 @@
                                 <group string="Sets de Pruebas SII para Consolidación">
                                     <field name="available_batch_set_ids" nolabel="1">
                                         <list create="false" edit="false" delete="false"
-                                              decoration-success="batch_ready == True"
-                                              decoration-warning="batch_ready == False">
+                                              decoration-success="batch_ready == True and batch_file_exists == True"
+                                              decoration-warning="batch_ready == False"
+                                              decoration-info="batch_ready == True and batch_file_exists == False">
                                             <field name="sequence" invisible="1"/>
                                             <field name="batch_ready" invisible="1"/>
+                                            <field name="batch_file_exists" invisible="1"/>
                                             <field name="name" string="Set de Pruebas SII"/>
                                             <field name="progress_display" string="Progreso"/>
                                             <field name="set_type_normalized" string="Tipo"/>
                                             <field name="attention_number" string="Atención SII"/>
+                                            <field name="filename" string="Archivo"/>
+                                            <field name="generation_date" string="Generado"/>
+                                            
+                                            <!-- Botón Generar XML (solo si no existe archivo) -->
                                             <button name="action_generate_batch" string="Generar XML" type="object"
                                                     class="btn-primary" icon="fa-cloud-upload"
-                                                    invisible="batch_ready != True"
+                                                    invisible="batch_ready != True or batch_file_exists == True"
                                                     help="Generar archivo XML consolidado para envío SII"/>
+                                            
+                                            <!-- Botón Reset (solo si ya existe archivo) -->
+                                            <button name="action_reset_batch" string="Reset" type="object"
+                                                    class="btn-warning" icon="fa-undo"
+                                                    invisible="batch_file_exists != True"
+                                                    help="Desvincular documentos batch para regenerar con nueva lógica"/>
+                                            
+                                            <!-- Botón Regenerar (solo si ya existe archivo) -->
+                                            <button name="action_regenerate_batch" string="Regenerar" type="object"
+                                                    class="btn-secondary" icon="fa-refresh"
+                                                    invisible="batch_file_exists != True"
+                                                    help="Regenerar archivo XML consolidado con documentos existentes"/>
+                                            
+                                            <!-- Botón Descargar (solo si existe archivo) -->
+                                            <button name="action_download_batch" string="Descargar" type="object"
+                                                    class="btn-success" icon="fa-download"
+                                                    invisible="batch_file_exists != True"
+                                                    help="Descargar archivo XML generado"/>
                                         </list>
                                     </field>
                                 </group>
