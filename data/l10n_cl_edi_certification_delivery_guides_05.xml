@@ -19,6 +19,7 @@ IMPORTANTE: Se debe señalar el tipo de traslado en todos los documentos de Guí
             <field name="case_number_raw">4352556-1</field>
             <field name="document_type_raw">GUIA DE DESPACHO</field>
             <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA</field>
             <field name="raw_text_block">CASO 4352556-1
 ==============
 DOCUMENTO	GUIA DE DESPACHO
@@ -36,7 +37,7 @@ ITEM 3		     56</field>
             <field name="name">ITEM 1</field>
             <field name="quantity">68.0</field>
             <field name="price_unit">0.0</field>
-            <field name="is_exempt">False</field>
+            <field name="is_exempt">True</field>
         </record>
         <record id="item_05_4352556_1_2" model="l10n_cl_edi.certification.case.dte.item">
             <field name="case_dte_id" ref="case_dte_05_4352556_1"/>
@@ -44,7 +45,7 @@ ITEM 3		     56</field>
             <field name="name">ITEM 2</field>
             <field name="quantity">92.0</field>
             <field name="price_unit">0.0</field>
-            <field name="is_exempt">False</field>
+            <field name="is_exempt">True</field>
         </record>
         <record id="item_05_4352556_1_3" model="l10n_cl_edi.certification.case.dte.item">
             <field name="case_dte_id" ref="case_dte_05_4352556_1"/>
@@ -52,7 +53,7 @@ ITEM 3		     56</field>
             <field name="name">ITEM 3</field>
             <field name="quantity">56.0</field>
             <field name="price_unit">0.0</field>
-            <field name="is_exempt">False</field>
+            <field name="is_exempt">True</field>
         </record>
 
         <!-- CASO 4352556-2 (Guia de Despacho - Venta Traslado Emisor) -->
@@ -61,6 +62,8 @@ ITEM 3		     56</field>
             <field name="case_number_raw">4352556-2</field>
             <field name="document_type_raw">GUIA DE DESPACHO</field>
             <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">VENTA</field>
+            <field name="dispatch_transport_type_raw">EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE</field>
             <field name="raw_text_block">CASO 4352556-2
 ==============
 DOCUMENTO	GUIA DE DESPACHO
@@ -95,6 +98,8 @@ ITEM 2		    424		   1314</field>
             <field name="case_number_raw">4352556-3</field>
             <field name="document_type_raw">GUIA DE DESPACHO</field>
             <field name="document_type_code">52</field>
+            <field name="dispatch_motive_raw">VENTA</field>
+            <field name="dispatch_transport_type_raw">CLIENTE</field>
             <field name="raw_text_block">CASO 4352556-3
 ==============
 DOCUMENTO	GUIA DE DESPACHO
