@@ -114,6 +114,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             if document_type == '52':  # Guía de Despacho
                 _logger.info(f"✅ ENTRANDO A FLUJO DE GUÍAS DE DESPACHO")
                 return self._generate_delivery_guide(for_batch=for_batch)
+            elif document_type == '46':  # Factura de Compra Electrónica
+                _logger.info(f"✅ ENTRANDO A FLUJO DE FACTURA DE COMPRA")
+                return self._generate_purchase_invoice(for_batch=for_batch)
             elif document_type in ['61', '56', '111', '112']:  # Nota de crédito o débito (incluye exportación)
                 _logger.info(f"✅ ENTRANDO A FLUJO DE NOTAS DE CRÉDITO/DÉBITO")
                 return self._generate_credit_or_debit_note(for_batch=for_batch)
@@ -618,15 +621,30 @@ class CertificationDocumentGenerator(models.TransientModel):
             'ref': f'Caso SII {self.dte_case_id.case_number_raw}',
         }
         
-        # FORZAR el uso del diario de certificación
-        journal = self.certification_process_id.certification_journal_id
-        if journal:
-            _logger.info("Configurando diario de certificación: %s (ID: %s)", journal.name, journal.id)
-            _logger.info("Diario usa documentos: %s", journal.l10n_latam_use_documents)
-            _logger.info("Diario tipo: %s", journal.type)
-            invoice_vals['journal_id'] = journal.id
+        # Configurar diario según el tipo de documento
+        if self.dte_case_id.document_type_code == '46':  # Factura de Compra - usar diario de compras
+            # Buscar diario de compras con documentos latinoamericanos habilitado
+            purchase_journal = self.env['account.journal'].search([
+                ('company_id', '=', self.certification_process_id.company_id.id),
+                ('type', '=', 'purchase'),
+                ('l10n_latam_use_documents', '=', True),
+            ], limit=1)
+            
+            if purchase_journal:
+                _logger.info("Configurando diario de compras para factura de compra: %s (ID: %s)", purchase_journal.name, purchase_journal.id)
+                invoice_vals['journal_id'] = purchase_journal.id
+            else:
+                _logger.warning("⚠️  No hay diario de compras con documentos latinos configurado")
         else:
-            _logger.warning("⚠️  No hay diario de certificación configurado - usando diario por defecto")
+            # Para otros documentos, usar el diario de certificación (ventas)
+            journal = self.certification_process_id.certification_journal_id
+            if journal:
+                _logger.info("Configurando diario de certificación: %s (ID: %s)", journal.name, journal.id)
+                _logger.info("Diario usa documentos: %s", journal.l10n_latam_use_documents)
+                _logger.info("Diario tipo: %s", journal.type)
+                invoice_vals['journal_id'] = journal.id
+            else:
+                _logger.warning("⚠️  No hay diario de certificación configurado - usando diario por defecto")
         
         # Configurar campos específicos según el tipo de documento
         if self.dte_case_id.document_type_code == '52':  # Guía de despacho
@@ -634,6 +652,11 @@ class CertificationDocumentGenerator(models.TransientModel):
                 'l10n_cl_dte_gd_move_reason': self._map_dispatch_motive_to_code(self.dte_case_id.dispatch_motive_raw),
                 'l10n_cl_dte_gd_transport_type': self._map_dispatch_transport_to_code(self.dte_case_id.dispatch_transport_type_raw),
             })
+        elif self.dte_case_id.document_type_code == '46':  # Factura de Compra Electrónica
+            # Configuración específica para facturas de compra
+            _logger.info("✓ Configurando campos específicos para Factura de Compra Electrónica")
+            # Para facturas de compra no hay campos adicionales específicos en este punto
+            # El move_type ya se establece como 'in_invoice' por el flujo de purchase.order
         elif self.dte_case_id.document_type_code in ['110', '111', '112']:  # Documentos de exportación
             # Determinar si es un servicio basado en los productos
             service_indicator = self._determine_export_service_indicator()
@@ -2721,5 +2744,164 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"  - Puerto destino: {credit_note.l10n_cl_port_destination_id.name if credit_note.l10n_cl_port_destination_id else 'No definido'}")
         _logger.info(f"  - IndServicio: {credit_note.l10n_cl_customs_service_indicator or 'No definido'}")
         _logger.info(f"  - Incoterm: {credit_note.invoice_incoterm_id.code if credit_note.invoice_incoterm_id else 'No definido'}")
+
+    def _generate_purchase_invoice(self, for_batch=False):
+        """Genera Factura de Compra Electrónica (código 46) usando flujo purchase.order"""
+        _logger.info(f"Generando Factura de Compra Electrónica (tipo {self.dte_case_id.document_type_code})")
+        
+        # Crear purchase.order
+        purchase_order = self._create_purchase_order()
+        _logger.info(f"Purchase Order creada: {purchase_order.name}")
+        
+        # Confirmar purchase.order
+        purchase_order.button_confirm()
+        _logger.info(f"Purchase Order confirmada: {purchase_order.name}")
+        
+        # Crear factura de compra desde purchase.order
+        invoice = self._create_invoice_from_purchase_order(purchase_order)
+        _logger.info(f"Factura de compra creada en borrador: {invoice.name}")
+        
+        # Configurar campos específicos de DTE
+        self._configure_dte_fields_on_invoice(invoice)
+        _logger.info(f"Campos DTE configurados en factura de compra: {invoice.name}")
+        
+        # Aplicar descuento global si existe
+        if self.dte_case_id.global_discount_percent and self.dte_case_id.global_discount_percent > 0:
+            _logger.info(f"Aplicando descuento global: {self.dte_case_id.global_discount_percent}%")
+            self._apply_global_discount_to_invoice(invoice, self.dte_case_id.global_discount_percent)
+            _logger.info(f"Descuento global aplicado en factura de compra: {invoice.name}")
+
+        # Crear referencias de documentos
+        self._create_document_references_on_invoice(invoice)
+        _logger.info(f"Referencias de documentos creadas en factura de compra: {invoice.name}")
+        
+        # **VINCULACIÓN: Guardar en el campo correcto según el modo**
+        if for_batch:
+            self.dte_case_id.generated_batch_account_move_id = invoice.id
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA DE COMPRA BATCH {invoice.name} ===")
+        else:
+            self.dte_case_id.generated_account_move_id = invoice.id
+            self.dte_case_id.generation_status = 'generated'
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A FACTURA DE COMPRA {invoice.name} ===")
+        
+        # Log de éxito
+        _logger.info(f"Factura de compra generada exitosamente: {invoice.name} para caso DTE {self.dte_case_id.id}")
+        
+        # FORZAR CONFIRMACIÓN EN MODO BATCH PARA GENERAR DTE AUTOMÁTICAMENTE
+        if for_batch and invoice.state == 'draft':
+            invoice.action_post()
+            _logger.info(f"Factura de compra confirmada automáticamente en modo batch: {invoice.name}")
+            # Debug: Verificar si el archivo DTE se creó
+            if invoice.l10n_cl_dte_file:
+                _logger.info(f"  ✓ Archivo DTE creado: {invoice.l10n_cl_dte_file.name}")
+            else:
+                _logger.warning(f"  ⚠️  Archivo DTE NO creado para factura de compra {invoice.name}")
+        
+        # RETORNO DIFERENCIADO SEGÚN MODO
+        if for_batch:
+            return invoice  # Retornar directamente el objeto para batch
+        else:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Factura de Compra Generada',
+                'res_model': 'account.move',
+                'res_id': invoice.id,
+                'view_mode': 'form',
+                'target': 'current',
+            }
+
+    def _create_purchase_order(self):
+        """Crear purchase.order para factura de compra desde caso DTE"""
+        # Asignar partner extranjero para factura de compra
+        partner = self._get_purchase_partner_for_case()
+        
+        purchase_order_vals = {
+            'partner_id': partner.id,
+            'company_id': self.env.company.id,
+            'currency_id': self.env.company.currency_id.id,
+            'l10n_cl_edi_certification_id': self.certification_process_id.id,  # Referencia al proceso de certificación
+            'notes': f'Orden de compra generada desde caso de certificación DTE {self.dte_case_id.id}',
+        }
+        
+        purchase_order = self.env['purchase.order'].create(purchase_order_vals)
+        
+        # Crear las líneas basadas en los items del DTE
+        self._create_purchase_order_lines(purchase_order)
+        
+        return purchase_order
+
+    def _create_invoice_from_purchase_order(self, purchase_order):
+        """Crear factura de compra desde purchase.order"""
+        # Crear factura usando el método estándar de Odoo
+        invoice_vals = purchase_order._prepare_invoice()
+        
+        # Agregar referencia al caso DTE
+        invoice_vals['ref'] = f'Certificación DTE - Caso {self.dte_case_id.id}'
+        
+        # Establecer contexto de certificación
+        invoice = self.env['account.move'].with_context(l10n_cl_edi_certification=True).create(invoice_vals)
+        
+        # Crear líneas de factura desde las líneas de purchase.order
+        for po_line in purchase_order.order_line:
+            invoice_line_vals = po_line._prepare_account_move_line(invoice)
+            self.env['account.move.line'].create(invoice_line_vals)
+        
+        # Calcular totales
+        invoice._recompute_dynamic_lines()
+        
+        return invoice
+
+    def _create_purchase_order_lines(self, purchase_order):
+        """Crear líneas del purchase.order desde los items del caso DTE"""
+        self.ensure_one()
+        
+        for sequence, item in enumerate(self.dte_case_id.item_ids, 1):
+            # Obtener o crear producto
+            product = self._get_product_for_dte_item(item.name)
+            
+            # Usar valores directos del caso DTE
+            quantity = item.quantity or 1.0
+            price_unit = item.price_unit
+            
+            # Preparar valores de la línea
+            line_vals = {
+                'order_id': purchase_order.id,
+                'product_id': product.id,
+                'name': product.name,  # Para purchase.order sí necesitamos el name
+                'product_qty': quantity,
+                'price_unit': price_unit,
+                'product_uom': product.uom_po_id.id,
+                'date_planned': purchase_order.date_order,
+                'sequence': sequence * 10,
+            }
+            
+            # Para facturas de compra, agregar impuestos por defecto
+            if not item.is_exempt:
+                # Buscar el impuesto de compra por defecto (IVA 19%)
+                purchase_tax = self.env['account.tax'].search([
+                    ('company_id', '=', self.env.company.id),
+                    ('type_tax_use', '=', 'purchase'),
+                    ('amount', '=', 19.0)
+                ], limit=1)
+                if purchase_tax:
+                    line_vals['taxes_id'] = [(6, 0, [purchase_tax.id])]
+            else:
+                line_vals['taxes_id'] = [(6, 0, [])]  # Sin impuestos para exentos
+            
+            self.env['purchase.order.line'].create(line_vals)
+
+    def _get_purchase_partner_for_case(self):
+        """Obtener partner extranjero para factura de compra"""
+        # Para facturas de compra usamos un proveedor extranjero genérico
+        # según el artículo 49 de la Ley de la Renta (proveedores sin domicilio en Chile)
+        
+        partner_id = self.env.ref('l10n_cl_edi_certification.purchase_partner_foreign_generic')
+        
+        _logger.info(f"Partner de compra seleccionado para caso {self.dte_case_id.case_number_raw}: {partner_id.name}")
+        
+        # Asignar partner al caso para referencia
+        self.dte_case_id.partner_id = partner_id
+        
+        return partner_id
         
     

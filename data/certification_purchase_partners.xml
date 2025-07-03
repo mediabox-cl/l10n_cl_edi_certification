@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Partner extranjero genérico para facturas de compra -->
+        <record id="purchase_partner_foreign_generic" model="res.partner">
+            <field name="name">Foreign Supplier International Corp</field>
+            <field name="is_company">True</field>
+            <field name="supplier_rank">1</field>
+            <field name="customer_rank">0</field>
+            
+            <!-- Datos extranjeros para tipo de contribuyente 4 (extranjero) -->
+            <field name="country_id" ref="base.us"/>
+            <field name="vat">12-3456789</field>
+            <field name="l10n_cl_sii_taxpayer_type">4</field>
+            
+            <!-- Dirección extranjera -->
+            <field name="street">123 International Business Ave</field>
+            <field name="street2">Suite 456</field>
+            <field name="city">Miami</field>
+            <field name="state_id" ref="base.state_us_12"/>
+            <field name="zip">33101</field>
+            
+            <!-- Contacto -->
+            <field name="phone">+1-305-123-4567</field>
+            <field name="email">purchases@foreignsupplier.com</field>
+            
+            <!-- Actividad comercial genérica -->
+            <field name="l10n_cl_activity_description">Proveedor de productos importados</field>
+            
+            <!-- Configuraciones de compra -->
+            <field name="property_payment_term_id" ref="account.account_payment_term_30days"/>
+            <field name="property_purchase_currency_id" ref="base.USD"/>
+            
+            <!-- Categoria para organización -->
+            <field name="category_id" eval="[(6, 0, [ref('l10n_cl_edi_certification.partner_category_certification')])]"/>
+        </record>
+    </data>
+</odoo>

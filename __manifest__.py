@@ -39,6 +39,7 @@
         'data/l10n_cl_edi_certification_data.xml',
         'data/certification_partners.xml',
         'data/certification_export_partners.xml',
+        'data/certification_purchase_partners.xml',
         'data/certification_export_products.xml',
         'data/certification_currencies.xml',
         'data/l10n_cl_edi_certification_basic_set_05.xml',
