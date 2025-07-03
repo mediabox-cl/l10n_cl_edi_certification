@@ -43,6 +43,12 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
         store=True
     )
     
+    # Tipo de proceso (individual vs definitivo)
+    process_type = fields.Selection([
+        ('individual', 'Libro Individual (Proceso Normal)'),
+        ('definitivo', 'Libro Definitivo (Consolidado)')
+    ], string='Tipo de Proceso', required=True, default='individual')
+    
     # Estado del libro
     state = fields.Selection([
         ('draft', 'Borrador'),
@@ -134,11 +140,12 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
             else:
                 record.period_display = False
     
-    @api.depends('book_type', 'period_display')
+    @api.depends('book_type', 'period_display', 'process_type')
     def _compute_xml_filename(self):
         for record in self:
             if record.book_type and record.period_display:
-                record.xml_filename = f"LGD_{record.period_display}.xml"
+                process_suffix = 'DEFINITIVO' if record.process_type == 'definitivo' else 'INDIVIDUAL'
+                record.xml_filename = f"LGD_{record.period_display}_{process_suffix}.xml"
             else:
                 record.xml_filename = False
     
@@ -196,6 +203,10 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
     def _get_delivery_guides(self):
         """
         Obtiene las guías de despacho del proceso de certificación.
+        
+        IMPORTANTE: Comportamiento según process_type:
+        - individual: Usa guías individuales (primeros folios CAF)
+        - definitivo: Usa guías batch/consolidadas (nuevos folios CAF)
         """
         self.ensure_one()
         
@@ -211,27 +222,44 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
             ('document_type_code', '=', '52'),
         ])
         _logger.info(f"DEBUG: Casos DTE tipo 52: {len(type_52_cases)}")
-        for case in type_52_cases:
-            _logger.info(f"  - Caso {case.case_number_raw}: picking_id={case.generated_stock_picking_id.id if case.generated_stock_picking_id else 'None'}")
         
-        # Buscar casos DTE de tipo 52 (guías de despacho) con picking generado
-        guide_cases = self.env['l10n_cl_edi.certification.case.dte'].search([
-            ('parsed_set_id.certification_process_id', '=', self.certification_process_id.id),
-            ('document_type_code', '=', '52'),
-            ('generated_stock_picking_id', '!=', False)
-        ])
-        
-        _logger.info(f"DEBUG: Casos DTE tipo 52 con picking: {len(guide_cases)}")
-        
-        return guide_cases.mapped('generated_stock_picking_id')
+        if self.process_type == 'definitivo':
+            # LIBROS DEFINITIVOS: Usar exclusivamente guías batch (consolidadas)
+            guide_cases = type_52_cases.filtered('generated_batch_stock_picking_id')
+            
+            if not guide_cases:
+                _logger.warning("No hay guías batch disponibles para libro definitivo")
+                return self.env['stock.picking']
+            
+            _logger.info(f"Libro DEFINITIVO: Usando {len(guide_cases)} guías BATCH (folios consolidados)")
+            return guide_cases.mapped('generated_batch_stock_picking_id')
+        else:
+            # LIBROS INDIVIDUALES: Usar guías individuales (comportamiento original)
+            guide_cases = type_52_cases.filtered('generated_stock_picking_id')
+            
+            _logger.info(f"Libro INDIVIDUAL: Usando {len(guide_cases)} guías individuales (primeros folios CAF)")
+            for case in guide_cases:
+                _logger.info(f"  - Caso {case.case_number_raw}: picking_id={case.generated_stock_picking_id.id if case.generated_stock_picking_id else 'None'}")
+            
+            return guide_cases.mapped('generated_stock_picking_id')
     
     def _get_case_dte_for_guide(self, guide):
         """
         Obtiene el caso DTE que generó una guía.
+        Considera tanto guías individuales como batch.
         """
-        return self.env['l10n_cl_edi.certification.case.dte'].search([
+        # Buscar primero en guías individuales
+        case_dte = self.env['l10n_cl_edi.certification.case.dte'].search([
             ('generated_stock_picking_id', '=', guide.id)
         ], limit=1)
+        
+        # Si no encuentra, buscar en guías batch
+        if not case_dte:
+            case_dte = self.env['l10n_cl_edi.certification.case.dte'].search([
+                ('generated_batch_stock_picking_id', '=', guide.id)
+            ], limit=1)
+        
+        return case_dte
     
     def _calculate_guide_amount(self, guide):
         """
@@ -285,7 +313,8 @@ class CertificationDeliveryGuideBookBase(models.AbstractModel):
     def name_get(self):
         result = []
         for record in self:
-            name = f"Libro Guías {record.period_display or 'Sin período'}"
+            process_label = 'DEFINITIVO' if record.process_type == 'definitivo' else 'INDIVIDUAL'
+            name = f"Libro Guías {record.period_display or 'Sin período'} ({process_label})"
             if record.state == 'signed':
                 name += " (Firmado)"
             elif record.state == 'error':

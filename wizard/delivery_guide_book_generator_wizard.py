@@ -35,6 +35,12 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
         compute='_compute_period_display'
     )
     
+    # Tipo de proceso (individual vs definitivo)
+    process_type = fields.Selection([
+        ('individual', 'Libros Individuales (Proceso Normal)'),
+        ('definitivo', 'Libros Definitivos (Consolidado)')
+    ], string='Tipo de Proceso', required=True, default='individual')
+    
     # Vista previa
     guide_preview = fields.Html(
         compute='_compute_guide_preview',
@@ -43,7 +49,12 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
     
     guides_found = fields.Integer(
         compute='_compute_guide_stats',
-        string='Guías Encontradas'
+        string='Guías Encontradas Individuales'
+    )
+    
+    batch_guides_found = fields.Integer(
+        compute='_compute_guide_stats',
+        string='Guías Encontradas Batch/Consolidadas'
     )
     
     guides_normal = fields.Integer(
@@ -94,31 +105,49 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
             if not record.certification_process_id:
                 record.update({
                     'guides_found': 0,
+                    'batch_guides_found': 0,
                     'guides_normal': 0,
                     'guides_invoiced': 0,
                     'guides_cancelled': 0,
                 })
                 continue
             
-            # Crear un libro temporal para obtener estadísticas
-            temp_book = self.env['l10n_cl_edi.certification.delivery_guide_book'].new({
+            # Crear libros temporales para obtener estadísticas de ambos tipos
+            temp_book_individual = self.env['l10n_cl_edi.certification.delivery_guide_book'].new({
                 'certification_process_id': record.certification_process_id.id,
                 'period_year': record.period_year,
                 'period_month': record.period_month,
+                'process_type': 'individual',
+            })
+            
+            temp_book_batch = self.env['l10n_cl_edi.certification.delivery_guide_book'].new({
+                'certification_process_id': record.certification_process_id.id,
+                'period_year': record.period_year,
+                'period_month': record.period_month,
+                'process_type': 'definitivo',
             })
             
             try:
                 _logger.info(f"WIZARD DEBUG: Iniciando cálculo para proceso {record.certification_process_id.id}")
                 _logger.info(f"WIZARD DEBUG: Período {record.period_year}-{record.period_month:02d}")
                 
-                classified_guides = temp_book._classify_delivery_guides()
+                # Contar guías individuales
+                classified_guides_individual = temp_book_individual._classify_delivery_guides()
+                individual_total = sum(len(guides) for guides in classified_guides_individual.values())
                 
-                record.guides_normal = len(classified_guides.get('normal', []))
-                record.guides_invoiced = len(classified_guides.get('invoiced', []))
-                record.guides_cancelled = len(classified_guides.get('cancelled', []))
-                record.guides_found = record.guides_normal + record.guides_invoiced + record.guides_cancelled
+                # Contar guías batch
+                classified_guides_batch = temp_book_batch._classify_delivery_guides()
+                batch_total = sum(len(guides) for guides in classified_guides_batch.values())
                 
-                _logger.info(f"WIZARD DEBUG: Resultado - Normal: {record.guides_normal}, Facturadas: {record.guides_invoiced}, Anuladas: {record.guides_cancelled}, Total: {record.guides_found}")
+                # Usar las individuales para mostrar clasificación detallada
+                record.guides_normal = len(classified_guides_individual.get('normal', []))
+                record.guides_invoiced = len(classified_guides_individual.get('invoiced', []))
+                record.guides_cancelled = len(classified_guides_individual.get('cancelled', []))
+                record.guides_found = individual_total
+                record.batch_guides_found = batch_total
+                
+                _logger.info(f"WIZARD DEBUG: Individuales - Normal: {record.guides_normal}, Facturadas: {record.guides_invoiced}, Anuladas: {record.guides_cancelled}, Total: {record.guides_found}")
+                _logger.info(f"WIZARD DEBUG: Batch - Total: {record.batch_guides_found}")
                 
             except Exception as e:
                 _logger.error(f"WIZARD DEBUG: Error calculando estadísticas de guías: {str(e)}")
@@ -126,6 +155,7 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
                 _logger.error(f"WIZARD DEBUG: Traceback: {traceback.format_exc()}")
                 record.update({
                     'guides_found': 0,
+                    'batch_guides_found': 0,
                     'guides_normal': 0,
                     'guides_invoiced': 0,
                     'guides_cancelled': 0,
@@ -249,11 +279,12 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
         _logger.info(f"Período: {self.period_display}")
         _logger.info(f"Guías encontradas: {self.guides_found}")
         
-        # Verificar si ya existe un libro para este período
+        # Verificar si ya existe un libro para este período y tipo de proceso
         existing_book = self.env['l10n_cl_edi.certification.delivery_guide_book'].search([
             ('certification_process_id', '=', self.certification_process_id.id),
             ('period_year', '=', self.period_year),
-            ('period_month', '=', self.period_month)
+            ('period_month', '=', self.period_month),
+            ('process_type', '=', self.process_type)
         ], limit=1)
         
         if existing_book:
@@ -275,6 +306,7 @@ class DeliveryGuideBookGeneratorWizard(models.TransientModel):
             'certification_process_id': self.certification_process_id.id,
             'period_year': self.period_year,
             'period_month': self.period_month,
+            'process_type': self.process_type,
         })
         
         _logger.info(f"Libro creado con ID: {book.id}")

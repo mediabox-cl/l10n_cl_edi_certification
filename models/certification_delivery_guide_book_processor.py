@@ -13,17 +13,17 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
     GUIDE_STATUSES = {
         'normal': {
             'description': 'Guías normales del período (incluye traslados internos)',
-            'cases': ['4329507-1'],  # Traslado interno - estado normal
+            'cases': ['4329507-1', '4352556-1'],  # Traslado interno - estado normal
             'anulado_code': '0'  # Normal, no anulado
         },
         'invoiced': {
             'description': 'Guías que se facturaron posteriormente en el período',
-            'cases': ['4329507-2'],  # Venta con transporte - se facturó después
+            'cases': ['4329507-2', '4352556-2'],  # Venta con transporte - se facturó después
             'anulado_code': '0'  # Normal, no anulado (pero incluye referencia a factura)
         },
         'cancelled': {
             'description': 'Guías anuladas después del envío al SII',
-            'cases': ['4329507-3'],  # Venta con retiro - fue anulada
+            'cases': ['4329507-3', '4352556-3'],  # Venta con retiro - fue anulada
             'anulado_code': '2'  # Anulado posterior al envío
         }
     }
@@ -31,7 +31,7 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
     def _classify_delivery_guides(self):
         """
         Clasifica las guías según su estado en el período.
-        Basado en las especificaciones del SET 4 - 4329508.
+        Basado en las especificaciones del SET 4 - 4329508 y SET 5 - 4352557.
         """
         self.ensure_one()
         
@@ -58,10 +58,10 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
         """
         Determina el estado de una guía basado en reglas SII y especificaciones del set.
         
-        Según SET 4 - 4329508:
-        - Caso 2 (4329507-2): Guía que se facturó en el período
-        - Caso 3 (4329507-3): Guía anulada
-        - Caso 1 (4329507-1): Guía normal (por defecto)
+        Según SET 4 - 4329508 y SET 5 - 4352557:
+        - Caso 2 (4329507-2, 4352556-2): Guía que se facturó en el período
+        - Caso 3 (4329507-3, 4352556-3): Guía anulada
+        - Caso 1 (4329507-1, 4352556-1): Guía normal (por defecto)
         """
         # Obtener el caso DTE que generó esta guía
         case_dte = self._get_case_dte_for_guide(guide)
@@ -92,9 +92,9 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
         if not case_dte:
             case_dte = self._get_case_dte_for_guide(guide)
         
-        # Según especificación SET 4: Caso 3 corresponde a guía anulada
-        if case_dte and case_dte.case_number_raw == '4329507-3':
-            _logger.info(f"Guía {guide.name} marcada como anulada (caso 4329507-3)")
+        # Según especificación SET 4 y SET 5: Caso 3 corresponde a guía anulada
+        if case_dte and case_dte.case_number_raw in ['4329507-3', '4352556-3']:
+            _logger.info(f"Guía {guide.name} marcada como anulada (caso {case_dte.case_number_raw})")
             return True
         
         # Lógica adicional para producción: verificar estado real del picking
@@ -112,9 +112,9 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
         if not case_dte:
             case_dte = self._get_case_dte_for_guide(guide)
         
-        # Según especificación SET 4: Caso 2 corresponde a guía facturada
-        if case_dte and case_dte.case_number_raw == '4329507-2':
-            _logger.info(f"Guía {guide.name} marcada como facturada (caso 4329507-2)")
+        # Según especificación SET 4 y SET 5: Caso 2 corresponde a guía facturada
+        if case_dte and case_dte.case_number_raw in ['4329507-2', '4352556-2']:
+            _logger.info(f"Guía {guide.name} marcada como facturada (caso {case_dte.case_number_raw})")
             return True
         
         # Para certificación SII, NO necesitamos lógica adicional
@@ -179,11 +179,11 @@ class CertificationDeliveryGuideBookProcessor(models.AbstractModel):
             _logger.warning(f"Discrepancia en clasificación: {len(all_guides)} guías totales vs {classified_count} clasificadas")
             return False
         
-        # Validar que cada categoría tenga al menos las guías esperadas del SET 4
+        # Validar que cada categoría tenga al menos las guías esperadas del SET 4 y SET 5
         expected_cases = {
-            'normal': ['4329507-1'],
-            'invoiced': ['4329507-2'], 
-            'cancelled': ['4329507-3']
+            'normal': ['4329507-1', '4352556-1'],
+            'invoiced': ['4329507-2', '4352556-2'], 
+            'cancelled': ['4329507-3', '4352556-3']
         }
         
         for status, expected_case_numbers in expected_cases.items():

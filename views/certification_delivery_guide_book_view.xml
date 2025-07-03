@@ -155,6 +155,7 @@
                                 <field name="period_year"/>
                                 <field name="period_month"/>
                                 <field name="period_display" readonly="1"/>
+                                <field name="process_type" widget="radio"/>
                             </group>
                             <group string="Estado">
                                 <field name="can_generate" readonly="1" widget="boolean_toggle"/>
@@ -163,9 +164,10 @@
                             </group>
                         </group>
                         
-                        <group string="Estadísticas de Guías" invisible="not guides_found">
+                        <group string="Estadísticas de Guías" invisible="not guides_found and not batch_guides_found">
                             <group>
                                 <field name="guides_found" readonly="1"/>
+                                <field name="batch_guides_found" readonly="1"/>
                                 <field name="guides_normal" readonly="1"/>
                             </group>
                             <group>
@@ -174,7 +176,22 @@
                             </group>
                         </group>
                         
-                        <notebook invisible="not guides_found">
+                        <div class="alert alert-info" role="alert" invisible="process_type != 'definitivo'">
+                            <strong>Libros Definitivos:</strong> 
+                            <p>Se usarán guías batch/consolidadas (con nuevos folios CAF) para generar los libros definitivos que se subirán al SII para certificación.</p>
+                        </div>
+                        
+                        <div class="alert alert-info" role="alert" invisible="process_type != 'individual'">
+                            <strong>Libros Individuales:</strong> 
+                            <p>Se usarán guías individuales (con primeros folios CAF) para generar libros de proceso normal.</p>
+                        </div>
+                        
+                        <div class="alert alert-warning" role="alert" invisible="not (process_type == 'definitivo' and batch_guides_found == 0)">
+                            <strong>Atención:</strong> 
+                            <span>No hay guías batch/consolidadas disponibles para generar libros definitivos.</span>
+                        </div>
+                        
+                        <notebook invisible="not guides_found and not batch_guides_found">
                             <page string="Vista Previa">
                                 <field name="guide_preview" readonly="1" widget="html"/>
                             </page>

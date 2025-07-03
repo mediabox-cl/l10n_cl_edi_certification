@@ -1,15 +1,15 @@
 INDICACIONES GENERALES:
 
-Se debe adjuntar ejemplar tributario y cedible de los documentos: Factura Electrónica, Factura No Afecta o Exenta Electrónica, Guía de Despacho Electrónica y Factura de Compra Electrónica.
+Se debe adjuntar ejemplar tributario y cedible de los documentos: Factura Electrï¿½nica, Factura No Afecta o Exenta Electrï¿½nica, Guï¿½a de Despacho Electrï¿½nica y Factura de Compra Electrï¿½nica.
 
-Para consultar los datos del contribuyente, como el giro, razón social, direcciones y sucursales, Dirección Regional o Unidad debe ingresar en la opción "Mi SII" de la página del SII.
+Para consultar los datos del contribuyente, como el giro, razï¿½n social, direcciones y sucursales, Direcciï¿½n Regional o Unidad debe ingresar en la opciï¿½n "Mi SII" de la pï¿½gina del SII.
 
-Además se les recomienda no utilizar abreviaciones en los giros y no agregar textos que informen arreglos de contrato con los clientes.
+Ademï¿½s se les recomienda no utilizar abreviaciones en los giros y no agregar textos que informen arreglos de contrato con los clientes.
 
 
 SET BASICO - NUMERO DE ATENCION: 4352553
 
-IMPORTANTE: Considerar que los descuentos por línea o globales deben ser indicados en las representaciones impresas. Además, señalar las cifras con separador de miles con ".".
+IMPORTANTE: Considerar que los descuentos por lï¿½nea o globales deben ser indicados en las representaciones impresas. Ademï¿½s, seï¿½alar las cifras con separador de miles con ".".
 
 
 CASO 4352553-1
@@ -17,7 +17,7 @@ CASO 4352553-1
 DOCUMENTO	FACTURA ELECTRONICA
 
 ITEM			CANTIDAD	PRECIO UNITARIO
-Cajón AFECTO		    168		   3490
+Cajï¿½n AFECTO		    168		   3490
 Relleno AFECTO		     71		   5813
 
 
@@ -26,7 +26,7 @@ CASO 4352553-2
 DOCUMENTO	FACTURA ELECTRONICA
 
 ITEM			CANTIDAD	PRECIO UNITARIO		DESCUENTO ITEM
-Pañuelo AFECTO		    759		   5874			     10%
+Paï¿½uelo AFECTO		    759		   5874			     10%
 ITEM 2 AFECTO		    703		   4925			     23%
 
 
@@ -66,7 +66,7 @@ REFERENCIA		FACTURA  ELECTRONICA CORRESPONDIENTE A CASO 4352553-2
 RAZON REFERENCIA	DEVOLUCION DE MERCADERIAS
 
 ITEM			CANTIDAD
-Pañuelo AFECTO		    278
+Paï¿½uelo AFECTO		    278
 ITEM 2 AFECTO		    477
 
 
@@ -131,9 +131,9 @@ OBSERVACIONES GENERALES
 EN FACTURA CON IVA USO COMUN CONSIDERE QUE EL FACTOR DE PROPORCIONALIDAD 
 DEL IVA ES DE 0.60
 --------------------------------------------------------------------------------
-SET GUIA DE DESPACHO - NUMERO DE ATENCIÓN: 4352556
+SET GUIA DE DESPACHO - NUMERO DE ATENCIï¿½N: 4352556
 
-IMPORTANTE: Se debe señalar el tipo de traslado en todos los documentos de Guía de Despacho Electrónica. Además, se les indica que cuando una Guía de Despacho Electrónica señala un Traslado Interno, los datos del receptor deben coincidir con los del emisor, además una operación que no constituye venta, el ejemplar cedible es inoficioso.
+IMPORTANTE: Se debe seï¿½alar el tipo de traslado en todos los documentos de Guï¿½a de Despacho Electrï¿½nica. Ademï¿½s, se les indica que cuando una Guï¿½a de Despacho Electrï¿½nica seï¿½ala un Traslado Interno, los datos del receptor deben coincidir con los del emisor, ademï¿½s una operaciï¿½n que no constituye venta, el ejemplar cedible es inoficioso.
 
 CASO 4352556-1
 ==============
@@ -222,7 +222,8 @@ DOCUMENTO		NOTA DE DEBITO DE EXPORTACION ELECTRONICA
 REFERENCIA		NOTA DE CREDITO CORRESPONDIENTE A CASO 4352558-2
 RAZON REFERENCIA	ANULA NOTA DE CREDITO
 
-	
+
+	
 -----------------------------------------------------------------------------------
 (**) VER INSTRUCCIONES AL CONTRIBUYENTE EN SET BASICO FACTURA DE EXPORTACION (2).
 --------------------------------------------------------------------------------
@@ -334,5 +335,6 @@ CASO 4352560-3
 DOCUMENTO		NOTA DE DEBITO ELECTRONICA
 REFERENCIA		NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4352560-2
 RAZON REFERENCIA	ANULA NOTA DE CREDITO ELECTRONICA
+
 
 
