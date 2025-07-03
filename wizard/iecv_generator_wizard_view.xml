@@ -16,6 +16,7 @@
                         <group string="Configuración">
                             <field name="certification_process_id" readonly="1"/>
                             <field name="period_date"/>
+                            <field name="process_type" widget="radio"/>
                         </group>
                         
                         <group string="Libros a Generar">
@@ -27,16 +28,26 @@
                     <group string="Información del Proceso">
                         <group>
                             <field name="sales_documents_count" readonly="1"/>
+                            <field name="batch_documents_count" readonly="1"/>
                         </group>
                         <group>
                             <field name="purchase_entries_count" readonly="1"/>
                         </group>
                     </group>
                     
-                    <div class="alert alert-warning" role="alert" invisible="sales_documents_count > 0 and purchase_entries_count > 0">
+                    <div class="alert alert-warning" role="alert" invisible="not (process_type == 'definitivo' and batch_documents_count == 0 and generate_iev)">
                         <strong>Atención:</strong> 
-                        <span invisible="sales_documents_count > 0">No hay documentos de venta para incluir en el libro IEV.</span>
-                        <span invisible="purchase_entries_count > 0">No hay entradas de compra para incluir en el libro IEC.</span>
+                        <span invisible="not (process_type == 'definitivo' and batch_documents_count == 0)">No hay documentos batch/consolidados disponibles para generar libros definitivos de venta.</span>
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="process_type != 'definitivo'">
+                        <strong>Libros Definitivos:</strong> 
+                        <p>Se usarán documentos batch/consolidados (con nuevos folios CAF) para generar los libros definitivos que se subirán al SII para certificación.</p>
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="process_type != 'individual'">
+                        <strong>Libros Individuales:</strong> 
+                        <p>Se usarán documentos individuales (con primeros folios CAF) para generar libros de proceso normal.</p>
                     </div>
                     
                     <footer>

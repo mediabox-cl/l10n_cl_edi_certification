@@ -27,6 +27,12 @@ class CertificationIECVBookBase(models.Model):
         ('IEC', 'Información Electrónica de Compras')
     ], string='Tipo de Libro', required=True)
     
+    # Tipo de proceso (individual vs definitivo)
+    process_type = fields.Selection([
+        ('individual', 'Libro Individual (Proceso Normal)'),
+        ('definitivo', 'Libro Definitivo (Consolidado)')
+    ], string='Tipo de Proceso', required=True, default='individual')
+    
     period_year = fields.Integer(
         string='Año',
         required=True,
@@ -115,12 +121,13 @@ class CertificationIECVBookBase(models.Model):
             else:
                 record.period_display = ""
     
-    @api.depends('book_type', 'period_display')
+    @api.depends('book_type', 'period_display', 'process_type')
     def _compute_xml_filename(self):
         for record in self:
             if record.book_type and record.period_display:
                 company_rut = record.certification_process_id.company_id.vat.replace('-', '') if record.certification_process_id.company_id.vat else 'SINRUT'
-                record.xml_filename = f"LIBRO_{record.book_type}_{company_rut}_{record.period_display}.xml"
+                process_suffix = 'DEFINITIVO' if record.process_type == 'definitivo' else 'INDIVIDUAL'
+                record.xml_filename = f"LIBRO_{record.book_type}_{company_rut}_{record.period_display}_{process_suffix}.xml"
             else:
                 record.xml_filename = ""
     
@@ -151,22 +158,28 @@ class CertificationIECVBookBase(models.Model):
     def _get_sales_documents(self):
         """Obtiene documentos de venta para IEV
         
-        IMPORTANTE: Usa documentos batch si están disponibles (con nuevos folios CAF)
+        IMPORTANTE: Comportamiento según process_type:
+        - individual: Usa documentos individuales (primeros folios CAF)
+        - definitivo: Usa documentos batch/consolidados (nuevos folios CAF)
         """
         if not self.certification_process_id:
             return self.env['account.move']
         
-        # PRIORIDAD 1: Intentar obtener documentos batch (con nuevos folios CAF)
-        batch_docs = self.certification_process_id.get_batch_documents(['33', '34', '56', '61'])
-        
-        if batch_docs:
-            _logger.info(f"Usando {len(batch_docs)} documentos BATCH para IEV (nuevos folios CAF)")
+        if self.process_type == 'definitivo':
+            # LIBROS DEFINITIVOS: Usar exclusivamente documentos batch (consolidados)
+            batch_docs = self.certification_process_id.get_batch_documents(['33', '34', '56', '61'])
+            
+            if not batch_docs:
+                _logger.warning("No hay documentos batch disponibles para libro definitivo")
+                return self.env['account.move']
+            
+            _logger.info(f"Libro DEFINITIVO: Usando {len(batch_docs)} documentos BATCH (folios consolidados)")
             sales_docs = batch_docs.filtered(
                 lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
             )
         else:
-            _logger.info("No hay documentos batch, usando documentos individuales para IEV")
-            # FALLBACK: Usar documentos individuales si no hay batch
+            # LIBROS INDIVIDUALES: Usar documentos individuales (comportamiento original)
+            _logger.info("Libro INDIVIDUAL: Usando documentos individuales (primeros folios CAF)")
             sales_docs = self.certification_process_id.test_invoice_ids.filtered(
                 lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
             )
@@ -199,7 +212,8 @@ class CertificationIECVBookBase(models.Model):
         """Personaliza el nombre mostrado del registro"""
         result = []
         for record in self:
-            name = f"{record.book_type} - {record.period_display}"
+            process_label = 'DEFINITIVO' if record.process_type == 'definitivo' else 'INDIVIDUAL'
+            name = f"{record.book_type} - {record.period_display} ({process_label})"
             if record.state == 'error':
                 name += " (Error)"
             elif record.state == 'signed':

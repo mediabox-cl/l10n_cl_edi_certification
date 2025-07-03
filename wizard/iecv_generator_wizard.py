@@ -32,9 +32,20 @@ class IECVGeneratorWizard(models.TransientModel):
         required=True
     )
     
+    # Tipo de proceso (individual vs definitivo)
+    process_type = fields.Selection([
+        ('individual', 'Libros Individuales (Proceso Normal)'),
+        ('definitivo', 'Libros Definitivos (Consolidado)')
+    ], string='Tipo de Proceso', required=True, default='individual')
+    
     # Información del proceso
     sales_documents_count = fields.Integer(
-        string='Documentos de Venta',
+        string='Documentos de Venta Individuales',
+        compute='_compute_process_info'
+    )
+    
+    batch_documents_count = fields.Integer(
+        string='Documentos de Venta Batch/Consolidados',
         compute='_compute_process_info'
     )
     
@@ -47,16 +58,21 @@ class IECVGeneratorWizard(models.TransientModel):
     def _compute_process_info(self):
         for record in self:
             if record.certification_process_id:
-                # Contar documentos de venta
+                # Contar documentos de venta individuales
                 sales_docs = record.certification_process_id.test_invoice_ids.filtered(
                     lambda x: x.move_type in ('out_invoice', 'out_refund') and x.state == 'posted'
                 )
                 record.sales_documents_count = len(sales_docs)
                 
+                # Contar documentos batch/consolidados
+                batch_docs = record.certification_process_id.get_batch_documents(['33', '34', '56', '61'])
+                record.batch_documents_count = len(batch_docs) if batch_docs else 0
+                
                 # Contar entradas de compra
                 record.purchase_entries_count = len(record.certification_process_id.purchase_entry_ids)
             else:
                 record.sales_documents_count = 0
+                record.batch_documents_count = 0
                 record.purchase_entries_count = 0
     
     def action_generate_books(self):
@@ -65,6 +81,11 @@ class IECVGeneratorWizard(models.TransientModel):
         
         if not self.generate_iev and not self.generate_iec:
             raise UserError(_('Debe seleccionar al menos un tipo de libro para generar'))
+        
+        # Validaciones según tipo de proceso
+        if self.process_type == 'definitivo':
+            if self.generate_iev and self.batch_documents_count == 0:
+                raise UserError(_('No hay documentos batch/consolidados disponibles para generar libros definitivos de venta'))
         
         generated_books = self.env['l10n_cl_edi.certification.iecv_book']
         
@@ -83,13 +104,14 @@ class IECVGeneratorWizard(models.TransientModel):
             
             # Mostrar resultado
             book_names = ', '.join(generated_books.mapped('book_type'))
+            process_label = 'DEFINITIVOS' if self.process_type == 'definitivo' else 'INDIVIDUALES'
             
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': _('Libros IECV Generados'),
-                    'message': _('Se han generado exitosamente los libros: %s') % book_names,
+                    'message': _('Se han generado exitosamente los libros %s: %s') % (process_label, book_names),
                     'type': 'success',
                     'sticky': False,
                 }
@@ -115,6 +137,7 @@ class IECVGeneratorWizard(models.TransientModel):
             'book_type': book_type,
             'period_year': self.period_date.year,
             'period_month': self.period_date.month,
+            'process_type': self.process_type,
         }
         
         return self.env['l10n_cl_edi.certification.iecv_book'].create(vals)

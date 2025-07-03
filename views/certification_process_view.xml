@@ -208,6 +208,7 @@
                                           decoration-info="state == 'generated'" 
                                           decoration-danger="state == 'error'">
                                         <field name="book_type"/>
+                                        <field name="process_type"/>
                                         <field name="period_display"/>
                                         <field name="total_documents"/>
                                         <field name="total_amount" widget="monetary"/>
