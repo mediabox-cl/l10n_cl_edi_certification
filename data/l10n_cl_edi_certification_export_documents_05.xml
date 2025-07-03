@@ -17,6 +17,26 @@
             <field name="case_number_raw">4352558-1</field>
             <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
             <field name="document_type_code">110</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">MIC (MANIFIESTO INTERNACIONAL)</field>
+            <field name="export_currency_raw">DOLAR USA</field>
+            <field name="export_payment_terms_raw">ACRED</field>
+            <field name="export_sale_modality_raw">A FIRME</field>
+            <field name="export_sale_clause_raw">FOB</field>
+            <field name="export_total_sale_clause_amount">963.69</field>
+            <field name="export_transport_way_raw">AEREO</field>
+            <field name="export_loading_port_raw">ARICA</field>
+            <field name="export_unloading_port_raw">BUENOS AIRES</field>
+            <field name="export_tare_uom_raw">U</field>
+            <field name="export_gross_weight_uom_raw">U</field>
+            <field name="export_net_weight_uom_raw">U</field>
+            <field name="export_package_type_raw">CONTENEDOR REFRIGERADO</field>
+            <field name="export_total_packages">26</field>
+            <field name="export_freight_amount">154.78</field>
+            <field name="export_insurance_amount">24.86</field>
+            <field name="export_recipient_country_raw">ARGENTINA</field>
+            <field name="export_destination_country_raw">ARGENTINA</field>
             <field name="raw_text_block">CASO 4352558-1
 ==============
 DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
@@ -128,6 +148,18 @@ RAZON REFERENCIA	ANULA NOTA DE CREDITO</field>
             <field name="case_number_raw">4352559-1</field>
             <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
             <field name="document_type_code">110</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">RESOLUCION SNA</field>
+            <field name="export_currency_raw">EURO</field>
+            <field name="export_payment_terms_raw">COBRANZA</field>
+            <field name="export_sale_clause_raw">CIF</field>
+            <field name="export_transport_way_raw">CARRETERO/TERRESTRE</field>
+            <field name="export_loading_port_raw">CALDERA</field>
+            <field name="export_unloading_port_raw">SIDNEY</field>
+            <field name="export_recipient_country_raw">AUSTRALIA</field>
+            <field name="export_destination_country_raw">AUSTRALIA</field>
+            <field name="export_foreign_commission_percent">10.0</field>
             <field name="raw_text_block">CASO 4352559-1
 ==============
 DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
@@ -163,6 +195,27 @@ PAIS RECEPTOR Y PAIS DESTINO:			AUSTRALIA
             <field name="case_number_raw">4352559-2</field>
             <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
             <field name="document_type_code">110</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_reference_text">DUS;AWB</field>
+            <field name="export_currency_raw">EURO</field>
+            <field name="export_payment_terms_raw">COBRANZA</field>
+            <field name="export_sale_modality_raw">BAJO CONDICION</field>
+            <field name="export_sale_clause_raw">CIF</field>
+            <field name="export_total_sale_clause_amount">1810.53</field>
+            <field name="export_transport_way_raw">CARRETERO/TERRESTRE</field>
+            <field name="export_loading_port_raw">CALDERA</field>
+            <field name="export_unloading_port_raw">SIDNEY</field>
+            <field name="export_tare_uom_raw">U</field>
+            <field name="export_gross_weight_uom_raw">KN</field>
+            <field name="export_net_weight_uom_raw">KN</field>
+            <field name="export_package_type_raw">PALLETS</field>
+            <field name="export_total_packages">40</field>
+            <field name="export_freight_amount">546.34</field>
+            <field name="export_insurance_amount">164.86</field>
+            <field name="export_recipient_country_raw">AUSTRALIA</field>
+            <field name="export_destination_country_raw">AUSTRALIA</field>
+            <field name="export_foreign_commission_percent">11.0</field>
             <field name="raw_text_block">CASO 4352559-2
 ==============
 DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
@@ -219,6 +272,12 @@ DESCUENTO LINEA # 1:   5%</field>
             <field name="case_number_raw">4352559-3</field>
             <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
             <field name="document_type_code">110</field>
+            
+            <!-- Campos específicos de exportación -->
+            <field name="export_currency_raw">DOLAR USA</field>
+            <field name="export_client_nationality_raw">AUSTRALIA</field>
+            <field name="export_recipient_country_raw">AUSTRALIA</field>
+            <field name="export_destination_country_raw">AUSTRALIA</field>
             <field name="raw_text_block">CASO 4352559-3
 ==============
 DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
