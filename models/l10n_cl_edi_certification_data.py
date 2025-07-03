@@ -31,6 +31,7 @@ class CertificationParsedSet(models.Model):
         ('sales_book', 'Set Libro de Ventas (Instruccional)'),
         ('guides_book', 'Set Libro de Guías (Instruccional)'),
         ('purchase_book', 'Set Libro de Compras'),
+        ('purchase_invoice', 'Set Factura de Compra'),
         ('unknown', 'Desconocido/Otro')
     ], string='Tipo de Set (Normalizado)', required=True)
     attention_number = fields.Char(string='Número de Atención SII')

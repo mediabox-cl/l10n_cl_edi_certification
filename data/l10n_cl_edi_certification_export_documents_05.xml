@@ -6,7 +6,7 @@
             <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
             <field name="sequence">13</field>
             <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (1)</field>
-            <field name="set_type_normalized">export_1</field>
+            <field name="set_type_normalized">export_documents</field>
             <field name="attention_number">4352558</field>
             <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (1) - NUMERO DE ATENCION: 4352558</field>
         </record>
@@ -117,7 +117,7 @@ RAZON REFERENCIA	ANULA NOTA DE CREDITO</field>
             <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
             <field name="sequence">14</field>
             <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (2)</field>
-            <field name="set_type_normalized">export_2</field>
+            <field name="set_type_normalized">export_documents</field>
             <field name="attention_number">4352559</field>
             <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (2) - NUMERO DE ATENCION: 4352559</field>
         </record>

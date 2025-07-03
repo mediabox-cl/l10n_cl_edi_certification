@@ -6,7 +6,7 @@
             <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
             <field name="sequence">12</field>
             <field name="set_type_raw">GUIA DE DESPACHO</field>
-            <field name="set_type_normalized">delivery_guide</field>
+            <field name="set_type_normalized">dispatch_guide</field>
             <field name="attention_number">4352556</field>
             <field name="raw_header_text">SET GUIA DE DESPACHO - NUMERO DE ATENCIÓN: 4352556
 
