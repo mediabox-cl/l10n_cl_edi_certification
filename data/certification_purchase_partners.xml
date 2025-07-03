@@ -30,9 +30,6 @@
             <!-- Configuraciones de compra -->
             <field name="property_payment_term_id" ref="account.account_payment_term_30days"/>
             <field name="property_purchase_currency_id" ref="base.USD"/>
-            
-            <!-- Categoria para organización -->
-            <field name="category_id" eval="[(6, 0, [ref('l10n_cl_edi_certification.partner_category_certification')])]"/>
         </record>
     </data>
 </odoo>
