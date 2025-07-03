@@ -357,14 +357,8 @@ class CertificationDocumentGenerator(models.TransientModel):
         if for_batch:
             return credit_note  # Retornar directamente el objeto para batch
         else:
-            return {
-                'type': 'ir.actions.act_window',
-                'name': f'Nota de {"Crédito" if self.dte_case_id.document_type_code == "61" else "Débito"} Generada',
-            'res_model': 'account.move',
-            'res_id': credit_note.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
+            # En modo no-batch, _generate_credit_note_from_case ya retorna el diccionario de acción
+            return credit_note
 
     def _validate_required_data(self):
         """Validate that all required data is present"""
