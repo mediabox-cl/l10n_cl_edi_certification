@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET GUIA DE DESPACHO - ATENCION: 4352556 -->
+        <record id="parsed_set_05_delivery_guides_4352556" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">12</field>
+            <field name="set_type_raw">GUIA DE DESPACHO</field>
+            <field name="set_type_normalized">delivery_guide</field>
+            <field name="attention_number">4352556</field>
+            <field name="raw_header_text">SET GUIA DE DESPACHO - NUMERO DE ATENCIÓN: 4352556
+
+IMPORTANTE: Se debe señalar el tipo de traslado en todos los documentos de Guía de Despacho Electrónica. Además, se les indica que cuando una Guía de Despacho Electrónica señala un Traslado Interno, los datos del receptor deben coincidir con los del emisor, además una operación que no constituye venta, el ejemplar cedible es inoficioso.</field>
+        </record>
+
+        <!-- CASO 4352556-1 (Guia de Despacho - Traslado Interno) -->
+        <record id="case_dte_05_4352556_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_delivery_guides_4352556"/>
+            <field name="case_number_raw">4352556-1</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="raw_text_block">CASO 4352556-1
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		TRASLADO DE MATERIALES ENTRE BODEGAS DE LA EMPRESA
+
+ITEM		CANTIDAD	
+ITEM 1		     68		
+ITEM 2		     92		
+ITEM 3		     56</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352556_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_1"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">68.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352556_1_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_1"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">92.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352556_1_3" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_1"/>
+            <field name="sequence">30</field>
+            <field name="name">ITEM 3</field>
+            <field name="quantity">56.0</field>
+            <field name="price_unit">0.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352556-2 (Guia de Despacho - Venta Traslado Emisor) -->
+        <record id="case_dte_05_4352556_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_delivery_guides_4352556"/>
+            <field name="case_number_raw">4352556-2</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="raw_text_block">CASO 4352556-2
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		VENTA
+TRASLADO POR: 	EMISOR DEL DOCUMENTO AL LOCAL DEL CLIENTE
+
+ITEM		CANTIDAD	PRECIO UNITARIO
+ITEM 1		    222		   4794
+ITEM 2		    424		   1314</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352556_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_2"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">222.0</field>
+            <field name="price_unit">4794.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352556_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_2"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">424.0</field>
+            <field name="price_unit">1314.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352556-3 (Guia de Despacho - Venta Traslado Cliente) -->
+        <record id="case_dte_05_4352556_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_delivery_guides_4352556"/>
+            <field name="case_number_raw">4352556-3</field>
+            <field name="document_type_raw">GUIA DE DESPACHO</field>
+            <field name="document_type_code">52</field>
+            <field name="raw_text_block">CASO 4352556-3
+==============
+DOCUMENTO	GUIA DE DESPACHO
+MOTIVO:		VENTA
+TRASLADO POR: 	CLIENTE
+
+ITEM		CANTIDAD	PRECIO UNITARIO
+ITEM 1		    131		   1569
+ITEM 2		    272		   3772</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352556_3_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_3"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1</field>
+            <field name="quantity">131.0</field>
+            <field name="price_unit">1569.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352556_3_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352556_3"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2</field>
+            <field name="quantity">272.0</field>
+            <field name="price_unit">3772.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+    </data>
+</odoo>

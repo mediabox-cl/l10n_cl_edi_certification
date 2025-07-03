@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET BASICO DOCUMENTOS DE EXPORTACION (1) - ATENCION: 4352558 -->
+        <record id="parsed_set_05_export_1_4352558" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">13</field>
+            <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (1)</field>
+            <field name="set_type_normalized">export_1</field>
+            <field name="attention_number">4352558</field>
+            <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (1) - NUMERO DE ATENCION: 4352558</field>
+        </record>
+
+        <!-- CASO 4352558-1 (Factura de Exportacion Electronica) -->
+        <record id="case_dte_05_4352558_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_1_4352558"/>
+            <field name="case_number_raw">4352558-1</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="raw_text_block">CASO 4352558-1
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                            CANTIDAD	UNIDAD MEDIDA	PRECIO UNITARIO
+CHATARRA DE ALUMINIO                261		U		    116
+
+
+REFERENCIA:                                  MIC (MANIFIESTO INTERNACIONAL)
+MONEDA DE LA OPERACION:                      DOLAR USA
+FORMA DE PAGO EXPORTACION:                   ACRED
+MODALIDAD DE VENTA:                          A FIRME
+CLAUSULA DE VENTA DE EXPORTACION:            FOB
+TOTAL CLAUSULA DE VENTA:                      963.69
+VIA DE TRANSPORTE:                           AEREO
+PUERTO DE EMBARQUE:                          ARICA
+PUERTO DE DESEMBARQUE:                       BUENOS AIRES
+UNIDAD DE MEDIDA DE TARA:                    U
+UNIDAD PESO BRUTO:                           U
+UNIDAD PESO NETO:                            U
+TIPO DE BULTO:                               CONTENEDOR REFRIGERADO
+TOTAL BULTOS:                                     26
+FLETE (**):                                   154.78
+SEGURO (**):                                   24.86
+PAIS RECEPTOR Y PAIS DESTINO:                ARGENTINA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352558_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352558_1"/>
+            <field name="sequence">10</field>
+            <field name="name">CHATARRA DE ALUMINIO</field>
+            <field name="quantity">261.0</field>
+            <field name="price_unit">116.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352558-2 (Nota de Credito de Exportacion) -->
+        <record id="case_dte_05_4352558_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_1_4352558"/>
+            <field name="case_number_raw">4352558-2</field>
+            <field name="document_type_raw">NOTA DE CREDITO DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">112</field>
+            <field name="raw_text_block">CASO 4352558-2
+==============
+DOCUMENTO		NOTA DE CREDITO DE EXPORTACION ELECTRONICA
+REFERENCIA		FACTURA DE EXPORTACION ELECTRONICA CORRESPONDIENTE A CASO 4352558-1
+RAZON REFERENCIA	DEVOLUCION DE MERCADERIA
+
+ITEM                            CANTIDAD	
+CHATARRA DE ALUMINIO                 87	
+
+EL PRECIO UNITARIO DEL ITEM DEBE SER EL MISMO DE LA FACTURA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352558_2_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352558_2"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA DE EXPORTACION ELECTRONICA CORRESPONDIENTE A CASO 4352558-1</field>
+            <field name="referenced_sii_case_number">4352558-1</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352558_1"/>
+            <field name="reason_raw">DEVOLUCION DE MERCADERIA</field>
+            <field name="reference_code">3</field>
+        </record>
+        <record id="item_05_4352558_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352558_2"/>
+            <field name="sequence">10</field>
+            <field name="name">CHATARRA DE ALUMINIO</field>
+            <field name="quantity">87.0</field>
+            <field name="price_unit">116.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352558-3 (Nota de Debito de Exportacion) -->
+        <record id="case_dte_05_4352558_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_1_4352558"/>
+            <field name="case_number_raw">4352558-3</field>
+            <field name="document_type_raw">NOTA DE DEBITO DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">111</field>
+            <field name="raw_text_block">CASO 4352558-3
+==============
+DOCUMENTO		NOTA DE DEBITO DE EXPORTACION ELECTRONICA
+REFERENCIA		NOTA DE CREDITO CORRESPONDIENTE A CASO 4352558-2
+RAZON REFERENCIA	ANULA NOTA DE CREDITO</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352558_3_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352558_3"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">NOTA DE CREDITO CORRESPONDIENTE A CASO 4352558-2</field>
+            <field name="referenced_sii_case_number">4352558-2</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352558_2"/>
+            <field name="reason_raw">ANULA NOTA DE CREDITO</field>
+            <field name="reference_code">1</field>
+        </record>
+
+        <!-- SET BASICO DOCUMENTOS DE EXPORTACION (2) - ATENCION: 4352559 -->
+        <record id="parsed_set_05_export_2_4352559" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">14</field>
+            <field name="set_type_raw">BASICO DOCUMENTOS DE EXPORTACION (2)</field>
+            <field name="set_type_normalized">export_2</field>
+            <field name="attention_number">4352559</field>
+            <field name="raw_header_text">SET BASICO DOCUMENTOS DE EXPORTACION (2) - NUMERO DE ATENCION: 4352559</field>
+        </record>
+
+        <!-- CASO 4352559-1 (Factura de Exportacion - Servicios) -->
+        <record id="case_dte_05_4352559_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_2_4352559"/>
+            <field name="case_number_raw">4352559-1</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="raw_text_block">CASO 4352559-1
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                                    VALOR LINEA
+ASESORIAS Y PROYECTOS PROFESIONALES          30
+
+
+REFERENCIA:					RESOLUCION SNA
+MONEDA DE LA OPERACION:				EURO
+FORMA DE PAGO EXPORTACION:			COBRANZA
+CLAUSULA DE VENTA DE EXPORTACION:		CIF
+VIA DE TRANSPORTE:				CARRETERO/TERRESTRE
+PUERTO DE EMBARQUE:				CALDERA
+PUERTO DE DESEMBARQUE:				SIDNEY
+PAIS RECEPTOR Y PAIS DESTINO:			AUSTRALIA
+
+%10 RECARGO EN LA LINEA DE ITEM POR COMISIONES EN EL EXTERIOR</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352559_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352559_1"/>
+            <field name="sequence">10</field>
+            <field name="name">ASESORIAS Y PROYECTOS PROFESIONALES</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">30.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352559-2 (Factura de Exportacion - Productos) -->
+        <record id="case_dte_05_4352559_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_2_4352559"/>
+            <field name="case_number_raw">4352559-2</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="raw_text_block">CASO 4352559-2
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                                                    CANTIDAD	UNIDAD MEDIDA	PRECIO UNITARIO
+CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70         402		KN	    130
+CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS     180		KN	     77
+
+
+REFERENCIA:					DUS
+REFERENCIA:					AWB
+MONEDA DE LA OPERACION:				EURO
+FORMA DE PAGO EXPORTACION:			COBRANZA
+MODALIDAD DE VENTA:				BAJO CONDICION
+CLAUSULA DE VENTA DE EXPORTACION:		CIF
+TOTAL CLAUSULA DE VENTA:			1810.53
+VIA DE TRANSPORTE:				CARRETERO/TERRESTRE
+PUERTO DE EMBARQUE:				CALDERA
+PUERTO DE DESEMBARQUE:				SIDNEY
+UNIDAD DE MEDIDA DE TARA:			U
+UNIDAD PESO BRUTO:				KN
+UNIDAD PESO NETO:				KN
+TIPO DE BULTO:					PALLETS
+TOTAL BULTOS:					     40
+FLETE (**):					 546.34
+SEGURO (**):					 164.86
+PAIS RECEPTOR Y PAIS DESTINO:			AUSTRALIA
+
+COMISIONES EN EL EXTRANJERO (RECARGOS GLOBALES):  11% DEL TOTAL DE LA CLAUSULA
+DESCUENTO LINEA # 1:   5%</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352559_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352559_2"/>
+            <field name="sequence">10</field>
+            <field name="name">CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70</field>
+            <field name="quantity">402.0</field>
+            <field name="price_unit">130.0</field>
+            <field name="discount_percent">5.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352559_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352559_2"/>
+            <field name="sequence">20</field>
+            <field name="name">CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS</field>
+            <field name="quantity">180.0</field>
+            <field name="price_unit">77.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352559-3 (Factura de Exportacion - Servicios Turismo) -->
+        <record id="case_dte_05_4352559_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_export_2_4352559"/>
+            <field name="case_number_raw">4352559-3</field>
+            <field name="document_type_raw">FACTURA DE EXPORTACION ELECTRONICA</field>
+            <field name="document_type_code">110</field>
+            <field name="raw_text_block">CASO 4352559-3
+==============
+DOCUMENTO	FACTURA DE EXPORTACION ELECTRONICA
+
+ITEM                            VALOR LINEA
+ALOJAMIENTO HABITACIONES             91
+
+
+MONEDA DE LA OPERACION:		DOLAR USA
+NACIONALIDAD:			AUSTRALIA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352559_3_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352559_3"/>
+            <field name="sequence">10</field>
+            <field name="name">ALOJAMIENTO HABITACIONES</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">91.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+    </data>
+</odoo>

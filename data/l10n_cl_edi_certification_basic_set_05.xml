@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET BASICO - ATENCION: 4352553 -->
+        <record id="parsed_set_05_basico_4352553" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">11</field>
+            <field name="set_type_raw">BASICO</field>
+            <field name="set_type_normalized">basic</field>
+            <field name="attention_number">4352553</field>
+            <field name="raw_header_text">SET BASICO - NUMERO DE ATENCION: 4352553
+
+IMPORTANTE: Considerar que los descuentos por línea o globales deben ser indicados en las representaciones impresas. Además, señalar las cifras con separador de miles con ".".</field>
+        </record>
+
+        <!-- CASO 4352553-1 (Factura Electronica) -->
+        <record id="case_dte_05_4352553_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-1</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">CASO 4352553-1
+==============
+DOCUMENTO	FACTURA ELECTRONICA
+
+ITEM			CANTIDAD	PRECIO UNITARIO
+Cajón AFECTO		    168		   3490
+Relleno AFECTO		     71		   5813</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352553_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_1"/>
+            <field name="sequence">10</field>
+            <field name="name">Cajón AFECTO</field>
+            <field name="quantity">168.0</field>
+            <field name="price_unit">3490.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_1_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_1"/>
+            <field name="sequence">20</field>
+            <field name="name">Relleno AFECTO</field>
+            <field name="quantity">71.0</field>
+            <field name="price_unit">5813.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352553-2 (Factura Electronica con Descuento Item) -->
+        <record id="case_dte_05_4352553_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-2</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">CASO 4352553-2
+==============
+DOCUMENTO	FACTURA ELECTRONICA
+
+ITEM			CANTIDAD	PRECIO UNITARIO		DESCUENTO ITEM
+Pañuelo AFECTO		    759		   5874			     10%
+ITEM 2 AFECTO		    703		   4925			     23%</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352553_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_2"/>
+            <field name="sequence">10</field>
+            <field name="name">Pañuelo AFECTO</field>
+            <field name="quantity">759.0</field>
+            <field name="price_unit">5874.0</field>
+            <field name="discount_percent">10.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_2"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">703.0</field>
+            <field name="price_unit">4925.0</field>
+            <field name="discount_percent">23.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352553-3 (Factura Electronica con Items Mixtos) -->
+        <record id="case_dte_05_4352553_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-3</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">CASO 4352553-3
+==============
+DOCUMENTO	FACTURA ELECTRONICA
+
+ITEM			CANTIDAD	PRECIO UNITARIO
+Pintura B&amp;W AFECTO	     63		   6868
+ITEM 2 AFECTO		    236		   4020
+ITEM 3 SERVICIO EXENTO	      1		  35292</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352553_3_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_3"/>
+            <field name="sequence">10</field>
+            <field name="name">Pintura B&amp;W AFECTO</field>
+            <field name="quantity">63.0</field>
+            <field name="price_unit">6868.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_3_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_3"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">236.0</field>
+            <field name="price_unit">4020.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_3_3" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_3"/>
+            <field name="sequence">30</field>
+            <field name="name">ITEM 3 SERVICIO EXENTO</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">35292.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+
+        <!-- CASO 4352553-4 (Factura Electronica con Descuento Global) -->
+        <record id="case_dte_05_4352553_4" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-4</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="global_discount_percent">22.0</field>
+            <field name="raw_text_block">CASO 4352553-4
+==============
+DOCUMENTO	FACTURA ELECTRONICA
+
+ITEM			CANTIDAD	PRECIO UNITARIO
+ITEM 1 AFECTO		    414		   5919
+ITEM 2 AFECTO		    175		   7204
+ITEM 3 SERVICIO EXENTO	      2		   6833
+
+DESCUENTO GLOBAL ITEMES AFECTOS		     22%</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352553_4_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_4"/>
+            <field name="sequence">10</field>
+            <field name="name">ITEM 1 AFECTO</field>
+            <field name="quantity">414.0</field>
+            <field name="price_unit">5919.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_4_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_4"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">175.0</field>
+            <field name="price_unit">7204.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_4_3" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_4"/>
+            <field name="sequence">30</field>
+            <field name="name">ITEM 3 SERVICIO EXENTO</field>
+            <field name="quantity">2.0</field>
+            <field name="price_unit">6833.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+
+        <!-- CASO 4352553-5 (Nota de Credito - Corrige Giro) -->
+        <record id="case_dte_05_4352553_5" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-5</field>
+            <field name="document_type_raw">NOTA DE CREDITO ELECTRONICA</field>
+            <field name="document_type_code">61</field>
+            <field name="raw_text_block">CASO 4352553-5
+==============
+DOCUMENTO		NOTA DE CREDITO ELECTRONICA
+REFERENCIA		FACTURA ELECTRONICA CORRESPONDIENTE A CASO 4352553-1
+RAZON REFERENCIA	CORRIGE GIRO DEL RECEPTOR</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352553_5_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352553_5"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA ELECTRONICA CORRESPONDIENTE A CASO 4352553-1</field>
+            <field name="referenced_sii_case_number">4352553-1</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352553_1"/>
+            <field name="reason_raw">CORRIGE GIRO DEL RECEPTOR</field>
+            <field name="reference_code">2</field>
+        </record>
+
+        <!-- CASO 4352553-6 (Nota de Credito - Devolucion Mercaderias) -->
+        <record id="case_dte_05_4352553_6" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-6</field>
+            <field name="document_type_raw">NOTA DE CREDITO ELECTRONICA</field>
+            <field name="document_type_code">61</field>
+            <field name="raw_text_block">CASO 4352553-6
+==============
+DOCUMENTO		NOTA DE CREDITO ELECTRONICA
+REFERENCIA		FACTURA  ELECTRONICA CORRESPONDIENTE A CASO 4352553-2
+RAZON REFERENCIA	DEVOLUCION DE MERCADERIAS
+
+ITEM			CANTIDAD
+Pañuelo AFECTO		    278
+ITEM 2 AFECTO		    477</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352553_6_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352553_6"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA  ELECTRONICA CORRESPONDIENTE A CASO 4352553-2</field>
+            <field name="referenced_sii_case_number">4352553-2</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352553_2"/>
+            <field name="reason_raw">DEVOLUCION DE MERCADERIAS</field>
+            <field name="reference_code">3</field>
+        </record>
+        <record id="item_05_4352553_6_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_6"/>
+            <field name="sequence">10</field>
+            <field name="name">Pañuelo AFECTO</field>
+            <field name="quantity">278.0</field>
+            <field name="price_unit">5874.0</field>
+            <field name="discount_percent">10.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_6_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_6"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">477.0</field>
+            <field name="price_unit">4925.0</field>
+            <field name="discount_percent">23.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352553-7 (Nota de Credito - Anula Factura) -->
+        <record id="case_dte_05_4352553_7" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-7</field>
+            <field name="document_type_raw">NOTA DE CREDITO ELECTRONICA</field>
+            <field name="document_type_code">61</field>
+            <field name="raw_text_block">CASO 4352553-7
+==============
+DOCUMENTO		NOTA DE CREDITO ELECTRONICA
+REFERENCIA		FACTURA ELECTRONICA CORRESPONDIENTE A CASO 4352553-3
+RAZON REFERENCIA	ANULA FACTURA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352553_7_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352553_7"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA ELECTRONICA CORRESPONDIENTE A CASO 4352553-3</field>
+            <field name="referenced_sii_case_number">4352553-3</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352553_3"/>
+            <field name="reason_raw">ANULA FACTURA</field>
+            <field name="reference_code">1</field>
+        </record>
+        <!-- Para anulación, agregamos los mismos ítems que la factura original -->
+        <record id="item_05_4352553_7_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_7"/>
+            <field name="sequence">10</field>
+            <field name="name">Pintura B&amp;W AFECTO</field>
+            <field name="quantity">63.0</field>
+            <field name="price_unit">6868.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_7_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_7"/>
+            <field name="sequence">20</field>
+            <field name="name">ITEM 2 AFECTO</field>
+            <field name="quantity">236.0</field>
+            <field name="price_unit">4020.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352553_7_3" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352553_7"/>
+            <field name="sequence">30</field>
+            <field name="name">ITEM 3 SERVICIO EXENTO</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">35292.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+
+        <!-- CASO 4352553-8 (Nota de Debito - Anula Nota de Credito) -->
+        <record id="case_dte_05_4352553_8" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_basico_4352553"/>
+            <field name="case_number_raw">4352553-8</field>
+            <field name="document_type_raw">NOTA DE DEBITO ELECTRONICA</field>
+            <field name="document_type_code">56</field>
+            <field name="raw_text_block">CASO 4352553-8
+==============
+DOCUMENTO		NOTA DE DEBITO ELECTRONICA
+REFERENCIA		NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4352553-5
+RAZON REFERENCIA	ANULA NOTA DE CREDITO ELECTRONICA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352553_8_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352553_8"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4352553-5</field>
+            <field name="referenced_sii_case_number">4352553-5</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352553_5"/>
+            <field name="reason_raw">ANULA NOTA DE CREDITO ELECTRONICA</field>
+            <field name="reference_code">1</field>
+        </record>
+    </data>
+</odoo>

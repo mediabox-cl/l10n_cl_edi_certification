@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET LIBRO DE COMPRAS - ATENCION: 4352555 -->
+        <record id="parsed_set_05_purchase_book_4352555" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">16</field>
+            <field name="set_type_raw">LIBRO DE COMPRAS</field>
+            <field name="set_type_normalized">purchase_book</field>
+            <field name="attention_number">4352555</field>
+            <field name="raw_header_text">SET LIBRO DE COMPRAS - NUMERO DE ATENCION: 4352555
+
+==========================================================================
+TIPO DOCUMENTO				FOLIO
+OBSERVACIONES
+MONTO EXENTO	MONTO AFECTO
+==========================================================================
+FACTURA					234
+FACTURA DEL GIRO CON DERECHO A CREDITO
+		  21298
+
+FACTURA ELECTRONICA 			 32
+FACTURA DEL GIRO CON DERECHO A CREDITO
+   8844		   6527
+
+FACTURA					781
+FACTURA CON IVA USO COMUN
+		  29785
+
+NOTA DE CREDITO				451
+NOTA DE CREDITO POR DESCUENTO A FACTURA 234
+		   2719
+
+FACTURA ELECTRONICA			 67
+ENTREGA GRATUITA DEL PROVEEDOR
+		  10026
+
+FACTURA DE COMPRA ELECTRONICA		  9
+COMPRA CON RETENCION TOTAL DEL IVA
+		   9575
+
+NOTA DE CREDITO				211
+NOTA DE CREDITO POR DESCUENTO FACTURA ELECTRONICA 32
+		   4465
+==========================================================================
+
+OBSERVACIONES GENERALES
+-----------------------
+EN FACTURA CON IVA USO COMUN CONSIDERE QUE EL FACTOR DE PROPORCIONALIDAD 
+DEL IVA ES DE 0.60</field>
+        </record>
+
+        <!-- DOCUMENTO 1: FACTURA 234 -->
+        <record id="purchase_book_05_doc_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-1</field>
+            <field name="document_type_raw">FACTURA</field>
+            <field name="document_type_code">30</field>
+            <field name="raw_text_block">FACTURA					234
+FACTURA DEL GIRO CON DERECHO A CREDITO
+		  21298</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_1_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_1"/>
+            <field name="sequence">10</field>
+            <field name="name">FACTURA DEL GIRO CON DERECHO A CREDITO</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">21298.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 2: FACTURA ELECTRONICA 32 -->
+        <record id="purchase_book_05_doc_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-2</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">FACTURA ELECTRONICA 			 32
+FACTURA DEL GIRO CON DERECHO A CREDITO
+   8844		   6527</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_2_item_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_2"/>
+            <field name="sequence">10</field>
+            <field name="name">FACTURA DEL GIRO CON DERECHO A CREDITO (EXENTO)</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">8844.0</field>
+            <field name="is_exempt">True</field>
+        </record>
+        <record id="purchase_book_05_doc_2_item_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_2"/>
+            <field name="sequence">20</field>
+            <field name="name">FACTURA DEL GIRO CON DERECHO A CREDITO (AFECTO)</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">6527.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 3: FACTURA 781 -->
+        <record id="purchase_book_05_doc_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-3</field>
+            <field name="document_type_raw">FACTURA</field>
+            <field name="document_type_code">30</field>
+            <field name="raw_text_block">FACTURA					781
+FACTURA CON IVA USO COMUN
+		  29785</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_3_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_3"/>
+            <field name="sequence">10</field>
+            <field name="name">FACTURA CON IVA USO COMUN</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">29785.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 4: NOTA DE CREDITO 451 -->
+        <record id="purchase_book_05_doc_4" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-4</field>
+            <field name="document_type_raw">NOTA DE CREDITO</field>
+            <field name="document_type_code">60</field>
+            <field name="raw_text_block">NOTA DE CREDITO				451
+NOTA DE CREDITO POR DESCUENTO A FACTURA 234
+		   2719</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_4_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_4"/>
+            <field name="sequence">10</field>
+            <field name="name">NOTA DE CREDITO POR DESCUENTO A FACTURA 234</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">2719.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 5: FACTURA ELECTRONICA 67 -->
+        <record id="purchase_book_05_doc_5" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-5</field>
+            <field name="document_type_raw">FACTURA ELECTRONICA</field>
+            <field name="document_type_code">33</field>
+            <field name="raw_text_block">FACTURA ELECTRONICA			 67
+ENTREGA GRATUITA DEL PROVEEDOR
+		  10026</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_5_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_5"/>
+            <field name="sequence">10</field>
+            <field name="name">ENTREGA GRATUITA DEL PROVEEDOR</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">10026.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 6: FACTURA DE COMPRA ELECTRONICA 9 -->
+        <record id="purchase_book_05_doc_6" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-6</field>
+            <field name="document_type_raw">FACTURA DE COMPRA ELECTRONICA</field>
+            <field name="document_type_code">46</field>
+            <field name="raw_text_block">FACTURA DE COMPRA ELECTRONICA		  9
+COMPRA CON RETENCION TOTAL DEL IVA
+		   9575</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_6_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_6"/>
+            <field name="sequence">10</field>
+            <field name="name">COMPRA CON RETENCION TOTAL DEL IVA</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">9575.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- DOCUMENTO 7: NOTA DE CREDITO 211 -->
+        <record id="purchase_book_05_doc_7" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_book_4352555"/>
+            <field name="case_number_raw">4352555-7</field>
+            <field name="document_type_raw">NOTA DE CREDITO</field>
+            <field name="document_type_code">60</field>
+            <field name="raw_text_block">NOTA DE CREDITO				211
+NOTA DE CREDITO POR DESCUENTO FACTURA ELECTRONICA 32
+		   4465</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="purchase_book_05_doc_7_item" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="purchase_book_05_doc_7"/>
+            <field name="sequence">10</field>
+            <field name="name">NOTA DE CREDITO POR DESCUENTO FACTURA ELECTRONICA 32</field>
+            <field name="quantity">1.0</field>
+            <field name="price_unit">4465.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+    </data>
+</odoo>

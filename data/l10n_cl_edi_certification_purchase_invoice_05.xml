@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- SET BASICO CASO GENERAL DE EMISOR DE FACTURA DE COMPRA - ATENCION: 4352560 -->
+        <record id="parsed_set_05_purchase_invoice_4352560" model="l10n_cl_edi.certification.parsed_set">
+            <field name="certification_process_id" ref="l10n_cl_edi_certification.default_certification_process"/>
+            <field name="sequence">15</field>
+            <field name="set_type_raw">BASICO CASO GENERAL DE EMISOR DE FACTURA DE COMPRA</field>
+            <field name="set_type_normalized">purchase_invoice</field>
+            <field name="attention_number">4352560</field>
+            <field name="raw_header_text">SET BASICO CASO GENERAL DE EMISOR DE FACTURA DE COMPRA - NUMERO DE ATENCION: 4352560</field>
+        </record>
+
+        <!-- CASO 4352560-1 (Factura de Compra Electronica) -->
+        <record id="case_dte_05_4352560_1" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_invoice_4352560"/>
+            <field name="case_number_raw">4352560-1</field>
+            <field name="document_type_raw">FACTURA DE COMPRA ELECTRONICA</field>
+            <field name="document_type_code">46</field>
+            <field name="raw_text_block">CASO 4352560-1
+==============
+DOCUMENTO	FACTURA DE COMPRA ELECTRONICA
+
+ITEM		CANTIDAD	PRECIO UNITARIO
+Producto 1	    471		   3950
+Producto 2	     26		   2074</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="item_05_4352560_1_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352560_1"/>
+            <field name="sequence">10</field>
+            <field name="name">Producto 1</field>
+            <field name="quantity">471.0</field>
+            <field name="price_unit">3950.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352560_1_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352560_1"/>
+            <field name="sequence">20</field>
+            <field name="name">Producto 2</field>
+            <field name="quantity">26.0</field>
+            <field name="price_unit">2074.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352560-2 (Nota de Credito Electronica - Devolucion Mercaderia) -->
+        <record id="case_dte_05_4352560_2" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_invoice_4352560"/>
+            <field name="case_number_raw">4352560-2</field>
+            <field name="document_type_raw">NOTA DE CREDITO ELECTRONICA</field>
+            <field name="document_type_code">61</field>
+            <field name="raw_text_block">CASO 4352560-2
+==============
+DOCUMENTO		NOTA DE CREDITO ELECTRONICA
+REFERENCIA		FACTURA DE COMPRA ELECTRONICA CORRESPONDIENTE A CASO 4352560-1
+RAZON REFERENCIA	DEVOLUCION DE MERCADERIA ITEMS 1 Y 2
+
+ITEM		CANTIDAD	
+Producto 1	    157	
+Producto 2	      9	
+
+LOS PRECIOS UNITARIOS DE LOS ITEMS DEBEN SER LOS MISMOS DE LA FACTURA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352560_2_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352560_2"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">FACTURA DE COMPRA ELECTRONICA CORRESPONDIENTE A CASO 4352560-1</field>
+            <field name="referenced_sii_case_number">4352560-1</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352560_1"/>
+            <field name="reason_raw">DEVOLUCION DE MERCADERIA ITEMS 1 Y 2</field>
+            <field name="reference_code">3</field>
+        </record>
+        <record id="item_05_4352560_2_1" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352560_2"/>
+            <field name="sequence">10</field>
+            <field name="name">Producto 1</field>
+            <field name="quantity">157.0</field>
+            <field name="price_unit">3950.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+        <record id="item_05_4352560_2_2" model="l10n_cl_edi.certification.case.dte.item">
+            <field name="case_dte_id" ref="case_dte_05_4352560_2"/>
+            <field name="sequence">20</field>
+            <field name="name">Producto 2</field>
+            <field name="quantity">9.0</field>
+            <field name="price_unit">2074.0</field>
+            <field name="is_exempt">False</field>
+        </record>
+
+        <!-- CASO 4352560-3 (Nota de Debito Electronica - Anula Nota de Credito) -->
+        <record id="case_dte_05_4352560_3" model="l10n_cl_edi.certification.case.dte">
+            <field name="parsed_set_id" ref="parsed_set_05_purchase_invoice_4352560"/>
+            <field name="case_number_raw">4352560-3</field>
+            <field name="document_type_raw">NOTA DE DEBITO ELECTRONICA</field>
+            <field name="document_type_code">56</field>
+            <field name="raw_text_block">CASO 4352560-3
+==============
+DOCUMENTO		NOTA DE DEBITO ELECTRONICA
+REFERENCIA		NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4352560-2
+RAZON REFERENCIA	ANULA NOTA DE CREDITO ELECTRONICA</field>
+            <field name="generation_status">pending</field>
+        </record>
+        <record id="ref_05_4352560_3_1" model="l10n_cl_edi.certification.case.dte.reference">
+            <field name="case_dte_id" ref="case_dte_05_4352560_3"/>
+            <field name="sequence">10</field>
+            <field name="reference_document_text_raw">NOTA DE CREDITO ELECTRONICA CORRESPONDIENTE A CASO 4352560-2</field>
+            <field name="referenced_sii_case_number">4352560-2</field>
+            <field name="referenced_case_dte_id" ref="case_dte_05_4352560_2"/>
+            <field name="reason_raw">ANULA NOTA DE CREDITO ELECTRONICA</field>
+            <field name="reference_code">1</field>
+        </record>
+    </data>
+</odoo>
