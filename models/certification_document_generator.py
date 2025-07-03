@@ -2536,12 +2536,19 @@ class CertificationDocumentGenerator(models.TransientModel):
             return 'OTROS'
     
     def _get_export_partner_for_case(self):
-        """Obtiene partner extranjero específico según el caso de exportación"""
+        """
+        Obtiene partner extranjero específico según el caso de exportación.
+        
+        Lógica actualizada para SET 4 y SET 5:
+        - SET 4: Alemania (servicios), Ecuador (productos)
+        - SET 5: Argentina (productos metálicos), Australia (servicios/productos/hotelería)
+        """
         self.ensure_one()
         
         # Determinar país/nacionalidad basado en los datos del caso
         country_raw = None
         nationality_raw = None
+        case_number = self.dte_case_id.case_number_raw
         
         if hasattr(self.dte_case_id, 'export_client_nationality_raw') and self.dte_case_id.export_client_nationality_raw:
             nationality_raw = self.dte_case_id.export_client_nationality_raw.upper()
@@ -2550,25 +2557,67 @@ class CertificationDocumentGenerator(models.TransientModel):
         elif hasattr(self.dte_case_id, 'export_destination_country_raw') and self.dte_case_id.export_destination_country_raw:
             country_raw = self.dte_case_id.export_destination_country_raw.upper()
         
-        # Seleccionar partner específico según nacionalidad/país
-        if nationality_raw and 'ALEMANIA' in nationality_raw:
-            # Servicios hoteleros alemanes
-            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_hospitality', False)
-        elif country_raw and 'ALEMANIA' in country_raw:
-            # Servicios profesionales alemanes
-            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_services', False)
-        elif country_raw and 'ECUADOR' in country_raw:
-            # Productos ecuatorianos
-            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_ecuador_products', False)
-        else:
-            # Partner genérico para otros casos
-            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign', False)
+        _logger.info(f"Seleccionando partner para caso {case_number}: país='{country_raw}', nacionalidad='{nationality_raw}'")
         
+        # === MAPEO POR PAÍS/NACIONALIDAD ===
+        
+        # 1. ALEMANIA (SET 4)
+        if nationality_raw and 'ALEMANIA' in nationality_raw:
+            # Servicios hoteleros alemanes (caso 4329507-3 del SET 4)
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_hospitality', False)
+            _logger.info(f"Seleccionado partner Alemania (hotelería) para nacionalidad alemana")
+        elif country_raw and 'ALEMANIA' in country_raw:
+            # Servicios profesionales alemanes (caso 4329507-1 del SET 4)
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_germany_services', False)
+            _logger.info(f"Seleccionado partner Alemania (servicios) para país alemán")
+        
+        # 2. ECUADOR (SET 4)
+        elif country_raw and 'ECUADOR' in country_raw:
+            # Productos ecuatorianos (caso 4329507-1 del SET 4)
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_ecuador_products', False)
+            _logger.info(f"Seleccionado partner Ecuador para país ecuatoriano")
+        
+        # 3. ARGENTINA (SET 5)
+        elif country_raw and 'ARGENTINA' in country_raw:
+            # Productos metálicos argentinos (caso 4352558-1 del SET 5: chatarra de aluminio)
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_argentina_products', False)
+            _logger.info(f"Seleccionado partner Argentina (productos metálicos) para país argentino")
+        
+        # 4. AUSTRALIA (SET 5) - Clasificación por tipo de servicio/producto
+        elif country_raw and 'AUSTRALIA' in country_raw:
+            # Determinar tipo de partner australiano según el caso específico
+            if case_number == '4352559-1':
+                # Servicios profesionales (ASESORIAS Y PROYECTOS PROFESIONALES)
+                partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_australia_services', False)
+                _logger.info(f"Seleccionado partner Australia (servicios profesionales) para caso {case_number}")
+            elif case_number == '4352559-2':
+                # Productos agrícolas (CAJAS CIRUELAS, PASAS DE UVA)
+                partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_australia_products', False)
+                _logger.info(f"Seleccionado partner Australia (productos agrícolas) para caso {case_number}")
+            elif case_number == '4352559-3':
+                # Servicios hoteleros (ALOJAMIENTO HABITACIONES)
+                partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_australia_hospitality', False)
+                _logger.info(f"Seleccionado partner Australia (hotelería) para caso {case_number}")
+            else:
+                # Fallback a servicios profesionales para otros casos australianos
+                partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_australia_services', False)
+                _logger.info(f"Seleccionado partner Australia (servicios - fallback) para caso australiano {case_number}")
+        elif nationality_raw and 'AUSTRALIA' in nationality_raw:
+            # Nacionalidad australiana → servicios hoteleros (caso 4352559-3)
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_australia_hospitality', False)
+            _logger.info(f"Seleccionado partner Australia (hotelería) para nacionalidad australiana")
+        
+        # 5. FALLBACK - Partner genérico
+        else:
+            partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign', False)
+            _logger.info(f"Seleccionado partner genérico para caso {case_number} (país/nacionalidad no reconocida)")
+        
+        # Verificar que el partner existe
         if not partner_id:
-            # Fallback al partner genérico si no se encuentra el específico
+            _logger.warning(f"Partner específico no encontrado, usando genérico para caso {case_number}")
             partner_id = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign')
         
-        _logger.info(f"Partner de exportación seleccionado para caso {self.dte_case_id.case_number_raw}: {partner_id.name} (País/Nacionalidad: {country_raw or nationality_raw or 'GENÉRICO'})")
+        _logger.info(f"✓ Partner de exportación final: {partner_id.name} ({partner_id.country_id.name}) para caso {case_number}")
         return partner_id
     
     def _configure_export_currency_on_invoice(self, invoice):

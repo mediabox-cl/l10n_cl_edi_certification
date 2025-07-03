@@ -50,6 +50,66 @@
             <field name="customer_rank">1</field>
         </record>
 
+        <!-- Cliente de Argentina para productos metálicos -->
+        <record id="export_partner_argentina_products" model="res.partner">
+            <field name="name">IMPORTADORA ARGENTINA LTDA</field>
+            <field name="is_company">True</field>
+            <field name="country_id" ref="base.ar"/>  <!-- Argentina -->
+            <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
+            <field name="l10n_cl_activity_description">Importación de productos metálicos</field>
+            <field name="street">AV. CORRIENTES 1234</field>
+            <field name="city">BUENOS AIRES</field>
+            <field name="email">compras@importadoraargentina.com.ar</field>
+            <field name="phone">+54-11-4567-8900</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+        </record>
+
+        <!-- Cliente de Australia para servicios profesionales -->
+        <record id="export_partner_australia_services" model="res.partner">
+            <field name="name">AUSTRALIAN CONSULTING GROUP PTY LTD</field>
+            <field name="is_company">True</field>
+            <field name="country_id" ref="base.au"/>  <!-- Australia -->
+            <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
+            <field name="l10n_cl_activity_description">Servicios de consultoría profesional</field>
+            <field name="street">COLLINS STREET 456</field>
+            <field name="city">MELBOURNE</field>
+            <field name="email">services@australianconsulting.com.au</field>
+            <field name="phone">+61-3-9876-5432</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+        </record>
+
+        <!-- Cliente de Australia para productos agrícolas -->
+        <record id="export_partner_australia_products" model="res.partner">
+            <field name="name">PACIFIC FRUIT IMPORTS PTY LTD</field>
+            <field name="is_company">True</field>
+            <field name="country_id" ref="base.au"/>  <!-- Australia -->
+            <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
+            <field name="l10n_cl_activity_description">Importación de productos alimentarios</field>
+            <field name="street">HARBOUR BRIDGE ROAD 789</field>
+            <field name="city">SYDNEY</field>
+            <field name="email">imports@pacificfruit.com.au</field>
+            <field name="phone">+61-2-8765-4321</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+        </record>
+
+        <!-- Cliente de Australia para servicios hoteleros -->
+        <record id="export_partner_australia_hospitality" model="res.partner">
+            <field name="name">SYDNEY HOSPITALITY SERVICES PTY LTD</field>
+            <field name="is_company">True</field>
+            <field name="country_id" ref="base.au"/>  <!-- Australia -->
+            <field name="l10n_cl_sii_taxpayer_type">4</field>  <!-- Extranjero -->
+            <field name="l10n_cl_activity_description">Servicios turísticos y hoteleros</field>
+            <field name="street">OPERA HOUSE AVENUE 321</field>
+            <field name="city">SYDNEY</field>
+            <field name="email">reservations@sydneyhospitality.com.au</field>
+            <field name="phone">+61-2-9876-1234</field>
+            <field name="supplier_rank">0</field>
+            <field name="customer_rank">1</field>
+        </record>
+
         <!-- Cliente genérico de exportación para casos sin nacionalidad específica -->
         <record id="export_partner_generic_foreign" model="res.partner">
             <field name="name">CLIENTE EXTRANJERO GENERICO</field>
