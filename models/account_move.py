@@ -60,10 +60,15 @@ class AccountMove(models.Model):
     
     def _check_l10n_latam_documents(self):
         """Override para saltar validación de documentos extranjeros en certificación"""
+        _logger.info(f"Validando documentos latam - contexto bypass: {self.env.context.get('l10n_cl_edi_certification_bypass')}")
+        _logger.info(f"Documentos con certificación: {[move.id for move in self if move.l10n_cl_edi_certification_id]}")
+        
         # Saltar validación cuando hay contexto de bypass o es documento de certificación
         if (self.env.context.get('l10n_cl_edi_certification_bypass') or 
             any(move.l10n_cl_edi_certification_id for move in self)):
+            _logger.info("✓ Saltando validación de documentos latam para certificación")
             return
             
         # Llamar validación normal para documentos no relacionados con certificación
+        _logger.info("Ejecutando validación normal de documentos latam")
         super()._check_l10n_latam_documents()

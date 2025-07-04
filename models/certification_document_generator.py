@@ -3145,6 +3145,13 @@ class CertificationDocumentGenerator(models.TransientModel):
         _logger.info(f"✓ Líneas en el documento creado: {len(credit_note.invoice_line_ids)}")
         for line in credit_note.invoice_line_ids:
             _logger.info(f"  - {line.name}: {line.quantity} x {line.price_unit}")
+        
+        # Publicar el documento con contexto de bypass para evitar validaciones
+        if credit_note.state == 'draft':
+            _logger.info("Publicando NC/ND con bypass de validaciones")
+            credit_note.with_context(l10n_cl_edi_certification_bypass=True).action_post()
+            _logger.info(f"✓ NC/ND publicada: {credit_note.name} (estado: {credit_note.state})")
+        
         return credit_note
         
     
