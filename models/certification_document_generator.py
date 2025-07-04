@@ -3084,20 +3084,10 @@ class CertificationDocumentGenerator(models.TransientModel):
                 _logger.info(f"  - '{line.name}' (display_type: {line.display_type})")
             
             for item in self.dte_case_id.item_ids:
-                # Buscar la línea correspondiente en la factura original para obtener cuenta y producto
-                # Intentar match exacto primero
+                # Buscar la línea correspondiente en la factura original por nombre
                 original_line = original_invoice.invoice_line_ids.filtered(
-                    lambda l: l.name == item.name and not l.display_type
+                    lambda l: l.name == item.name
                 )
-                
-                # Si no encuentra match exacto, intentar match por posición (secuencia)
-                if not original_line:
-                    _logger.info(f"No se encontró match exacto para '{item.name}', intentando por posición")
-                    non_display_lines = original_invoice.invoice_line_ids.filtered(lambda l: not l.display_type)
-                    if len(non_display_lines) >= item.sequence // 10:  # sequence es 10, 20, 30...
-                        line_index = (item.sequence // 10) - 1
-                        original_line = non_display_lines[line_index:line_index+1]
-                        _logger.info(f"Usando línea por posición {line_index + 1}: '{original_line.name}' para item '{item.name}'")
                 
                 if original_line:
                     line_vals = {
@@ -3116,7 +3106,7 @@ class CertificationDocumentGenerator(models.TransientModel):
         else:
             # Fallback: copiar todas las líneas del original (NC/ND total)
             _logger.info("Sin items específicos - copiando todas las líneas del documento original")
-            for line in original_invoice.invoice_line_ids.filtered(lambda l: not l.display_type):
+            for line in original_invoice.invoice_line_ids.filtered(lambda l: l.display_type not in ('line_section', 'line_note', 'rounding')):
                 line_vals = {
                     'name': line.name,
                     'product_id': line.product_id.id if line.product_id else False,
