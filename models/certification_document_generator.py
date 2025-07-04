@@ -2920,16 +2920,27 @@ class CertificationDocumentGenerator(models.TransientModel):
         # Agregar referencia al caso DTE
         invoice_vals['ref'] = f'Certificación DTE - Caso {self.dte_case_id.id}'
         
-        # Establecer contexto de certificación
-        invoice = self.env['account.move'].with_context(l10n_cl_edi_certification=True).create(invoice_vals)
-        
-        # Crear líneas de factura desde las líneas de purchase.order
+        # Preparar líneas de factura desde las líneas de purchase.order
+        invoice_lines = []
         for po_line in purchase_order.order_line:
-            invoice_line_vals = po_line._prepare_account_move_line(invoice)
-            self.env['account.move.line'].create(invoice_line_vals)
+            # Crear valores de línea sin move_id (se asignará automáticamente)
+            line_vals = {
+                'product_id': po_line.product_id.id,
+                'name': po_line.name,
+                'quantity': po_line.product_qty,
+                'price_unit': po_line.price_unit,
+                'account_id': po_line.product_id.property_account_expense_id.id or po_line.product_id.categ_id.property_account_expense_categ_id.id,
+                'tax_ids': [(6, 0, po_line.taxes_id.ids)],
+                'product_uom_id': po_line.product_uom.id,
+                'purchase_line_id': po_line.id,
+            }
+            invoice_lines.append((0, 0, line_vals))
         
-        # Calcular totales
-        invoice._recompute_dynamic_lines()
+        # Agregar líneas al invoice_vals
+        invoice_vals['invoice_line_ids'] = invoice_lines
+        
+        # Establecer contexto de certificación y crear la factura con líneas
+        invoice = self.env['account.move'].with_context(l10n_cl_edi_certification=True).create(invoice_vals)
         
         return invoice
 
