@@ -4,10 +4,10 @@
         <Caratula version="1.0">
             <RutEmisor>76235291-5</RutEmisor>
             <RutEnvia>17605402-6</RutEnvia>
-            <RutReceptor>60803000-K</RutReceptor>
+            <RutReceptor>55555555-5</RutReceptor>
             <FchResol>2025-03-26</FchResol>
             <NroResol>0</NroResol>
-            <TmstFirmaEnv>2025-07-04T16:12:09</TmstFirmaEnv>
+            <TmstFirmaEnv>2025-07-04T16:30:59</TmstFirmaEnv>
             <SubTotDTE>
                 <TpoDTE>46</TpoDTE>
                 <NroDTE>1</NroDTE>
@@ -34,7 +34,7 @@
                     <CmnaOrigen>Los Andes</CmnaOrigen>
                 </Emisor>
                 <Receptor>
-                    <RUTRecep>12-3456789</RUTRecep>
+                    <RUTRecep>55555555-5</RUTRecep>
             <RznSocRecep>Foreign Supplier International Corp</RznSocRecep>
                     <Extranjero>
                         <NumId>12-3456789</NumId>
@@ -105,12 +105,12 @@
                     </DA>
                     <FRMA algoritmo="SHA1withRSA">aX+A9V7H9U5+pnYXrKb84+I/IAb1MEXI1GsAB+Vr5f4QCAqzAOaQ2kU4orPFM1h+0PCMmljnjJkVMkbN5kPMXg==</FRMA>
                 </CAF>
-                <TSTED>2025-07-04T16:12:09</TSTED>
+                <TSTED>2025-07-04T16:29:58</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">VkSaGgBhFzlS6hxCMPVY79B+jjcYWDzyBB7bf6iY5ATvYIpJCdgspbW/qzcFckCUbywy70Z7AkBps+PMRf2Mxg==</FRMT>
-            </TED><TmstFirma>2025-07-04T16:12:09</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">NVDfp7yCWnoLdZjM0AP9B75sloswOjIC8rXMmR5fsAPx6fQf7w+EQs8q2+7qRXaitsOq4CmLYXDQ2yzHcdIz+A==</FRMT>
+            </TED><TmstFirma>2025-07-04T16:29:58</TmstFirma>
             </Documento>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F1T46"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>o9HeMPstXiw2QrKNqkpNs7deVFI=</DigestValue></Reference></SignedInfo><SignatureValue>CioeHK+lVD0EMMIgmwZyiCRu7MCy8u8QfNjql40kbqtR38t9w1w8V2AOtV2Z6JR6hJYvtgD7p7Vcpv3snR+UYXjw/F15Ras1e7WOajaefXZsrJ/5jJGhx5MvjbBhX7Z/XvZ2Xpq6tAvfL7lA5JswcDXtkf1+eOtnbkAOPm65rJsIqMAZZDYY2KDMDJNCme3iGKHClvoPayNhmAqyt+Cf/nudzAAZYHt9GvyCyyqcM0Z6qp4Xr4FUlKzyeugVWqP7oUnesNjgLPO92Cr53mmjkoNSBjCXM5V6ljYuo7xzRX/zXkFWJVaVqXd4wr2xTqG0yeZfQGXKUziZJhVvMGhzUw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F1T46"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>GjDwmBhv4yKx1olHAY1NIAPgmm8=</DigestValue></Reference></SignedInfo><SignatureValue>l2jW4gpON4lR9R27ont1+SCuOBmsNQdClA0hHbkIdEGWtboNVDqxfzE0XSL/lkxwGdEFcy/Bxy/3aELcBuhSh2umn2/P7n44MwvVxUd67SGQ1NnydDE1XqFetq6nmXekNKAoANgGX7e3/akfOJlRj1EOd91RmExFtutjl9UR013iLhdXFAONyHnXuijClKSQEhUGKb9LhhHBkJwR+HpXnTp6LTKTvGOIkkxSt2J04Ev+6/DOVjAVokj+GEpKjezewIkrzIHrrkL/Bj+jlR8nwwXAgJKEo283Uq3j5+BMRS5UcUc66RP7VJg5vL0NOl5IMCD6aVThe39xwP7z/W1sbQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -150,7 +150,7 @@ V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
     </SetDTE>
 
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>6FS3e4UYB94McDEtHKWazNAWlhI=</DigestValue></Reference></SignedInfo><SignatureValue>eVsjQ/9C3egC0TVV8S3YzK5BZtK0Y5M2y4qjVSIzIZ+WE3408/v8opUS0lYj8DdBrUUB9sNKToOI/DJq2z6E0YuYnpcKxpzpSpqSGFk4Ij8Bjs4z3ZQQacD8nW1H8cVEu1lm0e8CThEAptz63xtB5z2Csd5IZTRwE/HV9/Eu0BrqXqC0XE+fA1u8s4Wy4v8p0MGeeQmSi7/S5NAS/QNMDcRhbmltnoCI3VCwjde3OLTxhbSfdsvwGUh9SUDbf7TrsDP+lRHs/PEwdjVsJCcCEn78eZxUhvLIxH776lEYGVouucI2tjCJqIm4w/9iucu3zy4bRlFiYFVCvrsXaO7PAg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>BVsA7B7OmGyxV5VHTeGHqEnGpfM=</DigestValue></Reference></SignedInfo><SignatureValue>FJcmY1tu7FXwBaQV2atxmsW1GqZ5Bo3VWGLN9/z9L4GMf5cPH8Eo/wGdD+Oz3Vb3zvBPsDZDPbkne7MxJvscb93DXgWSz6gtwlEDjnhq8oSfZWNl3vY+QQdsYuFQCFHyI7/2tdwJtVVo5A3gJOEU/wp/dHU2ZCeXxJQN3jAQpoLaz02ioVh3+A+FYksH3B4phYi5XVDFxR/UpJxBthjK86akehLtJIlFOJZ0sLM/ipQrjCAit5hIukS+mX0nwodHdozGI/3Q5DU5gtRPGLmOKgvEEwKHZIICEAlhcb33Z4zkNRqqyvHAn3kxyGpLTGj6tlzluHdA2t1ix8Pi/5kgcw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs

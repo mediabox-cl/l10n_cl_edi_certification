@@ -8,6 +8,11 @@
                 <RUTRecep t-out="'55555555-5' if (move.l10n_latam_document_type_id.code in ('110', '111', '112')) or (move.l10n_latam_document_type_id.code == '46' and move.partner_id._l10n_cl_is_foreign() and move.partner_id.l10n_cl_sii_taxpayer_type == '4') else format_vat(move.commercial_partner_id.vat)"/>
             </xpath>
             
+            <!-- Agregar GiroRecep para facturas de compra con proveedores extranjeros -->
+            <xpath expr="//GiroRecep" position="after">
+                <GiroRecep t-if="move.l10n_latam_document_type_id.code == '46' and move.partner_id._l10n_cl_is_foreign() and move.partner_id.l10n_cl_sii_taxpayer_type == '4' and (move.partner_id.l10n_cl_activity_description or move.commercial_partner_id.l10n_cl_activity_description)" t-out="format_length(move.partner_id.l10n_cl_activity_description or move.commercial_partner_id.l10n_cl_activity_description, 40)"/>
+            </xpath>
+            
             <!-- Override UnmdItem para documentos de exportación -->
             <xpath expr="//UnmdItem" position="replace">
                 <t t-if="move.l10n_latam_document_type_id.code in ('110', '111', '112')">
