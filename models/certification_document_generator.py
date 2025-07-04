@@ -1320,12 +1320,23 @@ class CertificationDocumentGenerator(models.TransientModel):
         }])
         _logger.info(f"✓ Referencia documento original preparada (segunda): {invoice.l10n_latam_document_number}")
         
-        default_values = [{
+        # **CLAVE: Para NC/ND de facturas de compra, usar diario de certificación**
+        default_values_dict = {
             'move_type': 'out_refund' if invoice.move_type == 'out_invoice' else 'in_refund',
             'invoice_origin': f'{invoice.l10n_latam_document_type_id.doc_code_prefix} {invoice.l10n_latam_document_number}',
-            'l10n_latam_document_type_id': reverse_doc_type.id,  # ← ESTO ERA LO QUE FALTABA
+            'l10n_latam_document_type_id': reverse_doc_type.id,
             'l10n_cl_reference_ids': reference_lines  # Referencias en orden correcto
-        }]
+        }
+        
+        # Solo para facturas de compra (46), forzar el diario de certificación
+        if invoice.l10n_latam_document_type_id.code == '46':
+            target_journal = self.certification_process_id.certification_journal_id
+            if not target_journal:
+                raise UserError("No hay diario de certificación configurado en el proceso")
+            default_values_dict['journal_id'] = target_journal.id
+            _logger.info(f"NC/ND de factura de compra → Forzando diario de certificación: {target_journal.name}")
+        
+        default_values = [default_values_dict]
         
         _logger.info("Valores por defecto configurados para NC")
         
