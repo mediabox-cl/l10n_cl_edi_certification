@@ -919,25 +919,40 @@ class CertificationDocumentGenerator(models.TransientModel):
             
             _logger.info(f"Agregando referencia documental de exportación: {self.dte_case_id.export_reference_text}")
             
-            # Buscar tipo de documento para referencia documental (puede ser genérico)
-            doc_ref_type = self.env['l10n_latam.document.type'].search([
-                ('code', '=', 'DOC'),  # Documento genérico
-                ('country_id.code', '=', 'CL')
-            ], limit=1)
+            # Parsear las referencias (pueden ser múltiples separadas por ; o \n)
+            reference_text = self.dte_case_id.export_reference_text
+            reference_parts = []
             
-            if not doc_ref_type:
-                # Fallback: usar tipo SET si no existe DOC
-                doc_ref_type = set_doc_type
+            # Dividir por ; y por \n para manejar casos como "DUS;AWB" o "DUS\nAWB"
+            for part in reference_text.replace('\n', ';').split(';'):
+                part = part.strip()
+                if part:
+                    reference_parts.append(part)
             
-            if doc_ref_type:
-                references_to_create.append({
-                    'move_id': invoice.id,
-                    'l10n_cl_reference_doc_type_id': doc_ref_type.id,
-                    'origin_doc_number': 'MIC',  # Código del documento
-                    'reason': self.dte_case_id.export_reference_text,
-                    'date': fields.Date.context_today(self),
-                })
-                _logger.info(f"Referencia documental de exportación agregada: {self.dte_case_id.export_reference_text}")
+            # Crear una referencia por cada tipo de documento identificado
+            for ref_part in reference_parts:
+                doc_type_code, origin_number = self._map_export_reference_to_document_type(ref_part)
+                
+                if doc_type_code:
+                    # Buscar el tipo de documento específico
+                    doc_ref_type = self.env['l10n_latam.document.type'].search([
+                        ('code', '=', doc_type_code),
+                        ('country_id.code', '=', 'CL')
+                    ], limit=1)
+                    
+                    if doc_ref_type:
+                        references_to_create.append({
+                            'move_id': invoice.id,
+                            'l10n_cl_reference_doc_type_id': doc_ref_type.id,
+                            'origin_doc_number': origin_number,
+                            'reason': ref_part,
+                            'date': fields.Date.context_today(self),
+                        })
+                        _logger.info(f"Referencia documental agregada: {ref_part} → Tipo {doc_type_code} ({doc_ref_type.name})")
+                    else:
+                        _logger.warning(f"Tipo de documento '{doc_type_code}' no encontrado para referencia: {ref_part}")
+                else:
+                    _logger.warning(f"No se pudo mapear la referencia de exportación: {ref_part}")
         
         # Crear todas las referencias
         if references_to_create:
@@ -2970,5 +2985,40 @@ class CertificationDocumentGenerator(models.TransientModel):
         self.dte_case_id.partner_id = partner_id
         
         return partner_id
+
+    def _map_export_reference_to_document_type(self, reference_text):
+        """
+        Mapea referencias de exportación a tipos de documento específicos según SII.
+        
+        Returns:
+            tuple: (document_type_code, origin_doc_number)
+        """
+        ref_text = reference_text.upper().strip()
+        
+        # Mapeo basado en los tipos de documento del CSV de Odoo
+        if 'MIC' in ref_text or 'MANIFIESTO INTERNACIONAL' in ref_text:
+            # MIC/DTA - código 810 según l10n_latam.document.type.csv
+            return ('810', 'MIC')
+            
+        elif 'RESOLUCION SNA' in ref_text or 'RESOLUCIÓN SNA' in ref_text:
+            # Resolution of the SNA - código 812
+            return ('812', 'RSN')
+            
+        elif 'DUS' in ref_text:
+            # Single Exit Document (DUS) - código 807
+            return ('807', 'DUS')
+            
+        elif 'AWB' in ref_text:
+            # AWB Airway Bill - código 809
+            return ('809', 'AWB')
+            
+        elif 'B/L' in ref_text or 'BILL OF LADING' in ref_text:
+            # B/L (Bill of Lading) - código 808
+            return ('808', 'B/L')
+            
+        else:
+            # Para referencias no reconocidas, usar un código genérico si existe
+            _logger.warning(f"Referencia de exportación no reconocida: {ref_text}")
+            return (None, ref_text[:10])  # Limitar a 10 caracteres para origin_doc_number
         
     
