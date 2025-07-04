@@ -3136,8 +3136,10 @@ class CertificationDocumentGenerator(models.TransientModel):
             'l10n_cl_edi_certification_id': self.certification_process_id.id,
         }
         
-        # Crear la NC/ND con el contexto correcto
-        credit_note = self.env['account.move'].with_context(**reversal_context).create(refund_vals)
+        # Crear la NC/ND con el contexto correcto - saltarse validación de cliente extranjero
+        context_with_skip_validation = dict(reversal_context)
+        context_with_skip_validation['l10n_cl_edi_certification_bypass'] = True
+        credit_note = self.env['account.move'].with_context(**context_with_skip_validation).create(refund_vals)
         
         _logger.info(f"✓ NC/ND manual creada: {credit_note.name}")
         _logger.info(f"✓ Líneas en el documento creado: {len(credit_note.invoice_line_ids)}")

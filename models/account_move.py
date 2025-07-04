@@ -57,3 +57,13 @@ class AccountMove(models.Model):
             _logger.info("✓ DTE generado para certificación - XML procesado")
             
         return dte_signed, file_name
+    
+    def _check_l10n_latam_documents(self):
+        """Override para saltar validación de documentos extranjeros en certificación"""
+        # Saltar validación cuando hay contexto de bypass o es documento de certificación
+        if (self.env.context.get('l10n_cl_edi_certification_bypass') or 
+            any(move.l10n_cl_edi_certification_id for move in self)):
+            return
+            
+        # Llamar validación normal para documentos no relacionados con certificación
+        super()._check_l10n_latam_documents()
