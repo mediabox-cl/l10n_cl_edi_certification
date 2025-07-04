@@ -3077,11 +3077,27 @@ class CertificationDocumentGenerator(models.TransientModel):
         if self.dte_case_id.item_ids:
             # Usar items específicos del caso DTE (NC/ND parcial)
             _logger.info(f"Usando {len(self.dte_case_id.item_ids)} items específicos del caso DTE")
+            
+            # DEBUG: Mostrar líneas disponibles en factura original
+            _logger.info("Líneas disponibles en factura original:")
+            for line in original_invoice.invoice_line_ids:
+                _logger.info(f"  - '{line.name}' (display_type: {line.display_type})")
+            
             for item in self.dte_case_id.item_ids:
                 # Buscar la línea correspondiente en la factura original para obtener cuenta y producto
+                # Intentar match exacto primero
                 original_line = original_invoice.invoice_line_ids.filtered(
                     lambda l: l.name == item.name and not l.display_type
                 )
+                
+                # Si no encuentra match exacto, intentar match por posición (secuencia)
+                if not original_line:
+                    _logger.info(f"No se encontró match exacto para '{item.name}', intentando por posición")
+                    non_display_lines = original_invoice.invoice_line_ids.filtered(lambda l: not l.display_type)
+                    if len(non_display_lines) >= item.sequence // 10:  # sequence es 10, 20, 30...
+                        line_index = (item.sequence // 10) - 1
+                        original_line = non_display_lines[line_index:line_index+1]
+                        _logger.info(f"Usando línea por posición {line_index + 1}: '{original_line.name}' para item '{item.name}'")
                 
                 if original_line:
                     line_vals = {
