@@ -3112,6 +3112,10 @@ class CertificationDocumentGenerator(models.TransientModel):
                 }
                 invoice_lines.append((0, 0, line_vals))
         
+        _logger.info(f"Total de líneas creadas: {len(invoice_lines)}")
+        for i, line in enumerate(invoice_lines):
+            _logger.info(f"  Línea {i+1}: {line}")
+        
         # Crear los valores de la NC/ND
         refund_vals = {
             'move_type': 'out_refund',  # Tipo refund de venta para usar diario de certificación
@@ -3130,6 +3134,9 @@ class CertificationDocumentGenerator(models.TransientModel):
         credit_note = self.env['account.move'].with_context(**reversal_context).create(refund_vals)
         
         _logger.info(f"✓ NC/ND manual creada: {credit_note.name}")
+        _logger.info(f"✓ Líneas en el documento creado: {len(credit_note.invoice_line_ids)}")
+        for line in credit_note.invoice_line_ids:
+            _logger.info(f"  - {line.name}: {line.quantity} x {line.price_unit}")
         return credit_note
         
     
