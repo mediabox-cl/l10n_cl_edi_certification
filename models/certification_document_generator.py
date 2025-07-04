@@ -372,8 +372,32 @@ class CertificationDocumentGenerator(models.TransientModel):
         if self.dte_case_id.document_type_code in ['61', '56']:  # NC/ND
             self._validate_credit_debit_note_requirements()
         else:  # Documentos originales
-            # Asignar automáticamente un partner si no lo tiene
-            if not self.dte_case_id.partner_id:
+            # Verificar si necesita reasignación de partner para documentos de exportación
+            needs_partner_reassignment = False
+            
+            # CASO ESPECIAL: Documentos de exportación con datos de país/nacionalidad
+            if self.dte_case_id.document_type_code in ['110', '111', '112']:
+                # Verificar si tiene datos de exportación que indican el país correcto
+                has_export_data = (
+                    (hasattr(self.dte_case_id, 'export_client_nationality_raw') and self.dte_case_id.export_client_nationality_raw) or
+                    (hasattr(self.dte_case_id, 'export_recipient_country_raw') and self.dte_case_id.export_recipient_country_raw) or
+                    (hasattr(self.dte_case_id, 'export_destination_country_raw') and self.dte_case_id.export_destination_country_raw)
+                )
+                
+                if has_export_data:
+                    # Verificar si el partner actual es el genérico
+                    current_partner = self.dte_case_id.partner_id
+                    if current_partner:
+                        generic_partner = self.env.ref('l10n_cl_edi_certification.export_partner_generic_foreign', False)
+                        if generic_partner and current_partner.id == generic_partner.id:
+                            needs_partner_reassignment = True
+                            _logger.info(f"🔄 EXPORT: Caso {self.dte_case_id.case_number_raw} tiene partner genérico pero datos de exportación - forzando reasignación")
+                    else:
+                        needs_partner_reassignment = True
+                        _logger.info(f"🔄 EXPORT: Caso {self.dte_case_id.case_number_raw} sin partner - asignando por datos de exportación")
+            
+            # Asignar automáticamente un partner si no lo tiene o necesita reasignación
+            if not self.dte_case_id.partner_id or needs_partner_reassignment:
                 # PRIORIDAD 1: Si es batch y existe documento individual, reutilizar su partner
                 if self.for_batch:
                     individual_partner = self._get_partner_from_individual_document(self.dte_case_id)
