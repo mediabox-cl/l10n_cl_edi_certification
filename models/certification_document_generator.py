@@ -1246,10 +1246,19 @@ class CertificationDocumentGenerator(models.TransientModel):
         if case_dte.document_type_code not in ['61', '56', '111', '112']:
             raise UserError(f"El caso {case_dte.case_number_raw} no es una nota de crédito/débito (tipo: {case_dte.document_type_code})")
         
-        # **CLAVE 1: Obtener el tipo correcto de documento según el partner**
-        # Esto usa la lógica nativa del módulo chileno
-        reverse_doc_type = invoice._l10n_cl_get_reverse_doc_type()
-        _logger.info(f"Tipo de documento NC determinado: {reverse_doc_type.name} (código: {reverse_doc_type.code})")
+        # **CLAVE 1: Obtener el tipo correcto de documento según el tipo de factura original**
+        # CORREGIDO: Para facturas de compra (46) con proveedores extranjeros, usar NC/ND normal, no de exportación
+        if invoice.l10n_latam_document_type_id.code == '46':
+            # Facturas de compra siempre generan NC/ND normales, independiente del país del proveedor
+            if case_dte.document_type_code == '61':  # Nota de crédito
+                reverse_doc_type = self.env['l10n_latam.document.type'].search([('code', '=', '61'), ('country_id.code', '=', 'CL')], limit=1)
+            else:  # Nota de débito (56)
+                reverse_doc_type = self.env['l10n_latam.document.type'].search([('code', '=', '56'), ('country_id.code', '=', 'CL')], limit=1)
+            _logger.info(f"Tipo de documento NC/ND para factura de compra: {reverse_doc_type.name} (código: {reverse_doc_type.code})")
+        else:
+            # Para otros tipos de factura, usar la lógica nativa del módulo chileno
+            reverse_doc_type = invoice._l10n_cl_get_reverse_doc_type()
+            _logger.info(f"Tipo de documento NC/ND determinado por lógica nativa: {reverse_doc_type.name} (código: {reverse_doc_type.code})")
         
         # **CLAVE 2: Determinar el código de referencia según el caso**
         reference_code = '3'  # Por defecto: corrección de monto
