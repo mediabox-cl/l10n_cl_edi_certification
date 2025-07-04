@@ -5,7 +5,7 @@
         <!-- Override específico del RUTRecep para certificación -->
         <template id="dte_subtemplate_certification_override" name="DTE Subtemplate Override para Certificación" inherit_id="l10n_cl_edi.dte_subtemplate">
             <xpath expr="//RUTRecep" position="replace">
-                <RUTRecep t-out="'55555555-5' if move.l10n_latam_document_type_id.code in ('110', '111', '112') else format_vat(move.commercial_partner_id.vat)"/>
+                <RUTRecep t-out="'55555555-5' if (move.l10n_latam_document_type_id.code in ('110', '111', '112')) or (move.l10n_latam_document_type_id.code == '46' and move.partner_id._l10n_cl_is_foreign() and move.partner_id.l10n_cl_sii_taxpayer_type == '4') else format_vat(move.commercial_partner_id.vat)"/>
             </xpath>
             
             <!-- Override UnmdItem para documentos de exportación -->
