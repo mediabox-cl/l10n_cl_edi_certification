@@ -1348,20 +1348,25 @@ class CertificationDocumentGenerator(models.TransientModel):
         
         _logger.info("Valores por defecto configurados para NC")
         
-        # **PASO 5: Crear la NC usando el método nativo con contexto correcto**
+        # **PASO 5: Crear la NC según el tipo de factura original**
         try:
-            _logger.info("Llamando a _reverse_moves() con configuración correcta")
+            if invoice.l10n_latam_document_type_id.code == '46':
+                # Para facturas de compra, crear NC/ND manualmente para evitar problemas de diario
+                _logger.info("Creando NC/ND de factura de compra manualmente")
+                credit_note = self._create_manual_refund_for_purchase_invoice(invoice, default_values_dict, reversal_context)
+            else:
+                # Para otros tipos, usar el método nativo
+                _logger.info("Llamando a _reverse_moves() con configuración correcta")
+                reversed_moves = invoice.with_context(**reversal_context)._reverse_moves(
+                    default_values_list=default_values,
+                    cancel=False
+                )
+                
+                if not reversed_moves:
+                    raise UserError("No se pudo crear la nota de crédito/débito")
+                
+                credit_note = reversed_moves[0]
             
-            # Usar el contexto correcto y los valores por defecto
-            reversed_moves = invoice.with_context(**reversal_context)._reverse_moves(
-                default_values_list=default_values,
-                cancel=False
-            )
-            
-            if not reversed_moves:
-                raise UserError("No se pudo crear la nota de crédito/débito")
-            
-            credit_note = reversed_moves[0]
             _logger.info(f"✓ NC/ND creada: {credit_note.name} (ID: {credit_note.id})")
             _logger.info(f"  - Tipo documento: {credit_note.l10n_latam_document_type_id.name}")
             _logger.info(f"  - Código: {credit_note.l10n_latam_document_type_id.code}")
@@ -3059,5 +3064,72 @@ class CertificationDocumentGenerator(models.TransientModel):
             # Para referencias no reconocidas, usar un código genérico si existe
             _logger.warning(f"Referencia de exportación no reconocida: {ref_text}")
             return (None, ref_text[:10])  # Limitar a 10 caracteres para origin_doc_number
+
+    def _create_manual_refund_for_purchase_invoice(self, original_invoice, default_values, reversal_context):
+        """
+        Crea manualmente una NC/ND para facturas de compra para evitar problemas de diario.
+        """
+        self.ensure_one()
+        _logger.info(f"Creando NC/ND manual para factura de compra: {original_invoice.name}")
+        
+        # Crear las líneas de factura usando los items del caso DTE (para NC/ND parciales)
+        invoice_lines = []
+        if self.dte_case_id.item_ids:
+            # Usar items específicos del caso DTE (NC/ND parcial)
+            _logger.info(f"Usando {len(self.dte_case_id.item_ids)} items específicos del caso DTE")
+            for item in self.dte_case_id.item_ids:
+                # Buscar la línea correspondiente en la factura original para obtener cuenta y producto
+                original_line = original_invoice.invoice_line_ids.filtered(
+                    lambda l: l.name == item.name and not l.display_type
+                )
+                
+                if original_line:
+                    line_vals = {
+                        'name': item.name,
+                        'product_id': original_line[0].product_id.id if original_line[0].product_id else False,
+                        'quantity': item.quantity,  # Cantidad específica del caso DTE
+                        'price_unit': item.price_unit,  # Precio del caso DTE
+                        'account_id': original_line[0].account_id.id,
+                        'tax_ids': [(6, 0, original_line[0].tax_ids.ids)],
+                        'product_uom_id': original_line[0].product_uom_id.id if original_line[0].product_uom_id else False,
+                    }
+                    invoice_lines.append((0, 0, line_vals))
+                    _logger.info(f"  Item: {item.name} - Cantidad: {item.quantity} - Precio: {item.price_unit}")
+                else:
+                    _logger.warning(f"No se encontró línea original para item: {item.name}")
+        else:
+            # Fallback: copiar todas las líneas del original (NC/ND total)
+            _logger.info("Sin items específicos - copiando todas las líneas del documento original")
+            for line in original_invoice.invoice_line_ids.filtered(lambda l: not l.display_type):
+                line_vals = {
+                    'name': line.name,
+                    'product_id': line.product_id.id if line.product_id else False,
+                    'quantity': line.quantity,
+                    'price_unit': line.price_unit,
+                    'account_id': line.account_id.id,
+                    'tax_ids': [(6, 0, line.tax_ids.ids)],
+                    'product_uom_id': line.product_uom_id.id if line.product_uom_id else False,
+                }
+                invoice_lines.append((0, 0, line_vals))
+        
+        # Crear los valores de la NC/ND
+        refund_vals = {
+            'move_type': 'out_refund',  # Tipo refund de venta para usar diario de certificación
+            'partner_id': original_invoice.partner_id.id,
+            'journal_id': default_values['journal_id'],
+            'l10n_latam_document_type_id': default_values['l10n_latam_document_type_id'],
+            'invoice_origin': default_values['invoice_origin'],
+            'invoice_line_ids': invoice_lines,
+            'l10n_cl_reference_ids': default_values['l10n_cl_reference_ids'],
+            'currency_id': original_invoice.currency_id.id,
+            'invoice_date': fields.Date.context_today(self),
+            'l10n_cl_edi_certification_id': self.certification_process_id.id,
+        }
+        
+        # Crear la NC/ND con el contexto correcto
+        credit_note = self.env['account.move'].with_context(**reversal_context).create(refund_vals)
+        
+        _logger.info(f"✓ NC/ND manual creada: {credit_note.name}")
+        return credit_note
         
     
