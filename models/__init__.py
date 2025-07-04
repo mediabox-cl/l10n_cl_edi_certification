@@ -20,6 +20,7 @@ from . import certification_delivery_guide_book_xml_builder
 from . import certification_delivery_guide_book_processor
 from . import certification_delivery_guide_book
 from . import account_move
+from . import purchase_order
 from . import stock_picking
 from . import sale_order
 from . import sale_order_line
