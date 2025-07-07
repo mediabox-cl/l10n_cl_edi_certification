@@ -1464,6 +1464,13 @@ class CertificationProcess(models.Model):
         self.ensure_one()
         return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion2(self.id, parsed_set_id=parsed_set_id)
 
+    def action_recover_missing_batch_documents(self, set_type, parsed_set_id=None):
+        """Recuperar documentos batch faltantes sin regenerar"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file']._recover_missing_batch_documents(
+            self.id, set_type, parsed_set_id=parsed_set_id
+        )
+
     def action_view_batch_files(self):
         """Ver archivos de envío consolidado generados"""
         self.ensure_one()

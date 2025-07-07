@@ -1,0 +1,1047 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?><EnvioDTE xmlns="http://www.sii.cl/SiiDte" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sii.cl/SiiDte EnvioDTE_v10.xsd" version="1.0">
+  <SetDTE ID="SetDoc">
+    <Caratula version="1.0">
+      <RutEmisor>76235291-5</RutEmisor>
+      <RutEnvia>17605402-6</RutEnvia>
+      <RutReceptor>60803000-K</RutReceptor>
+      <FchResol>2025-03-26</FchResol>
+      <NroResol>0</NroResol>
+      <TmstFirmaEnv>2025-07-07T17:04:15</TmstFirmaEnv>
+      <SubTotDTE>
+        <TipoDTE>33</TipoDTE>
+        <NroDTE>4</NroDTE>
+      </SubTotDTE>
+      <SubTotDTE>
+        <TipoDTE>61</TipoDTE>
+        <NroDTE>3</NroDTE>
+      </SubTotDTE>
+    </Caratula>
+    <DTE version="1.0">
+            <Documento ID="F17T33">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>33</TipoDTE>
+                    <Folio>17</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77447842-6</RUTRecep>
+            <RznSocRecep>Baca Juegos y Accesorios SPA</RznSocRecep>
+                    <GiroRecep>Venta de juegos y accesorios en Comercio</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>Cillero 11</DirRecep>
+                    <CmnaRecep>Rancagua</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>999043</MntNeto>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>189818</IVA>
+                    <MntTotal>1188861</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>Cajón AFECTO</NmbItem>
+                <DscItem>Cajón AFECTO</DscItem>
+                <QtyItem>168.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>3490.000000</PrcItem>
+                <MontoItem>586320</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>Relleno AFECTO</NmbItem>
+                <DscItem>Relleno AFECTO</DscItem>
+                <QtyItem>71.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>5813.000000</PrcItem>
+                <MontoItem>412723</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-1</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-1</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>33</TD>
+                <F>17</F>
+                <FE>2025-07-07</FE>
+                <RR>77447842-6</RR>
+                <RSR>Baca Juegos y Accesorios SPA</RSR>
+                <MNT>1188861</MNT>
+                <IT1>Cajón AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>33</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>wLiKZijh1FweDUFLVO+J/KEIwTin7OxVv9yqfNgiMM2r/BG9bxKWVzKqYY1UTR15EiABpjcluM5kjmtJyGxZ0Q==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">UyDhGevCqhJrA+lEOkIDMm2ShPfxEJdSa6ZmP6nF8zBPRV1RpNfDOOTyit5jWN/wigQhxrl9BtqkpzOc0r2p7Q==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:11</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">FcP68rzziOqmxxVjDbGQgv2ErvIcZ8BxF/q8xz5HjwW/LF2aJ2SyeBcu8KPnDlFMdY/NnsOmeAVqNc3O5aiGCQ==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:11</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F17T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>1D3xlwgbnnZT4ePOD/D31OS3rSQ=</DigestValue></Reference></SignedInfo><SignatureValue>ee8ytao9nkBruwFc4hr+x5N4nULkFn00lxWoCJX5sDWCKVe0cBmkkCMsJqbSBvdGSYDbqgirqXP79GheD6cVCuxDcp9Of5dLykd/Gdw+BH7SZHm6enIOAb1S6vq4RTlxdlHl8EZLqaPz2u/tpsTv8jTqj4L2S2HeVE+Do0ShJ+D9G49iUYxgIPz2e9Z0ANPAvVTFmVHgLWj3as2KOLVYskOQX35/GHmkLnBv7PJFAF6TMwLS2rZU1XAGs+aV/L5DEF7lKN55Re77uoUiIQfUbB6Fu6zEjkTgoOAsKW27bk/HVw6ZfyUAVnIVfTeRR0BLEmhL/617ybvMbsbwVFPfwQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F18T33">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>33</TipoDTE>
+                    <Folio>18</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77470948-7</RUTRecep>
+            <RznSocRecep>Brayan Valtierra venta de juegos y juguetes E.I.R.L</RznSocRecep>
+                    <GiroRecep>VENTA AL POR MENOR DE JUEGOS Y JUGUETES</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>PJE VOLCAN NINO 2190 CASAS RUMIE</DirRecep>
+                    <CmnaRecep>Villa Alemana</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>6678481</MntNeto>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>1268911</IVA>
+                    <MntTotal>7947392</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>Pañuelo AFECTO</NmbItem>
+                <DscItem>Pañuelo AFECTO</DscItem>
+                <QtyItem>759.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>5873.999414</PrcItem>
+                <DescuentoPct>10.00</DescuentoPct>
+                <DescuentoMonto>445837</DescuentoMonto>
+                <MontoItem>4012529</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>ITEM 2 AFECTO</NmbItem>
+                <DscItem>ITEM 2 AFECTO</DscItem>
+                <QtyItem>703.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>4925.000462</PrcItem>
+                <DescuentoPct>23.00</DescuentoPct>
+                <DescuentoMonto>796323</DescuentoMonto>
+                <MontoItem>2665952</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-2</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-2</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>33</TD>
+                <F>18</F>
+                <FE>2025-07-07</FE>
+                <RR>77470948-7</RR>
+                <RSR>Brayan Valtierra venta de juegos y jugue</RSR>
+                <MNT>7947392</MNT>
+                <IT1>Pañuelo AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>33</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>wLiKZijh1FweDUFLVO+J/KEIwTin7OxVv9yqfNgiMM2r/BG9bxKWVzKqYY1UTR15EiABpjcluM5kjmtJyGxZ0Q==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">UyDhGevCqhJrA+lEOkIDMm2ShPfxEJdSa6ZmP6nF8zBPRV1RpNfDOOTyit5jWN/wigQhxrl9BtqkpzOc0r2p7Q==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:12</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">QLJ5G7OZEXdtZw4hpBKmPqvKRR8DeF0d7CFhqKExyae6mEElasfgHl0ybN2Sdul7wTMP1vsQP2/7qQABHwilZw==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:12</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F18T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>xcJptCu6MuVnqsIQpWHAmoqBHN8=</DigestValue></Reference></SignedInfo><SignatureValue>CqwpuYzlPgIs9lGypoN6FlSPd9fqreUK7sg1M4qsqCFP6ITQcXmLbEBQlRDXqj6il/iHeLbkN3AAAxefqFogY1Gk6HH+iOzAuy7qwl79pbTC8d3IecoflMiOzy7JzFRolTXITZw9IzeiBdy9J8kqcIVTc5D39RuYyu7REZxhLumetdSnzpi/CMTaJ5Gd/JEj8UEgF5dATaIaArT77C/9VE9+twji3cPTSGIQNhWS550PNrmXqS19kLZH/RtOO065JydcB8MSmLMmWu2HxGHK7i2/32atUByd+lDxfAgVDT5le1My5HwkARTGPiIUIoKLGNbnbbCpdOHr2mOWmgxJRA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F19T33">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>33</TipoDTE>
+                    <Folio>19</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77908275-K</RUTRecep>
+            <RznSocRecep>CAFE, ROBOTS Y GALLETAS SPA</RznSocRecep>
+                    <GiroRecep>VENTA AL POR MENOR DE JUEGOS Y JUGUETES</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>MEDIO PONIENTE 820</DirRecep>
+                    <CmnaRecep>Viña del Mar</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>1381404</MntNeto>
+                    <MntExe>35292</MntExe>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>262467</IVA>
+                    <MntTotal>1679163</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>Pintura B&amp;W AFECTO</NmbItem>
+                <DscItem>Pintura B&amp;W AFECTO</DscItem>
+                <QtyItem>63.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>6868.000000</PrcItem>
+                <MontoItem>432684</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>ITEM 2 AFECTO</NmbItem>
+                <DscItem>ITEM 2 AFECTO</DscItem>
+                <QtyItem>236.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>4020.000000</PrcItem>
+                <MontoItem>948720</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>3</NroLinDet>
+                <IndExe>1</IndExe>
+                <NmbItem>ITEM 3 SERVICIO EXENTO</NmbItem>
+                <DscItem>ITEM 3 SERVICIO EXENTO</DscItem>
+                <QtyItem>1.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>35292.000000</PrcItem>
+                <MontoItem>35292</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-3</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-3</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>33</TD>
+                <F>19</F>
+                <FE>2025-07-07</FE>
+                <RR>77908275-K</RR>
+                <RSR>CAFE, ROBOTS Y GALLETAS SPA</RSR>
+                <MNT>1679163</MNT>
+                <IT1>Pintura B&amp;W AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>33</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>wLiKZijh1FweDUFLVO+J/KEIwTin7OxVv9yqfNgiMM2r/BG9bxKWVzKqYY1UTR15EiABpjcluM5kjmtJyGxZ0Q==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">UyDhGevCqhJrA+lEOkIDMm2ShPfxEJdSa6ZmP6nF8zBPRV1RpNfDOOTyit5jWN/wigQhxrl9BtqkpzOc0r2p7Q==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:12</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">RB4/9Qs2E72RnVgua1hbSfY4J9gzqprrNXpCIXc81FAJB5SbiK6wjK1anUDwsV5xYIGOJmuiK6OLmAyLLbGzag==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:12</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F19T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>AzswpfHyUk07F0uaisMl4Go6/O4=</DigestValue></Reference></SignedInfo><SignatureValue>DTsMx6eqt1izNTBU513PLFq32OHA16jYRByMnNKBVE8POU7kcstGWU56a/jmvZ7OiWgo3Ss+E/8QsLB9sBv5AJOp5+/aQGRjvEOim/PKsr4BykiDTkVIqRsSjxF0o3X+3lxQXJ00vOwnm4KtQfCC/xFfsGA2t3rSEWiYQRT3FCK7tijeOnUjTpz7w7r3LnZ9e6rxQmytgIcFQ46yP/oDa8FW8HOEoeaGtYipk/yezkfpsLZDpubjfI2TQHLgvKSF9JZYOBnDmLLw0aqlH0IguunpuCzF2hym+lWu6tkLR+O8kZXwYFFbPuzc/0wg0Y+Ivqs9fKsWUPVDMZQjEnL4lg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F20T33">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>33</TipoDTE>
+                    <Folio>20</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77931369-7</RUTRecep>
+            <RznSocRecep>Casa Lagunillas SpA</RznSocRecep>
+                    <GiroRecep>Venta al por menor</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>Calle 1</DirRecep>
+                    <CmnaRecep>Providencia</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>2894709</MntNeto>
+                    <MntExe>13666</MntExe>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>549995</IVA>
+                    <MntTotal>3458370</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>ITEM 1 AFECTO</NmbItem>
+                <DscItem>ITEM 1 AFECTO</DscItem>
+                <QtyItem>414.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>5919.000000</PrcItem>
+                <MontoItem>2450466</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>ITEM 2 AFECTO</NmbItem>
+                <DscItem>ITEM 2 AFECTO</DscItem>
+                <QtyItem>175.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>7204.000000</PrcItem>
+                <MontoItem>1260700</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>3</NroLinDet>
+                <IndExe>1</IndExe>
+                <NmbItem>ITEM 3 SERVICIO EXENTO</NmbItem>
+                <DscItem>ITEM 3 SERVICIO EXENTO</DscItem>
+                <QtyItem>2.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>6833.000000</PrcItem>
+                <MontoItem>13666</MontoItem>
+            </Detalle>
+        <DscRcgGlobal>
+            <NroLinDR>1</NroLinDR>
+            <TpoMov>D</TpoMov>
+            <GlosaDR>Descuento Global 22.0% - ITEMS AFECTOS</GlosaDR>
+            <TpoValor>$</TpoValor>
+            <ValorDR>816457</ValorDR>
+        </DscRcgGlobal>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-4</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-4</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>33</TD>
+                <F>20</F>
+                <FE>2025-07-07</FE>
+                <RR>77931369-7</RR>
+                <RSR>Casa Lagunillas SpA</RSR>
+                <MNT>3458370</MNT>
+                <IT1>ITEM 1 AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>33</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>wLiKZijh1FweDUFLVO+J/KEIwTin7OxVv9yqfNgiMM2r/BG9bxKWVzKqYY1UTR15EiABpjcluM5kjmtJyGxZ0Q==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">UyDhGevCqhJrA+lEOkIDMm2ShPfxEJdSa6ZmP6nF8zBPRV1RpNfDOOTyit5jWN/wigQhxrl9BtqkpzOc0r2p7Q==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:13</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">JAc3sa5/xgKSvwAJtwI4ILwsKO8IYcrG/uTXkIvKc/NSyhchCCgVEGpfSC4KQicAa8Z4aglVP6U74otwOsh5xw==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:13</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F20T33"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>ipPjB1aSq7MXTlGzDorCULyLMtc=</DigestValue></Reference></SignedInfo><SignatureValue>UsQxHqdllP/lPWbu7/cpZtON/jn5t6ttWh4KrD2IqWKvyoDm3oOFldbxfy2gyYpfDAwI9VPuz2GK9LjXa4dlSOMW1XFmrCYuIPMnXpNMsBb552+Z8otAao09MEBux7BfTQ69CPOb4hnAcqbbDNW7mXPM3+Wbt807T4cSbpBh+9xE+3Pbfc3Rx6jd3S0Nu44PasB8+rrw+1ocDdAA1zM2BQFmYtXwggswTnXMH3fe4kPkFtRqDXedVG8u56ftha+Kg1iOeZ+hT098ix7Mwc+YhiFJFT+Sq9a2mzTO9xaIAMDMkB0GXT8cKzsguopVpheEl+jEqJRN8SRLby74Nx36zA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F12T61">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>61</TipoDTE>
+                    <Folio>12</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77447842-6</RUTRecep>
+            <RznSocRecep>Baca Juegos y Accesorios SPA</RznSocRecep>
+                    <GiroRecep>Venta de juegos y accesorios en Comercio</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>Cillero 11</DirRecep>
+                    <CmnaRecep>Rancagua</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntTotal>0</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <IndExe>1</IndExe>
+                <NmbItem>CORRECCIÓN: CORRIGE GIRO DEL RECEPTOR</NmbItem>
+                <DscItem>CORRECCIÓN: CORRIGE GIRO DEL RECEPTOR</DscItem>
+                <MontoItem>0</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-5</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-5</RazonRef>
+            </Referencia>
+            <Referencia>
+                <NroLinRef>2</NroLinRef>
+                <TpoDocRef>33</TpoDocRef>
+                <FolioRef>000017</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <CodRef>2</CodRef>
+                <RazonRef>CORRIGE GIRO DEL RECEPTOR</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>61</TD>
+                <F>12</F>
+                <FE>2025-07-07</FE>
+                <RR>77447842-6</RR>
+                <RSR>Baca Juegos y Accesorios SPA</RSR>
+                <MNT>0</MNT>
+                <IT1>CORRECCIÓN: CORRIGE GIRO DEL RECEPTOR</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>61</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>rgUjpUj+YUWr1bgy/PG1mw+YXjDqIIiC70Pn1/E0gINQ1ZVC6c8z1J9aCiHYexSRiXJikAVHTrrSh1xqyrwLuw==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">sQTG928rG4mC26FIKcAYFh0wSQhJW6mybaQvA2eUCOitvqwVFUStkoLLpTxA4G5LBErB/UrgM+Dg5tQwmI9hsg==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:13</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">Zv2OQnYS+hr86n8wJ/vUdJl6bZuL09/WeYub1hZwVSXkARKU0rrRgDXFxFED3BMIGu9KWy4nCBTDdKNdywfIGA==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:13</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F12T61"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>zAL1LShcqdG7AWn98tsZelB173o=</DigestValue></Reference></SignedInfo><SignatureValue>vBd1q51NEWqZEOaV7Eu6UWsDkgK3K02FOAbt4gPyNXYElzhKP2CLqRRXa+uQEyuqfNgz63QHLbOI7H9m+NnT6VQvaqTMUxjm+yqB4qa6wig4m+L7sdod/x6oorhyYu6zQTHVfKKniu2xFu3XY+SKnhC+xsr0YbMfsryK2HB3aFnRn9aMPMjQjuoJJzrvqBXEca3Mm+u249HkAiGHEgMTea+zopLNcpEuAG/0HVUC1EZ7fyiRHzHTCSfv9Qvc4SHqBJWHXV1xsCjojzaZ7PxEVnXxjtoQdyogf0l2BE/6kjFAYp2CPf/b05vKWF5EygP6ubs6+SlacLUhTMjnRSGpLw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F13T61">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>61</TipoDTE>
+                    <Folio>13</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77470948-7</RUTRecep>
+            <RznSocRecep>Brayan Valtierra venta de juegos y juguetes E.I.R.L</RznSocRecep>
+                    <GiroRecep>VENTA AL POR MENOR DE JUEGOS Y JUGUETES</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>PJE VOLCAN NINO 2190 CASAS RUMIE</DirRecep>
+                    <CmnaRecep>Villa Alemana</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>3278578</MntNeto>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>622930</IVA>
+                    <MntTotal>3901508</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>Pañuelo AFECTO</NmbItem>
+                <DscItem>Pañuelo AFECTO</DscItem>
+                <QtyItem>278.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>5874.000799</PrcItem>
+                <DescuentoPct>10.00</DescuentoPct>
+                <DescuentoMonto>163297</DescuentoMonto>
+                <MontoItem>1469675</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>ITEM 2 AFECTO</NmbItem>
+                <DscItem>ITEM 2 AFECTO</DscItem>
+                <QtyItem>477.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>4924.999319</PrcItem>
+                <DescuentoPct>23.00</DescuentoPct>
+                <DescuentoMonto>540322</DescuentoMonto>
+                <MontoItem>1808903</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-6</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-6</RazonRef>
+            </Referencia>
+            <Referencia>
+                <NroLinRef>2</NroLinRef>
+                <TpoDocRef>33</TpoDocRef>
+                <FolioRef>000018</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <CodRef>3</CodRef>
+                <RazonRef>DEVOLUCION DE MERCADERIAS</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>61</TD>
+                <F>13</F>
+                <FE>2025-07-07</FE>
+                <RR>77470948-7</RR>
+                <RSR>Brayan Valtierra venta de juegos y jugue</RSR>
+                <MNT>3901508</MNT>
+                <IT1>Pañuelo AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>61</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>rgUjpUj+YUWr1bgy/PG1mw+YXjDqIIiC70Pn1/E0gINQ1ZVC6c8z1J9aCiHYexSRiXJikAVHTrrSh1xqyrwLuw==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">sQTG928rG4mC26FIKcAYFh0wSQhJW6mybaQvA2eUCOitvqwVFUStkoLLpTxA4G5LBErB/UrgM+Dg5tQwmI9hsg==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:14</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">B/wDhSULpZj/1FAv4a7gJxlzsr9QmhY+SxsmzolcU7A69VwTeKLFMgv5jfpKnznbC3O1ELjTvYZOrun4u+v9KQ==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:14</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F13T61"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>7W0wRXXtkSTZ6RFX3js/rg22Vq8=</DigestValue></Reference></SignedInfo><SignatureValue>nUZjXndxm8icxQqKSOBnj/k6SoDwmCjHumLTyHhzMGhcWbKUhEMhoKIZo4QvRKMs/6Hp5baS+bEpSLnkl5Es+UBa5uukQNF1EEIrwrdWa2ol0meeo8XCtTISRdvRtiuW/pm3iLDL2wqAOdfW1/OGupb1cpSJVYpFkbzUpMgUuOhtdjlHPmOVHfWgU85Dx9sL/QPUqGGzzLMnbvSAOfNv+CbJrS3lWSsFh4axsFlwXZPdYxpQHvit6Go92TgwbRUi3qlvBUpHQ79d0/bgKb2ZdnrCpFdU0n/yycwkhUGEvz9ZSwsEk9UgE6hOO8PoeSpdrrgpAmN17WyjQoUUzBXxYw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    <DTE version="1.0">
+            <Documento ID="F14T61">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>61</TipoDTE>
+                    <Folio>14</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <FmaPago>2</FmaPago>
+                    <FchVenc>2025-07-07</FchVenc>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                    <CdgVendedor>Administrator</CdgVendedor>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>77908275-K</RUTRecep>
+            <RznSocRecep>CAFE, ROBOTS Y GALLETAS SPA</RznSocRecep>
+                    <GiroRecep>VENTA AL POR MENOR DE JUEGOS Y JUGUETES</GiroRecep>
+                    <Contacto/>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>MEDIO PONIENTE 820</DirRecep>
+                    <CmnaRecep>Viña del Mar</CmnaRecep>
+                </Receptor>
+                <Totales>
+                    <MntNeto>1381404</MntNeto>
+                    <MntExe>35292</MntExe>
+                    <TasaIVA>19.00</TasaIVA>
+                    <IVA>262467</IVA>
+                    <MntTotal>1679163</MntTotal>
+                </Totales>
+            </Encabezado>
+            <Detalle>
+                <NroLinDet>1</NroLinDet>
+                <NmbItem>Pintura B&amp;W AFECTO</NmbItem>
+                <DscItem>Pintura B&amp;W AFECTO</DscItem>
+                <QtyItem>63.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>6868.000000</PrcItem>
+                <MontoItem>432684</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <NmbItem>ITEM 2 AFECTO</NmbItem>
+                <DscItem>ITEM 2 AFECTO</DscItem>
+                <QtyItem>236.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>4020.000000</PrcItem>
+                <MontoItem>948720</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>3</NroLinDet>
+                <IndExe>1</IndExe>
+                <NmbItem>ITEM 3 SERVICIO EXENTO</NmbItem>
+                <DscItem>ITEM 3 SERVICIO EXENTO</DscItem>
+                <QtyItem>1.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>35292.000000</PrcItem>
+                <MontoItem>35292</MontoItem>
+            </Detalle>
+            <Referencia>
+                <NroLinRef>1</NroLinRef>
+                <TpoDocRef>SET</TpoDocRef>
+                <FolioRef>4352553-7</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <RazonRef>CASO 4352553-7</RazonRef>
+            </Referencia>
+            <Referencia>
+                <NroLinRef>2</NroLinRef>
+                <TpoDocRef>33</TpoDocRef>
+                <FolioRef>000019</FolioRef>
+                <FchRef>2025-07-07</FchRef>
+                <CodRef>1</CodRef>
+                <RazonRef>ANULA FACTURA</RazonRef>
+            </Referencia>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>61</TD>
+                <F>14</F>
+                <FE>2025-07-07</FE>
+                <RR>77908275-K</RR>
+                <RSR>CAFE, ROBOTS Y GALLETAS SPA</RSR>
+                <MNT>1679163</MNT>
+                <IT1>Pintura B&amp;W AFECTO</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>61</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>rgUjpUj+YUWr1bgy/PG1mw+YXjDqIIiC70Pn1/E0gINQ1ZVC6c8z1J9aCiHYexSRiXJikAVHTrrSh1xqyrwLuw==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">sQTG928rG4mC26FIKcAYFh0wSQhJW6mybaQvA2eUCOitvqwVFUStkoLLpTxA4G5LBErB/UrgM+Dg5tQwmI9hsg==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:04:15</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">kv/9pHPDq68EA/ETiz8aTkvTr6eT5wMyJ0jYJd0bIbPMiJLbRCDQwNa5LNBTP06scmnWDmS22r7oCKySWhAkxg==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:04:15</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F14T61"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>TXjDYhujmxatgYMdc1PmS0pIHoU=</DigestValue></Reference></SignedInfo><SignatureValue>uE7ouJQNSbguuCBCpBgKAoLeKZdX342E/1vHbKO4BJqVbeAhQBZONzrFjbs1+F++rsZmBoziDNIwkvWgZKnWc8JMOiQpxiOuLHQsFXzcOBECGVpcg5veykBJ0tTJka5pADXxG1CmzF5IiVNGWlHrcB8ANvGphLKMktnrUQtUIhafbtECe7Tg45rWmqao/qjIR/QPg8mtCWfyJO6GJzsoz1T+JNg+l0vxtlk7IaIwJOo+nCayyMgJ8dW52B4TRj4LxVRMq7sWWQQK2R/u6iQAo2Fz/zTNfmYXyyXOkFyPsAchLsUoxmSqwwIKiK7WHXwVOnrwBHhzJEcReg6OZUorgQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+  </SetDTE>
+
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>Z4Dq3ABGL5RTd8Mo7Dr/p8rYUP4=</DigestValue></Reference></SignedInfo><SignatureValue>dIR5hPGnRg7sLCPc2wmVt5zuwEQjj5vpNUopsydkASi5aqqiLSC3rMaO+l4qyjOMD0jznVnfnsdCTVecwC26w40rA7DczeQnv+OzVqhFS/hNBGpWPIQS3KBXNX/59xgKzBgkkAowipQwS2Pepp4KbyUtzEzdkVDUL5mEJftIXDVEVrmKCouAtxiHr/PHMSYuIv3Ly8TJYuSSOqzwtSfh3D3qlz3vEMRyI7ZQ5nymh3560k98X78xo7K0Tzs94tI3JeGjd3aSOgt+lHJOLwYikppc/KcxkgnDYBpqhtD58v12ARYmzD15IcLgvHlKrc6qFx+PIbG/5PzXykvUOIo+cw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></EnvioDTE>

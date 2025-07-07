@@ -90,15 +90,39 @@ class CertificationBatchFile(models.Model):
         }
     
     def action_regenerate(self):
-        """Regenerar el archivo consolidado"""
+        """Regenerar el archivo consolidado recuperando automáticamente documentos faltantes"""
         self.ensure_one()
+        _logger.info(f"=== REGENERANDO CONSOLIDADO {self.set_type.upper()} ===")
         
-        # Llamar al método de generación correspondiente en el proceso de certificación
+        # 1. Primero intentar recuperar documentos batch faltantes automáticamente
+        _logger.info("PASO 1: Recuperando documentos batch faltantes...")
+        try:
+            self._recover_missing_batch_documents(
+                self.certification_id.id, 
+                self.set_type, 
+                parsed_set_id=getattr(self, 'parsed_set_id', None)
+            )
+        except Exception as e:
+            _logger.warning(f"Advertencia en recuperación automática: {str(e)}")
+        
+        # 2. Luego regenerar el consolidado con todos los documentos disponibles
+        _logger.info("PASO 2: Regenerando consolidado...")
         generation_method = getattr(self.certification_id, f'action_generate_batch_{self.set_type}', None)
         if generation_method:
-            return generation_method()
+            parsed_set_id = getattr(self, 'parsed_set_id', None)
+            if parsed_set_id:
+                return generation_method(parsed_set_id=parsed_set_id)
+            else:
+                return generation_method()
         else:
             raise UserError(_('Método de generación no encontrado para el tipo de set: %s') % self.set_type)
+
+    def action_recover_missing_batch_documents(self):
+        """Recuperar documentos batch faltantes sin regenerar"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file']._recover_missing_batch_documents(
+            self.certification_id.id, self.set_type, parsed_set_id=getattr(self, 'parsed_set_id', None)
+        )
     
     @api.model
     def create(self, vals):
@@ -330,6 +354,74 @@ class CertificationBatchFile(models.Model):
             _logger.info(f"  - Caso {case.case_number_raw}: tipo {case.document_type_code} ({case.document_type_name})")
         
         return relevant_cases
+
+    def _recover_missing_batch_documents(self, certification_process_id, set_type, parsed_set_id=None):
+        """Recupera documentos batch faltantes buscando documentos existentes por nombre de caso"""
+        _logger.info(f"=== RECUPERANDO DOCUMENTOS BATCH FALTANTES PARA {set_type.upper()} ===")
+        
+        # Obtener proceso de certificación
+        process = self.env['l10n_cl_edi.certification.process'].browse(certification_process_id)
+        if not process.exists():
+            raise UserError(_('Proceso de certificación no encontrado'))
+
+        # Obtener casos relevantes sin documentos batch
+        relevant_cases = self._get_relevant_cases_for_set_type(process, set_type, parsed_set_id=parsed_set_id)
+        missing_cases = relevant_cases.filtered(lambda c: not c.generated_batch_account_move_id)
+        
+        _logger.info(f"Casos sin documento batch: {len(missing_cases)} de {len(relevant_cases)}")
+        
+        recovered_count = 0
+        for case in missing_cases:
+            _logger.info(f"Intentando recuperar documento para caso: {case.case_number_raw}")
+            
+            # Buscar documento BATCH existente con criterios estrictos para evitar documentos individuales
+            existing_docs = self.env['account.move'].search([
+                ('company_id', '=', process.company_id.id),
+                ('l10n_cl_edi_certification_id', '=', process.id),  # SOLO documentos de este proceso de certificación
+                ('journal_id', '=', process.certification_journal_id.id),  # SOLO diario de certificación
+                ('l10n_cl_reference_ids.reason', 'ilike', case.case_number_raw),  # Referencia al caso
+                ('state', '=', 'posted'),
+                ('l10n_latam_document_type_id.code', '=', case.document_type_code),
+                # Excluir documentos que ya están vinculados a otros casos
+                ('id', 'not in', relevant_cases.mapped('generated_batch_account_move_id').ids)
+            ])
+            
+            if existing_docs:
+                # Tomar el más reciente
+                latest_doc = existing_docs.sorted('create_date', reverse=True)[0]
+                _logger.info(f"  ✓ Documento encontrado: {latest_doc.name} (ID: {latest_doc.id})")
+                
+                # Verificar que sea el documento correcto comparando referencias
+                case_ref_found = any(
+                    case.case_number_raw in ref.reason for ref in latest_doc.l10n_cl_reference_ids
+                )
+                
+                # Verificación adicional: que tenga referencia SET (primera referencia debe ser SET)
+                has_set_reference = any(
+                    ref.l10n_cl_reference_doc_type_selection == 'SET' for ref in latest_doc.l10n_cl_reference_ids
+                )
+                
+                if case_ref_found and has_set_reference:
+                    # Vincular al caso
+                    case.write({'generated_batch_account_move_id': latest_doc.id})
+                    recovered_count += 1
+                    _logger.info(f"  ✓ Vinculado caso {case.case_number_raw} → {latest_doc.name}")
+                else:
+                    _logger.warning(f"  ⚠️  Documento {latest_doc.name} no es un documento batch válido")
+            else:
+                _logger.warning(f"  ❌ No se encontró documento para caso {case.case_number_raw}")
+        
+        _logger.info(f"✅ RECUPERACIÓN COMPLETADA: {recovered_count} documentos vinculados")
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Documentos Recuperados'),
+                'message': _('Se recuperaron %d documentos batch faltantes') % recovered_count,
+                'type': 'success' if recovered_count > 0 else 'warning',
+            }
+        }
 
     def _generate_iecv_book(self, certification_process_id, set_type, name, book_type, parsed_set_id=None):
         """Genera libros IECV usando documentos batch con nuevos folios CAF"""

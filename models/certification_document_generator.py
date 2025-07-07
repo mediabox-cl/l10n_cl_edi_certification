@@ -1726,8 +1726,14 @@ class CertificationDocumentGenerator(models.TransientModel):
             else:
                 _logger.warning(f"  ⚠️  Archivo DTE NO creado para documento {debit_note.name}")
         
-        # RETORNO DIFERENCIADO SEGÚN MODO
+        # VINCULACIÓN DEL CASO PARA MODO BATCH
         if for_batch:
+            # Vincular el documento ND al caso DTE
+            update_vals = {
+                'generated_batch_account_move_id': debit_note.id,
+            }
+            self.dte_case_id.write(update_vals)
+            _logger.info(f"=== CASO {self.dte_case_id.id} VINCULADO A ND BATCH {debit_note.name} ===")
             return debit_note  # Retornar directamente el objeto para batch
         else:
             return {
