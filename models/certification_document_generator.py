@@ -1353,7 +1353,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             if invoice.l10n_latam_document_type_id.code == '46':
                 # Para facturas de compra, crear NC/ND manualmente para evitar problemas de diario
                 _logger.info("Creando NC/ND de factura de compra manualmente")
-                credit_note = self._create_manual_refund_for_purchase_invoice(invoice, default_values_dict, reversal_context)
+                credit_note = self._create_manual_refund_for_purchase_invoice(invoice, default_values_dict, reversal_context, for_batch)
             else:
                 # Para otros tipos, usar el método nativo
                 _logger.info("Llamando a _reverse_moves() con configuración correcta")
@@ -3065,7 +3065,7 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.warning(f"Referencia de exportación no reconocida: {ref_text}")
             return (None, ref_text[:10])  # Limitar a 10 caracteres para origin_doc_number
 
-    def _create_manual_refund_for_purchase_invoice(self, original_invoice, default_values, reversal_context):
+    def _create_manual_refund_for_purchase_invoice(self, original_invoice, default_values, reversal_context, for_batch=False):
         """
         Crea manualmente una NC/ND para facturas de compra para evitar problemas de diario.
         """
@@ -3147,8 +3147,9 @@ class CertificationDocumentGenerator(models.TransientModel):
             _logger.info(f"  - {line.name}: {line.quantity} x {line.price_unit}")
         
         # Publicar el documento con contexto de bypass para evitar validaciones
+        # Auto-publicar tanto en modo normal como batch para generar XML
         if credit_note.state == 'draft':
-            _logger.info("Publicando NC/ND con bypass de validaciones")
+            _logger.info(f"Publicando NC/ND con bypass de validaciones (batch: {for_batch})")
             credit_note.with_context(l10n_cl_edi_certification_bypass=True).action_post()
             _logger.info(f"✓ NC/ND publicada: {credit_note.name} (estado: {credit_note.state})")
         

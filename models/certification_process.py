@@ -1424,30 +1424,35 @@ class CertificationProcess(models.Model):
 
     # ==================== MÉTODOS DE GENERACIÓN BATCH ====================
 
-    def action_generate_batch_basico(self):
+    def action_generate_batch_basico(self, parsed_set_id=None):
         """Generar SET BÁSICO - Facturas y notas de crédito"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_basico(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_basico(self.id, parsed_set_id=parsed_set_id)
 
-    def action_generate_batch_guias(self):
+    def action_generate_batch_guias(self, parsed_set_id=None):
         """Generar SET GUÍAS DE DESPACHO"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_guias(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_guias(self.id, parsed_set_id=parsed_set_id)
 
-    def action_generate_batch_ventas(self):
+    def action_generate_batch_ventas(self, parsed_set_id=None):
         """Generar LIBRO DE VENTAS (IEV)"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_ventas(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_ventas(self.id, parsed_set_id=parsed_set_id)
 
-    def action_generate_batch_compras(self):
+    def action_generate_batch_facturas_compra(self, parsed_set_id=None):
+        """Generar SET FACTURAS DE COMPRA"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_facturas_compra(self.id, parsed_set_id=parsed_set_id)
+
+    def action_generate_batch_compras(self, parsed_set_id=None):
         """Generar LIBRO DE COMPRAS (IEC)"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_compras(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_compras(self.id, parsed_set_id=parsed_set_id)
 
-    def action_generate_batch_libro_guias(self):
+    def action_generate_batch_libro_guias(self, parsed_set_id=None):
         """Generar LIBRO DE GUÍAS"""
         self.ensure_one()
-        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_libro_guias(self.id)
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_libro_guias(self.id, parsed_set_id=parsed_set_id)
 
     def action_generate_batch_exportacion1(self, parsed_set_id=None):
         """Generar SET EXPORTACIÓN 1"""

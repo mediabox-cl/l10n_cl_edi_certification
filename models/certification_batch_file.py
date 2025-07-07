@@ -29,6 +29,7 @@ class CertificationBatchFile(models.Model):
     set_type = fields.Selection([
         ('basico', 'SET BÁSICO'),
         ('guias', 'SET GUÍAS DE DESPACHO'),
+        ('facturas_compra', 'SET FACTURAS DE COMPRA'),
         ('ventas', 'LIBRO DE VENTAS (IEV)'),
         ('compras', 'LIBRO DE COMPRAS (IEC)'),
         ('libro_guias', 'LIBRO DE GUÍAS'),
@@ -113,29 +114,34 @@ class CertificationBatchFile(models.Model):
     # ==================== MÉTODOS DE GENERACIÓN BATCH ====================
 
     @api.model
-    def generate_batch_basico(self, certification_process_id):
+    def generate_batch_basico(self, certification_process_id, parsed_set_id=None):
         """Generar SET BÁSICO - Facturas y notas de crédito"""
-        return self._generate_batch_file(certification_process_id, 'basico', 'SET BÁSICO')
+        return self._generate_batch_file(certification_process_id, 'basico', 'SET BÁSICO', parsed_set_id=parsed_set_id)
 
     @api.model
-    def generate_batch_guias(self, certification_process_id):
+    def generate_batch_guias(self, certification_process_id, parsed_set_id=None):
         """Generar SET GUÍAS DE DESPACHO"""
-        return self._generate_batch_file(certification_process_id, 'guias', 'SET GUÍAS DE DESPACHO')
+        return self._generate_batch_file(certification_process_id, 'guias', 'SET GUÍAS DE DESPACHO', parsed_set_id=parsed_set_id)
 
     @api.model
-    def generate_batch_ventas(self, certification_process_id):
+    def generate_batch_facturas_compra(self, certification_process_id, parsed_set_id=None):
+        """Generar SET FACTURAS DE COMPRA"""
+        return self._generate_batch_file(certification_process_id, 'facturas_compra', 'SET FACTURAS DE COMPRA', parsed_set_id=parsed_set_id)
+
+    @api.model
+    def generate_batch_ventas(self, certification_process_id, parsed_set_id=None):
         """Generar LIBRO DE VENTAS (IEV)"""
-        return self._generate_iecv_book(certification_process_id, 'ventas', 'LIBRO DE VENTAS (IEV)', 'IEV')
+        return self._generate_iecv_book(certification_process_id, 'ventas', 'LIBRO DE VENTAS (IEV)', 'IEV', parsed_set_id=parsed_set_id)
 
     @api.model
-    def generate_batch_compras(self, certification_process_id):
+    def generate_batch_compras(self, certification_process_id, parsed_set_id=None):
         """Generar LIBRO DE COMPRAS (IEC)"""
-        return self._generate_iecv_book(certification_process_id, 'compras', 'LIBRO DE COMPRAS (IEC)', 'IEC')
+        return self._generate_iecv_book(certification_process_id, 'compras', 'LIBRO DE COMPRAS (IEC)', 'IEC', parsed_set_id=parsed_set_id)
 
     @api.model
-    def generate_batch_libro_guias(self, certification_process_id):
+    def generate_batch_libro_guias(self, certification_process_id, parsed_set_id=None):
         """Generar LIBRO DE GUÍAS"""
-        return self._generate_iecv_book(certification_process_id, 'libro_guias', 'LIBRO DE GUÍAS', 'LIBRO_GUIAS')
+        return self._generate_iecv_book(certification_process_id, 'libro_guias', 'LIBRO DE GUÍAS', 'LIBRO_GUIAS', parsed_set_id=parsed_set_id)
 
     @api.model
     def generate_batch_exportacion1(self, certification_process_id, parsed_set_id=None):
@@ -284,10 +290,11 @@ class CertificationBatchFile(models.Model):
             consolidation_to_normalized = {
                 'basico': ['basic', 'exempt_invoice'],
                 'guias': ['dispatch_guide'],
+                'facturas_compra': ['purchase_invoice'],  # Para consolidado SetDTE de facturas de compra
                 'exportacion1': ['export_documents'],  # Se filtrarán por tipo 110
                 'exportacion2': ['export_documents'],  # Se filtrarán por tipos 111, 112
                 'ventas': ['basic', 'exempt_invoice'],  # Para libro de ventas
-                'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (simulado)
+                'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (independiente)
                 'libro_guias': ['dispatch_guide'],  # Para libro de guías
             }
             
@@ -324,7 +331,7 @@ class CertificationBatchFile(models.Model):
         
         return relevant_cases
 
-    def _generate_iecv_book(self, certification_process_id, set_type, name, book_type):
+    def _generate_iecv_book(self, certification_process_id, set_type, name, book_type, parsed_set_id=None):
         """Genera libros IECV usando documentos batch con nuevos folios CAF"""
         _logger.info(f"=== INICIANDO GENERACIÓN LIBRO {book_type.upper()} ===")
         
@@ -339,7 +346,7 @@ class CertificationBatchFile(models.Model):
             
             # 2. Asegurar que existan documentos batch para libros
             if set_type in ['ventas', 'compras']:
-                relevant_cases = self._get_relevant_cases_for_set_type(process, set_type)
+                relevant_cases = self._get_relevant_cases_for_set_type(process, set_type, parsed_set_id=parsed_set_id)
                 # Para libros, necesitamos generar documentos batch si no existen
                 for case in relevant_cases:
                     if not case.generated_batch_account_move_id:
