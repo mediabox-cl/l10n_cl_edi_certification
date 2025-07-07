@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<EnvioDTE xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sii.cl/SiiDte" xsi:schemaLocation="http://www.sii.cl/SiiDte EnvioDTE_v10.xsd" version="1.0">
+    <SetDTE ID="SetDoc">
+        <Caratula version="1.0">
+            <RutEmisor>76235291-5</RutEmisor>
+            <RutEnvia>17605402-6</RutEnvia>
+            <RutReceptor>60803000-K</RutReceptor>
+            <FchResol>2025-03-26</FchResol>
+            <NroResol>0</NroResol>
+            <TmstFirmaEnv>2025-07-07T17:28:17</TmstFirmaEnv>
+            <SubTotDTE>
+                <TpoDTE>52</TpoDTE>
+                <NroDTE>1</NroDTE>
+            </SubTotDTE>
+        </Caratula>
+            <DTE xmlns="http://www.sii.cl/SiiDte" version="1.0">
+            <Documento ID="F11T52">
+            <Encabezado>
+                <IdDoc>
+                    <TipoDTE>52</TipoDTE>
+                    <Folio>11</Folio>
+                    <FchEmis>2025-07-07</FchEmis>
+                    <IndTraslado>1</IndTraslado>
+                </IdDoc>
+                <Emisor>
+                    <RUTEmisor>76235291-5</RUTEmisor>
+                    <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+                    <GiroEmis>Impresión Comercialización Informática Publicidad Diseño</GiroEmis>
+                    <Telefono>+56 9 2847 4645</Telefono>
+                    <CorreoEmisor>facturacion@withinplaygames.com</CorreoEmisor>
+                    <Acteco>741009</Acteco>
+                    <DirOrigen>San Lucio 138 </DirOrigen>
+                    <CmnaOrigen>Los Andes</CmnaOrigen>
+                </Emisor>
+                <Receptor>
+                    <RUTRecep>9039454-1</RUTRecep>
+                    <RznSocRecep>Christian Gabriel Navarro Montero</RznSocRecep>
+                    <GiroRecep>VENTA AL POR MENOR DE JUEGOS Y JUGUETES</GiroRecep>
+                    <Contacto></Contacto>
+                    <CorreoRecep>dev@withinplaygames.com</CorreoRecep>
+                    <DirRecep>Nueva de Lyon 105</DirRecep>
+                    <CmnaRecep>Providencia</CmnaRecep>
+                </Receptor>
+                <Transporte>
+                    <DirDest></DirDest>
+                    <CmnaDest></CmnaDest>
+                    <CiudadDest></CiudadDest>
+                </Transporte>
+                <Totales>
+                    <MntTotal>0</MntTotal>
+                </Totales>
+            </Encabezado>
+            <TED version="1.0">
+            <DD>
+                <RE>76235291-5</RE>
+                <TD>52</TD>
+                <F>11</F>
+                <FE>2025-07-07</FE>
+                <RR>9039454-1</RR>
+                <RSR>Christian Gabriel Navarro Montero</RSR>
+                <MNT>0</MNT>
+                <IT1>ITEM 1</IT1>
+                <CAF version="1.0">
+                    <DA>
+                        <RE>76235291-5</RE>
+                        <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
+                        <TD>52</TD>
+                        <RNG>
+                            <D>1</D>
+                            <H>20</H>
+                        </RNG>
+                        <FA>2025-04-11</FA>
+                        <RSAPK>
+                            <M>3OhRbUEZh5MCfz/iMQkhTvnnYUvtAs1bsc8XS4BIEr0wzUZeQXIsE8pvsaJhUMz9FH8yu+U9fm5ZDbHfbFIVJQ==</M>
+                            <E>Aw==</E>
+                        </RSAPK>
+                        <IDK>100</IDK>
+                    </DA>
+                    <FRMA algoritmo="SHA1withRSA">NmLS/5uNROjko26BJMUVyd6ruaBlX2f6RQ4zL2fednen1td3tVqAMnT5aU147rBL5w3yCCK6/i6kKJpkZNai5Q==</FRMA>
+                </CAF>
+                <TSTED>2025-07-07T17:28:17</TSTED>
+            </DD>
+                <FRMT algoritmo="SHA1withRSA">aTRzBOjtgId7eFdO4qZi91+fEQs6ZyOycaSrFB9qIyz+oF6giedVu2/JSg/28AA6Ao2y5UwAaPR0Q54w7BDULg==</FRMT>
+            </TED><TmstFirma>2025-07-07T17:28:17</TmstFirma>
+            </Documento>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#F11T52"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>vGt+boihFu6ML63qJ1aDZCkeTV4=</DigestValue></Reference></SignedInfo><SignatureValue>jsBNICv9quNCE4CrDNggJfiWv1nJVG3tMwc+ToBestOqU7Ns0rQodKVc0pR3P6335WM0K9IwYZrnpSJOTYQUwWKcTaGFLDX0Occgeo7GcWVMhy85GpPi8jntZTRaEP24/lzT24siFbmgSNyI6rqLqrohx4AiaPTMWHVkFYAdK0WVU8EjQjEjxgTwz8wS/Er61dohVxCIJ6uijMVcooK5Wh1BDRA8FFx/7r/Jluyf5vdhwjvJGKTxAS0ATPEJwmt0VtgayXTmLvqRgSJCyYBvI/jseI5/3LPgEhwxn+w86TGXpdPfYTTACjPTy8lSsyPzv8Er9/we30ZZsqAdy34Lgg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
+    </SetDTE>
+
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>4yr7xV9dfotPdKxV8MuDkw+GxUw=</DigestValue></Reference></SignedInfo><SignatureValue>arKfucQaqr6PZczuQkBw7imKm/dv92ISFt++14u/eY40j8PsAIFF/4WIpSxiSLiQyF74P3t4tJuGiFCz6Gbf5YZ7qb7SJKVxhW9BhSsg6RFl3M/iggLQbtlqjv5i3tuFO1PCirP4tRWsvefQd1OrB5ejvQo30wVPznKsN9yfHHfHzUitiRccjKgERuXWt7n/SeKl3GVl8NY6W3W7k2DanpuYZdTKQdUAhrRafSiEh1Bcfv7t7vUyiq7okLvwSmvPSlnaEg9pV5nX29l0LpAMr+sE/zqzp+cx2DNrX6zKKD6n+7JeIsWJcJ8pdmjB6hQAnN1sRuwnIS9yXm9up75AkA==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
+TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
+IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
+IC0gRzQxHjAcBgkqhkiG9w0BCQEWD2luZm9AYWNlcHRhLmNvbTETMBEGA1UEBRMK
+OTY5MTkwNTAtODAeFw0yNTA0MDkxNzE1MTdaFw0yNjA0MDkxNzE1MTdaMIGNMQsw
+CQYDVQQGEwJDTDEYMBYGA1UEDBMPUEVSU09OQSBOQVRVUkFMMSQwIgYDVQQDExtU
+T01BUyBDUklTVE9QSEVSIERJQVogTE9QRVoxKTAnBgkqhkiG9w0BCQEWGkJVVENI
+RVJXVVRDSEVSQE9VVExPT0suQ09NMRMwEQYDVQQFEwoxNzYwNTQwMi02MIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwOF7d6hLI1Ualonyp98+lIrt+16+
+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOAS
+i36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREy
+x9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPd
+VmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTn
+QnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQIDAQAB
+o4IDHjCCAxowCQYDVR0TBAIwADAfBgNVHSMEGDAWgBSq/b3F6TdN9plNV47BcRr5
+68MG4zAdBgNVHQ4EFgQUnOBCZgtyr03rUQYZ782pg+PSFikwCwYDVR0PBAQDAgTw
+MB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDCB+gYDVR0gBIHyMIHvMIHs
+BggrBgEEAbVrAjCB3zAxBggrBgEFBQcCARYlaHR0cHM6Ly9hY2c0LmFjZXB0YS5j
+b20vQ1BTLUFjZXB0YWNvbTCBqQYIKwYBBQUHAgIwgZwwFhYPQWNlcHRhLmNvbSBT
+LkEuMAMCAQIagYFFbCB0aXR1bGFyIGhhIHNpZG8gdmFsaWRhZG8gZW4gZm9ybWEg
+cHJlc2VuY2lhbCwgcXVlZGFuZG8gaGFiaWxpdGFkbyBlbCBDZXJ0aWZpY2FkbyBw
+YXJhIHVzbyB0cmlidXRhcmlvLCBwYWdvcywgY29tZXJjaW8geSBvdHJvcy4wWgYD
+VR0SBFMwUaAYBggrBgEEAcEBAqAMFgo5NjkxOTA1MC04oCQGCCsGAQUFBwgDoBgw
+FgwKOTY5MTkwNTAtOAYIKwYBBAHBAQKBD2luZm9AYWNlcHRhLmNvbTBlBgNVHREE
+XjBcoBgGCCsGAQQBwQEBoAwWCjE3NjA1NDAyLTagJAYIKwYBBQUHCAOgGDAWDAox
+NzYwNTQwMi02BggrBgEEAcEBAoEaQlVUQ0hFUldVVENIRVJAT1VUTE9PSy5DT00w
+gZ8GCCsGAQUFBwEBBIGSMIGPMFQGCCsGAQUFBzAChkhodHRwczovL2FjZzQuYWNl
+cHRhLmNvbS9kZXNjYXJnYXMvYWNlcHRhLmNvbS5nNC5DbGFzZTNQZXJzb25hTmF0
+dXJhbC5jcnQwNwYIKwYBBQUHMAGGK2h0dHBzOi8vYWNnNC5hY2VwdGEuY29tL2Fj
+ZzQvb2NzcC9DbGFzZTMtRzQwPwYDVR0fBDgwNjA0oDKgMIYuaHR0cHM6Ly9hY2c0
+LmFjZXB0YS5jb20vYWNnNC9jcmwvQ2xhc2UzLUc0LmNybDANBgkqhkiG9w0BAQsF
+AAOCAQEAZohpUuZkaSUwEtW1WYNTkA22hQhKUr4GIfCcRnZWGk7I2cpUCBrrXDu9
+N0GY2gS4K1MlqqU6AXMaBI0W+L/DGjD41sM5Qt9tiEHuvW212YOTPwKkrok78Mq+
+fwLh5hammLSzaqY+WZtdaknMoyjPGne/uO2/YWV2K6fpmHheaGfInj8cciPfaq0H
+WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
+V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
+GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></EnvioDTE>

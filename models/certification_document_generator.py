@@ -2428,9 +2428,17 @@ class CertificationDocumentGenerator(models.TransientModel):
         Finaliza la guía y actualiza estados del caso.
         """
         if for_batch:
-            # En modo batch, llamar a create_delivery_guide para generar el DTE
-            # Esto reemplaza action_confirm() y action_assign() para el modo batch
-            _logger.info(f"Modo batch: Llamando a create_delivery_guide para picking {picking.name}")
+            # En modo batch, confirmar picking ANTES de generar DTE para que incluya detalles
+            _logger.info(f"Modo batch: Confirmando picking {picking.name}")
+            picking.action_confirm()
+            _logger.info(f"Picking confirmado: {picking.name}")
+            
+            # Asignar stock
+            picking.action_assign()
+            _logger.info(f"Stock asignado: {picking.name}")
+            
+            # Ahora generar DTE con líneas confirmadas
+            _logger.info(f"Modo batch: Llamando a create_delivery_guide para picking confirmado {picking.name}")
             picking.create_delivery_guide()
             _logger.info(f"Guía de despacho DTE generada para picking {picking.name}")
             
