@@ -157,9 +157,9 @@ class CertificationParsedSet(models.Model):
         
         # Determinar el método de generación basado en el nombre del set
         # Los sets de exportación necesitan manejo especial
-        if 'EXPORTACIÓN 1' in self.name.upper():
+        if 'EXPORTACION (1)' in self.name.upper():
             method_name = 'action_generate_batch_exportacion1'
-        elif 'EXPORTACIÓN 2' in self.name.upper():
+        elif 'EXPORTACION (2)' in self.name.upper():
             method_name = 'action_generate_batch_exportacion2'
         else:
             # Mapear otros tipos de set
