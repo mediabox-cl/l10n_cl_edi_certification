@@ -696,6 +696,17 @@ class CertificationBatchFile(models.Model):
             False   # No es voucher
         )
         
+        # Corregir formato XML: separar declaración XML del elemento raíz
+        if signed_xml.startswith('<?xml') and '<EnvioDTE' in signed_xml:
+            # Buscar dónde termina la declaración XML
+            xml_decl_end = signed_xml.find('?>') + 2
+            xml_declaration = signed_xml[:xml_decl_end]
+            xml_body = signed_xml[xml_decl_end:]
+            
+            # Reconstruir con salto de línea entre declaración y elemento raíz
+            signed_xml = xml_declaration + '\n' + xml_body
+            _logger.info("XML corregido: declaración XML separada del elemento raíz")
+        
         return signed_xml
 
     def _build_consolidated_caratula(self, process, dte_nodes, set_type):

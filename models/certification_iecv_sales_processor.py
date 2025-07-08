@@ -25,12 +25,15 @@ class CertificationIECVBookSalesProcessor(models.AbstractModel):
                 }
             
             doc_types[doc_type_code]['count'] += 1
-            doc_types[doc_type_code]['net_amount'] += doc.amount_untaxed
-            doc_types[doc_type_code]['tax_amount'] += doc.amount_tax
-            doc_types[doc_type_code]['total_amount'] += doc.amount_total
             
             # Calcular monto exento basado en líneas de factura
             exempt_amount = self._calculate_exempt_amount(doc)
+            # Calcular MntNeto correcto: amount_untaxed ya incluye montos exentos, hay que restarlos
+            net_amount = doc.amount_untaxed - exempt_amount
+            
+            doc_types[doc_type_code]['net_amount'] += net_amount
+            doc_types[doc_type_code]['tax_amount'] += doc.amount_tax
+            doc_types[doc_type_code]['total_amount'] += doc.amount_total
             doc_types[doc_type_code]['exempt_amount'] += exempt_amount
         
         # Crear elementos por tipo de documento
@@ -83,9 +86,12 @@ class CertificationIECVBookSalesProcessor(models.AbstractModel):
             # Calcular monto exento para este documento
             exempt_amount = self._calculate_exempt_amount(doc)
             
+            # Calcular MntNeto correcto: amount_untaxed ya incluye montos exentos, hay que restarlos
+            net_amount = doc.amount_untaxed - exempt_amount
+            
             # Montos (enteros sin decimales)
             etree.SubElement(detalle, "MntExe").text = str(int(exempt_amount))
-            etree.SubElement(detalle, "MntNeto").text = str(int(doc.amount_untaxed))
+            etree.SubElement(detalle, "MntNeto").text = str(int(net_amount))
             etree.SubElement(detalle, "MntIVA").text = str(int(doc.amount_tax))
             etree.SubElement(detalle, "MntTotal").text = str(int(doc.amount_total))
             etree.SubElement(detalle, "TasaImp").text = "19.00"

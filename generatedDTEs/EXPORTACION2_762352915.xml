@@ -6,29 +6,22 @@
       <RutReceptor>60803000-K</RutReceptor>
       <FchResol>2025-03-26</FchResol>
       <NroResol>0</NroResol>
-      <TmstFirmaEnv>2025-07-08T18:25:02</TmstFirmaEnv>
+      <TmstFirmaEnv>2025-07-08T19:14:56</TmstFirmaEnv>
       <SubTotDTE>
         <TipoDTE>110</TipoDTE>
-        <NroDTE>1</NroDTE>
-      </SubTotDTE>
-      <SubTotDTE>
-        <TipoDTE>112</TipoDTE>
-        <NroDTE>1</NroDTE>
-      </SubTotDTE>
-      <SubTotDTE>
-        <TipoDTE>111</TipoDTE>
-        <NroDTE>1</NroDTE>
+        <NroDTE>3</NroDTE>
       </SubTotDTE>
     </Caratula>
     <DTE version="1.0">
-            <Exportaciones ID="F13T110">
+            <Exportaciones ID="F14T110">
             <Encabezado>
                 <IdDoc>
                     <TipoDTE>110</TipoDTE>
-                    <Folio>13</Folio>
-                    <FchEmis>2025-07-07</FchEmis>
+                    <Folio>14</Folio>
+                    <FchEmis>2025-07-08</FchEmis>
+                    <IndServicio>3</IndServicio>
                     <FmaPago>2</FmaPago>
-                    <FchVenc>2025-07-07</FchVenc>
+                    <FchVenc>2025-07-08</FchVenc>
                 </IdDoc>
                 <Emisor>
                     <RUTEmisor>76235291-5</RUTEmisor>
@@ -44,87 +37,84 @@
                 </Emisor>
                 <Receptor>
                     <RUTRecep>55555555-5</RUTRecep>
-            <RznSocRecep>IMPORTADORA ARGENTINA LTDA</RznSocRecep>
+            <RznSocRecep>AUSTRALIAN CONSULTING GROUP PTY LTD</RznSocRecep>
                     <Extranjero>
-                        <Nacionalidad>224</Nacionalidad>
-                        <IdAdicRecep>Argentina</IdAdicRecep>
+                        <Nacionalidad>406</Nacionalidad>
+                        <IdAdicRecep>Australia</IdAdicRecep>
                     </Extranjero>
-                    <Contacto>+54-11-4567-8900</Contacto>
-                    <CorreoRecep>compras@importadoraargentina.com.ar</CorreoRecep>
-                    <DirRecep>AV. CORRIENTES 1234</DirRecep>
+                    <Contacto>+61-3-9876-5432</Contacto>
+                    <CorreoRecep>services@australianconsulting.com.au</CorreoRecep>
+                    <DirRecep>COLLINS STREET 456</DirRecep>
                     <CmnaRecep>N-A</CmnaRecep>
-                    <CiudadRecep>BUENOS AIRES</CiudadRecep>
+                    <CiudadRecep>MELBOURNE</CiudadRecep>
                 </Receptor>
                 <Transporte>
                     <Aduana>
-<CodModVenta>1</CodModVenta>
-                        <CodClauVenta>5</CodClauVenta>
-                        <TotClauVenta>963.69</TotClauVenta>
-                        <CodViaTransp>04</CodViaTransp>
-                        <CodPtoEmbarque>901</CodPtoEmbarque>
-                        <CodPtoDesemb>262</CodPtoDesemb>
-                        <TotBultos>26</TotBultos>
-                    <MntFlete>154.7800</MntFlete>
-                    <MntSeguro>24.8600</MntSeguro>
-                        <CodPaisRecep>224</CodPaisRecep>
+                        <CodClauVenta>1</CodClauVenta>
+                        <TotClauVenta>30.00</TotClauVenta>
+                        <CodViaTransp>07</CodViaTransp>
+                        <CodPtoEmbarque>918</CodPtoEmbarque>
+                        <CodPtoDesemb>811</CodPtoDesemb>
+                        <TotBultos>1</TotBultos>
+                        <CodPaisRecep>406</CodPaisRecep>
                     </Aduana>
                 </Transporte>
                 <Totales>
-                    <TpoMoneda>DOLAR USA</TpoMoneda>
-                    <MntExe>30276.00</MntExe>
-                    <MntTotal>30276.00</MntTotal>
+                    <TpoMoneda>EURO</TpoMoneda>
+                    <MntExe>30.00</MntExe>
+                    <MntTotal>30.00</MntTotal>
                 </Totales>
                 <OtraMoneda>
                     <TpoMoneda>PESO CL</TpoMoneda>
-                    <TpoCambio>927.87</TpoCambio>
-                    <MntExeOtrMnda>28092192</MntExeOtrMnda>
-                    <MntTotOtrMnda>28092192</MntTotOtrMnda>
+                    <TpoCambio>1100.90</TpoCambio>
+                    <MntExeOtrMnda>33027</MntExeOtrMnda>
+                    <MntTotOtrMnda>33027</MntTotOtrMnda>
                 </OtraMoneda>
             </Encabezado>
             <Detalle>
                 <NroLinDet>1</NroLinDet>
                 <CdgItem>
                     <TpoCodigo>INT1</TpoCodigo>
-                    <VlrCodigo>EXP-ALU-001</VlrCodigo>
+                    <VlrCodigo>EXP-SRV-001</VlrCodigo>
                 </CdgItem>
                 <IndExe>1</IndExe>
-                <NmbItem>CHATARRA DE ALUMINIO</NmbItem>
-                <DscItem>[EXP-ALU-001] CHATARRA DE ALUMINIO</DscItem>
-                <QtyItem>261.000000</QtyItem>
-                    <UnmdItem>KN</UnmdItem>
-            <PrcItem>116.000000</PrcItem>
+                <NmbItem>ASESORIAS Y PROYECTOS PROFESIONALES</NmbItem>
+                <DscItem>[EXP-SRV-001] ASESORIAS Y PROYECTOS PROFESIONALES</DscItem>
+                <QtyItem>1.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>30.000000</PrcItem>
                 <OtrMnda>
-                    <PrcOtrMon>107633</PrcOtrMon>
+                    <PrcOtrMon>33027</PrcOtrMon>
                     <Moneda>CLP</Moneda>
-                    <FctConv>927.87</FctConv>
-                    <MontoItemOtrMnda>28092192</MontoItemOtrMnda>
+                    <FctConv>1100.9</FctConv>
+                    <MontoItemOtrMnda>33027</MontoItemOtrMnda>
                 </OtrMnda>
-                <MontoItem>30276.00</MontoItem>
+                <MontoItem>30.00</MontoItem>
             </Detalle>
             <Referencia>
                 <NroLinRef>1</NroLinRef>
                 <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>4352558-1</FolioRef>
-                <FchRef>2025-07-07</FchRef>
-                <RazonRef>CASO 4352558-1</RazonRef>
+                <FolioRef>4352559-1</FolioRef>
+                <FchRef>2025-07-08</FchRef>
+                <RazonRef>CASO 4352559-1</RazonRef>
             </Referencia>
             <Referencia>
                 <NroLinRef>2</NroLinRef>
-                <TpoDocRef>810</TpoDocRef>
-                <FolioRef>MIC</FolioRef>
-                <FchRef>2025-07-07</FchRef>
-                <RazonRef>MIC (MANIFIESTO INTERNACIONAL)</RazonRef>
+                <TpoDocRef>812</TpoDocRef>
+                <FolioRef>RSN</FolioRef>
+                <FchRef>2025-07-08</FchRef>
+                <RazonRef>RESOLUCION SNA</RazonRef>
             </Referencia>
             <TED version="1.0">
             <DD>
                 <RE>76235291-5</RE>
                 <TD>110</TD>
-                <F>13</F>
-                <FE>2025-07-07</FE>
+                <F>14</F>
+                <FE>2025-07-08</FE>
                 <RR>55555555-5</RR>
-                <RSR>IMPORTADORA ARGENTINA LTDA</RSR>
-                <MNT>30276.00</MNT>
-                <IT1>CHATARRA DE ALUMINIO</IT1>
+                <RSR>AUSTRALIAN CONSULTING GROUP PTY LTD</RSR>
+                <MNT>30.00</MNT>
+                <IT1>ASESORIAS Y PROYECTOS PROFESIONALES</IT1>
                 <CAF version="1.0">
                     <DA>
                         <RE>76235291-5</RE>
@@ -143,12 +133,12 @@
                     </DA>
                     <FRMA algoritmo="SHA1withRSA">DRrfVn3wcyvp4VTngUzO9/KXECtI7rd+GZAYRBOJ1nSOiQVanD9ExcZxOm+ZLbKEZIEB3RPDvM6GmizvUQsu/A==</FRMA>
                 </CAF>
-                <TSTED>2025-07-07T18:23:26</TSTED>
+                <TSTED>2025-07-08T19:14:55</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">Ny0oQI90HoSSPRvqYTSp4nUhSrCXaQVPp3ztXQxilv/iH8ljRnKMLqbhW8swfSU+m+9IR51pqkHfTjOMSIGDaw==</FRMT>
-            </TED><TmstFirma>2025-07-07T18:23:26</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">OYxDuhBOiJG7EivHldCf+CxXMxRJOssMSJ93mVm2IT6CEhd4WX6wHnCw2wK6H9ZiAN8VQKSMPPJaOU4cu5gtrw==</FRMT>
+            </TED><TmstFirma>2025-07-08T19:14:55</TmstFirma>
             </Exportaciones>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F13T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>uVMBczmIQEM+GJVYjcB9LncJpx4=</DigestValue></Reference></SignedInfo><SignatureValue>uGZ4C8RCmkhwzUah7kvc1JG2f6BgkpkR4HGuHgUIAbAXfdF4T5dGQyue3yHaki+1vEVM7tQ69Zl+cnqVHDdy6qnBb75/e06ILWHy5wFfv+hemCZA8t+6qLXNENNAM6wrNO0wMO0/UmbhlYl8XuIh5ombDjeIHqt4rvMi7AQJKkXz4NTk9ERA+PegRTPAjPQzAGCXeP4u0GtkvzTQ7QA5pu4rrMEe63dHSxfjVmcNxaiwLKgFGNJMVSiD9Hi9bH4oX4Zzh0Gara9lkUzgh+MZkb7TA3MHgJakXRg5aMOYnauMPPFejjUfeal5K3EoocAz/QVAYbL2yKBfk1gdl/QoMw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F14T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>3gjTdwIOG9lfNScJxGCOB6gmVxY=</DigestValue></Reference></SignedInfo><SignatureValue>fJvNJ0ggMk1j4KY8wQZvOwTomoFWfi3pEXE4HvWS3xgHiplf1L6duruE2H+EOavE9bgKDPtaCaEAhw62vYdO7gipu0suA0fYNx0naGVmYZ5ZGogMh628EP1zr3VsaaHbwP5dBJ4q+2BcpiivlmjsvhhIUbCNnpRknpNXvS7oAD4Mvk4tzkwmPlnOBeO9g8UHygTDYIKx/II7R5/xZivIGNdskZ+RPIBs4VeudIap9tB8Xq537o6PkZOpNERjeZcqeQ5RdHnXPrb3ywneVduEu6u/R2Nlk8ngF3NIYzXbKHhy5fVRdRjS5vw+BJ//6zIav/+XRrIXy+q9/zDdZSOv8A==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -187,11 +177,11 @@ WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
 V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
     <DTE version="1.0">
-            <Exportaciones ID="F3T112">
+            <Exportaciones ID="F15T110">
             <Encabezado>
                 <IdDoc>
-                    <TipoDTE>112</TipoDTE>
-                    <Folio>3</Folio>
+                    <TipoDTE>110</TipoDTE>
+                    <Folio>15</Folio>
                     <FchEmis>2025-07-08</FchEmis>
                     <FmaPago>2</FmaPago>
                     <FchVenc>2025-07-08</FchVenc>
@@ -210,112 +200,141 @@ GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signatu
                 </Emisor>
                 <Receptor>
                     <RUTRecep>55555555-5</RUTRecep>
-            <RznSocRecep>IMPORTADORA ARGENTINA LTDA</RznSocRecep>
+            <RznSocRecep>PACIFIC FRUIT IMPORTS PTY LTD</RznSocRecep>
                     <Extranjero>
-                        <Nacionalidad>224</Nacionalidad>
-                        <IdAdicRecep>Argentina</IdAdicRecep>
+                        <Nacionalidad>406</Nacionalidad>
+                        <IdAdicRecep>Australia</IdAdicRecep>
                     </Extranjero>
-                    <Contacto>+54-11-4567-8900</Contacto>
-                    <CorreoRecep>compras@importadoraargentina.com.ar</CorreoRecep>
-                    <DirRecep>AV. CORRIENTES 1234</DirRecep>
+                    <Contacto>+61-2-8765-4321</Contacto>
+                    <CorreoRecep>imports@pacificfruit.com.au</CorreoRecep>
+                    <DirRecep>HARBOUR BRIDGE ROAD 789</DirRecep>
                     <CmnaRecep>N-A</CmnaRecep>
-                    <CiudadRecep>BUENOS AIRES</CiudadRecep>
+                    <CiudadRecep>SYDNEY</CiudadRecep>
                 </Receptor>
                 <Transporte>
                     <Aduana>
-<CodModVenta>1</CodModVenta>
-                        <CodClauVenta>5</CodClauVenta>
-                        <TotClauVenta>963.69</TotClauVenta>
-                        <CodViaTransp>04</CodViaTransp>
-                        <CodPtoEmbarque>901</CodPtoEmbarque>
-                        <CodPtoDesemb>262</CodPtoDesemb>
-                        <TotBultos>26</TotBultos>
-                    <MntFlete>154.7800</MntFlete>
-                    <MntSeguro>24.8600</MntSeguro>
-                        <CodPaisRecep>224</CodPaisRecep>
+<CodModVenta>2</CodModVenta>
+                        <CodClauVenta>1</CodClauVenta>
+                        <TotClauVenta>1810.53</TotClauVenta>
+                        <CodViaTransp>07</CodViaTransp>
+                        <CodPtoEmbarque>918</CodPtoEmbarque>
+                        <CodPtoDesemb>811</CodPtoDesemb>
+                        <TotBultos>40</TotBultos>
+                    <MntFlete>546.3400</MntFlete>
+                    <MntSeguro>164.8600</MntSeguro>
+                        <CodPaisRecep>406</CodPaisRecep>
                     </Aduana>
                 </Transporte>
                 <Totales>
-                    <TpoMoneda>DOLAR USA</TpoMoneda>
-                    <MntExe>10092.00</MntExe>
-                    <MntTotal>10092.00</MntTotal>
+                    <TpoMoneda>EURO</TpoMoneda>
+                    <MntExe>63507.00</MntExe>
+                    <MntTotal>63507.00</MntTotal>
                 </Totales>
                 <OtraMoneda>
                     <TpoMoneda>PESO CL</TpoMoneda>
-                    <TpoCambio>932.34</TpoCambio>
-                    <MntExeOtrMnda>9409175</MntExeOtrMnda>
-                    <MntTotOtrMnda>9409175</MntTotOtrMnda>
+                    <TpoCambio>1100.90</TpoCambio>
+                    <MntExeOtrMnda>69914856</MntExeOtrMnda>
+                    <MntTotOtrMnda>69914856</MntTotOtrMnda>
                 </OtraMoneda>
             </Encabezado>
             <Detalle>
                 <NroLinDet>1</NroLinDet>
                 <CdgItem>
                     <TpoCodigo>INT1</TpoCodigo>
-                    <VlrCodigo>EXP-ALU-001</VlrCodigo>
+                    <VlrCodigo>EXP-CIR-001</VlrCodigo>
                 </CdgItem>
                 <IndExe>1</IndExe>
-                <NmbItem>CHATARRA DE ALUMINIO</NmbItem>
-                <DscItem>[EXP-ALU-001] CHATARRA DE ALUMINIO</DscItem>
-                <QtyItem>87.000000</QtyItem>
+                <NmbItem>CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70</NmbItem>
+                <DscItem>[EXP-CIR-001] CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CALIBRE 60/70</DscItem>
+                <QtyItem>402.000000</QtyItem>
                     <UnmdItem>KN</UnmdItem>
-            <PrcItem>116.000000</PrcItem>
+            <PrcItem>130.000000</PrcItem>
                 <OtrMnda>
-                    <PrcOtrMon>108151</PrcOtrMon>
+                    <PrcOtrMon>143117</PrcOtrMon>
                     <Moneda>CLP</Moneda>
-                    <FctConv>932.34</FctConv>
-                    <MontoItemOtrMnda>9409175</MontoItemOtrMnda>
+                    <FctConv>1100.9</FctConv>
+                    <DctoOtrMnda>2876652</DctoOtrMnda>
+                    <MontoItemOtrMnda>54656382</MontoItemOtrMnda>
                 </OtrMnda>
-                <MontoItem>10092.00</MontoItem>
+                <DescuentoPct>5.00</DescuentoPct>
+                <DescuentoMonto>2613</DescuentoMonto>
+                <MontoItem>49647.00</MontoItem>
+            </Detalle>
+            <Detalle>
+                <NroLinDet>2</NroLinDet>
+                <CdgItem>
+                    <TpoCodigo>INT1</TpoCodigo>
+                    <VlrCodigo>EXP-PAS-001</VlrCodigo>
+                </CdgItem>
+                <IndExe>1</IndExe>
+                <NmbItem>CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS</NmbItem>
+                <DscItem>[EXP-PAS-001] CAJAS DE PASAS DE UVA FLAME MORENA SIN SEMILLA MEDIANAS</DscItem>
+                <QtyItem>180.000000</QtyItem>
+                    <UnmdItem>KN</UnmdItem>
+            <PrcItem>77.000000</PrcItem>
+                <OtrMnda>
+                    <PrcOtrMon>84769</PrcOtrMon>
+                    <Moneda>CLP</Moneda>
+                    <FctConv>1100.9</FctConv>
+                    <MontoItemOtrMnda>15258474</MontoItemOtrMnda>
+                </OtrMnda>
+                <MontoItem>13860.00</MontoItem>
             </Detalle>
             <Referencia>
                 <NroLinRef>1</NroLinRef>
                 <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>4352558-2</FolioRef>
+                <FolioRef>4352559-2</FolioRef>
                 <FchRef>2025-07-08</FchRef>
-                <RazonRef>CASO 4352558-2</RazonRef>
+                <RazonRef>CASO 4352559-2</RazonRef>
             </Referencia>
             <Referencia>
                 <NroLinRef>2</NroLinRef>
-                <TpoDocRef>110</TpoDocRef>
-                <FolioRef>000013</FolioRef>
-                <FchRef>2025-07-07</FchRef>
-                <CodRef>3</CodRef>
-                <RazonRef>DEVOLUCION DE MERCADERIA</RazonRef>
+                <TpoDocRef>807</TpoDocRef>
+                <FolioRef>DUS</FolioRef>
+                <FchRef>2025-07-08</FchRef>
+                <RazonRef>DUS</RazonRef>
+            </Referencia>
+            <Referencia>
+                <NroLinRef>3</NroLinRef>
+                <TpoDocRef>809</TpoDocRef>
+                <FolioRef>AWB</FolioRef>
+                <FchRef>2025-07-08</FchRef>
+                <RazonRef>AWB</RazonRef>
             </Referencia>
             <TED version="1.0">
             <DD>
                 <RE>76235291-5</RE>
-                <TD>112</TD>
-                <F>3</F>
+                <TD>110</TD>
+                <F>15</F>
                 <FE>2025-07-08</FE>
                 <RR>55555555-5</RR>
-                <RSR>IMPORTADORA ARGENTINA LTDA</RSR>
-                <MNT>10092.00</MNT>
-                <IT1>CHATARRA DE ALUMINIO</IT1>
+                <RSR>PACIFIC FRUIT IMPORTS PTY LTD</RSR>
+                <MNT>63507.00</MNT>
+                <IT1>CAJAS CIRUELAS TIERNIZADAS SIN CAROZO CA</IT1>
                 <CAF version="1.0">
                     <DA>
                         <RE>76235291-5</RE>
                         <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
-                        <TD>112</TD>
+                        <TD>110</TD>
                         <RNG>
                             <D>1</D>
                             <H>20</H>
                         </RNG>
                         <FA>2025-06-21</FA>
                         <RSAPK>
-                            <M>tsEC8m4WRWSaRa8HtZZcu/Gc7x/l2O92rZ+3l61prOzkSy94snnf3oPb31Po5aUBR5435GeBNBWZ688zCN+y3Q==</M>
+                            <M>qbfR66Fz4N2J+nVBV3JzepMVLWvwNjPg5gIKMWzp+3pJuzZYOR1tUTl6QDpqJkzTyvjU9HMd+rWmVgGN2l9Ocw==</M>
                             <E>Aw==</E>
                         </RSAPK>
                         <IDK>100</IDK>
                     </DA>
-                    <FRMA algoritmo="SHA1withRSA">MhrxhkuyiWOEVEPWOPMSehmJo9xsgeIu4sIVyxL6tSNeyWxcAsHGQikmEfq2m2ygCdRt0T++Nua7lxHCXNooHg==</FRMA>
+                    <FRMA algoritmo="SHA1withRSA">DRrfVn3wcyvp4VTngUzO9/KXECtI7rd+GZAYRBOJ1nSOiQVanD9ExcZxOm+ZLbKEZIEB3RPDvM6GmizvUQsu/A==</FRMA>
                 </CAF>
-                <TSTED>2025-07-08T18:25:01</TSTED>
+                <TSTED>2025-07-08T19:14:56</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">TPU6DzreDphjt3omuV4Mm9I40JT6KLguDEo3r7VvpYs+BbMsgnIAQFaJIgMs/AQv6/bYLeT8lCLPP/EtPPYQxA==</FRMT>
-            </TED><TmstFirma>2025-07-08T18:25:01</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">EzqwuiA2i1lDv0c4BlwFCHcNo71tvN6SeD8YYgugsvxe0/WSUgZ30v4P1G4pa7QF4KMUS2EdGeByn/I4wUrZNg==</FRMT>
+            </TED><TmstFirma>2025-07-08T19:14:56</TmstFirma>
             </Exportaciones>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F3T112"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>wM8lq0seu+gpHJrm7bOtpx51cWc=</DigestValue></Reference></SignedInfo><SignatureValue>JiaJUP74e+KRO4VYRUGt8i4XcRGsFSU9/FFIBsnZBty1fjAXVhOr0eDTLNmUCKCjdFDdme9SiSox0igruuqrAqBrSJsgu/bDbksCYGK0iu9Ox8hhEioNXzYQF+HhhCt3VYRpYt8pY+aS0F8CKzjP6TgoZi3f9TmRZueCFE8j4ZQQI6ekI/3vzxc5s50w6ak2cXm3HoGbGFcCSCaKZWHGvUq8ZnmZLSjfqT7VQpmNejOMvU3iGfAwWu36qB2fQXFOfG5MVibWx5jb08MKlajJDbij1bX32A1ereM8lCarSdxaGCBUf8PIuK1XQRTVjJBC2xNzhGsikq7oD8Hf8/Swww==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F15T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>PNyFCLclHsnTktgnIyzqbiX7PdE=</DigestValue></Reference></SignedInfo><SignatureValue>jf/CtFXjWkVj8eHnLWWLAdFS8pRVld+Hk8xvdGz0VfcueSJQBSlZ52bfOlzzmLsWsL6XglbxG4ETZ57L3vVWZlGDus7qx7oU/1IlCFSH2ikRKXnDFry9ze9s024h9N2Mb9V8U4FDo5y+GFjRFflcfRYxfRbAYoQYKEAaX7sjJBOOCsQ5xoPQreQ7h6KpVmjjwH4M6++0DzL3AznqDJl9zTZTKuIhbXQPwIZl8CVR6V4fVqgKZz0KWOn/MerhTNp/Z/Ecm5/mD3MkKcOtnhhzBJ+T/R6E+zLE+P3NyVLbGjM6zkFx4/qU5ZZQHxKM7GJ4ZMx+MuS3V+wRWC820Gnl4Q==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -354,12 +373,13 @@ WKuUv2E12ry8S1Ru8Gcy4bTUbHvW1RKDddAPvPjW+iLg49ko6/ZePs6PDMUe56OJ
 V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
     <DTE version="1.0">
-            <Exportaciones ID="F3T111">
+            <Exportaciones ID="F16T110">
             <Encabezado>
                 <IdDoc>
-                    <TipoDTE>111</TipoDTE>
-                    <Folio>3</Folio>
+                    <TipoDTE>110</TipoDTE>
+                    <Folio>16</Folio>
                     <FchEmis>2025-07-08</FchEmis>
+                    <IndServicio>4</IndServicio>
                     <FmaPago>2</FmaPago>
                     <FchVenc>2025-07-08</FchVenc>
                 </IdDoc>
@@ -377,112 +397,97 @@ GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signatu
                 </Emisor>
                 <Receptor>
                     <RUTRecep>55555555-5</RUTRecep>
-            <RznSocRecep>IMPORTADORA ARGENTINA LTDA</RznSocRecep>
+            <RznSocRecep>SYDNEY HOSPITALITY SERVICES PTY LTD</RznSocRecep>
                     <Extranjero>
-                        <Nacionalidad>224</Nacionalidad>
-                        <IdAdicRecep>Argentina</IdAdicRecep>
+                        <Nacionalidad>406</Nacionalidad>
+                        <IdAdicRecep>Australia</IdAdicRecep>
                     </Extranjero>
-                    <Contacto>+54-11-4567-8900</Contacto>
-                    <CorreoRecep>compras@importadoraargentina.com.ar</CorreoRecep>
-                    <DirRecep>AV. CORRIENTES 1234</DirRecep>
+                    <Contacto>+61-2-9876-1234</Contacto>
+                    <CorreoRecep>reservations@sydneyhospitality.com.au</CorreoRecep>
+                    <DirRecep>OPERA HOUSE AVENUE 321</DirRecep>
                     <CmnaRecep>N-A</CmnaRecep>
-                    <CiudadRecep>BUENOS AIRES</CiudadRecep>
+                    <CiudadRecep>SYDNEY</CiudadRecep>
                 </Receptor>
                 <Transporte>
                     <Aduana>
-<CodModVenta>1</CodModVenta>
-                        <CodClauVenta>5</CodClauVenta>
-                        <TotClauVenta>963.69</TotClauVenta>
-                        <CodViaTransp>04</CodViaTransp>
-                        <CodPtoEmbarque>901</CodPtoEmbarque>
-                        <CodPtoDesemb>262</CodPtoDesemb>
-                        <TotBultos>26</TotBultos>
-                    <MntFlete>154.7800</MntFlete>
-                    <MntSeguro>24.8600</MntSeguro>
-                        <CodPaisRecep>224</CodPaisRecep>
+                        <TotClauVenta>91.00</TotClauVenta>
+                        <TotBultos>1</TotBultos>
+                        <CodPaisRecep>406</CodPaisRecep>
                     </Aduana>
                 </Transporte>
                 <Totales>
                     <TpoMoneda>DOLAR USA</TpoMoneda>
-                    <MntExe>10092.00</MntExe>
-                    <MntTotal>10092.00</MntTotal>
+                    <MntExe>91.00</MntExe>
+                    <MntTotal>91.00</MntTotal>
                 </Totales>
                 <OtraMoneda>
                     <TpoMoneda>PESO CL</TpoMoneda>
-                    <TpoCambio>932.34</TpoCambio>
-                    <MntExeOtrMnda>9409175</MntExeOtrMnda>
-                    <MntTotOtrMnda>9409175</MntTotOtrMnda>
+                    <TpoCambio>940.27</TpoCambio>
+                    <MntExeOtrMnda>85565</MntExeOtrMnda>
+                    <MntTotOtrMnda>85565</MntTotOtrMnda>
                 </OtraMoneda>
             </Encabezado>
             <Detalle>
                 <NroLinDet>1</NroLinDet>
                 <CdgItem>
                     <TpoCodigo>INT1</TpoCodigo>
-                    <VlrCodigo>EXP-ALU-001</VlrCodigo>
+                    <VlrCodigo>EXP-HTL-001</VlrCodigo>
                 </CdgItem>
                 <IndExe>1</IndExe>
-                <NmbItem>CHATARRA DE ALUMINIO</NmbItem>
-                <DscItem>[EXP-ALU-001] CHATARRA DE ALUMINIO</DscItem>
-                <QtyItem>87.000000</QtyItem>
-                    <UnmdItem>KN</UnmdItem>
-            <PrcItem>116.000000</PrcItem>
+                <NmbItem>ALOJAMIENTO HABITACIONES</NmbItem>
+                <DscItem>[EXP-HTL-001] ALOJAMIENTO HABITACIONES</DscItem>
+                <QtyItem>1.000000</QtyItem>
+                    <UnmdItem>U</UnmdItem>
+            <PrcItem>91.000000</PrcItem>
                 <OtrMnda>
-                    <PrcOtrMon>108151</PrcOtrMon>
+                    <PrcOtrMon>85565</PrcOtrMon>
                     <Moneda>CLP</Moneda>
-                    <FctConv>932.34</FctConv>
-                    <MontoItemOtrMnda>9409175</MontoItemOtrMnda>
+                    <FctConv>940.28</FctConv>
+                    <MontoItemOtrMnda>85565</MontoItemOtrMnda>
                 </OtrMnda>
-                <MontoItem>10092.00</MontoItem>
+                <MontoItem>91.00</MontoItem>
             </Detalle>
             <Referencia>
                 <NroLinRef>1</NroLinRef>
                 <TpoDocRef>SET</TpoDocRef>
-                <FolioRef>4352558-3</FolioRef>
+                <FolioRef>4352559-3</FolioRef>
                 <FchRef>2025-07-08</FchRef>
-                <RazonRef>CASO 4352558-3</RazonRef>
-            </Referencia>
-            <Referencia>
-                <NroLinRef>2</NroLinRef>
-                <TpoDocRef>112</TpoDocRef>
-                <FolioRef>000002</FolioRef>
-                <FchRef>2025-07-04</FchRef>
-                <CodRef>1</CodRef>
-                <RazonRef>ANULA NOTA DE CREDITO</RazonRef>
+                <RazonRef>CASO 4352559-3</RazonRef>
             </Referencia>
             <TED version="1.0">
             <DD>
                 <RE>76235291-5</RE>
-                <TD>111</TD>
-                <F>3</F>
+                <TD>110</TD>
+                <F>16</F>
                 <FE>2025-07-08</FE>
                 <RR>55555555-5</RR>
-                <RSR>IMPORTADORA ARGENTINA LTDA</RSR>
-                <MNT>10092.00</MNT>
-                <IT1>CHATARRA DE ALUMINIO</IT1>
+                <RSR>SYDNEY HOSPITALITY SERVICES PTY LTD</RSR>
+                <MNT>91.00</MNT>
+                <IT1>ALOJAMIENTO HABITACIONES</IT1>
                 <CAF version="1.0">
                     <DA>
                         <RE>76235291-5</RE>
                         <RS>DISEÑO Y ENTRETENIMIENTOS WITHIN PLAY LI</RS>
-                        <TD>111</TD>
+                        <TD>110</TD>
                         <RNG>
                             <D>1</D>
                             <H>20</H>
                         </RNG>
                         <FA>2025-06-21</FA>
                         <RSAPK>
-                            <M>tdU5ygVcdui1h47KoCWvSNl6qzy7ukbghXZa1vxVtU5EpZahjBKtoGGzFm5/PvUFPi+lpCmnS4FKljCDZQhLow==</M>
+                            <M>qbfR66Fz4N2J+nVBV3JzepMVLWvwNjPg5gIKMWzp+3pJuzZYOR1tUTl6QDpqJkzTyvjU9HMd+rWmVgGN2l9Ocw==</M>
                             <E>Aw==</E>
                         </RSAPK>
                         <IDK>100</IDK>
                     </DA>
-                    <FRMA algoritmo="SHA1withRSA">bFB7CE1wkWMIhOXpaGKbIUdXyuRPavedGxrS4Lg2j4BjWOOS3+4/m6KsNo9w1t1yDu6i00nCr8OpyoMBDi+F4Q==</FRMA>
+                    <FRMA algoritmo="SHA1withRSA">DRrfVn3wcyvp4VTngUzO9/KXECtI7rd+GZAYRBOJ1nSOiQVanD9ExcZxOm+ZLbKEZIEB3RPDvM6GmizvUQsu/A==</FRMA>
                 </CAF>
-                <TSTED>2025-07-08T18:25:02</TSTED>
+                <TSTED>2025-07-08T19:14:56</TSTED>
             </DD>
-                <FRMT algoritmo="SHA1withRSA">Iv/Sv52bS0+hM+NxPMH8YxY/g1M0FZsesBgf0tZARAeFpdxOyRKHyX8jCE8+OOON1j7quVz2Ne7nY2H7AH3gKA==</FRMT>
-            </TED><TmstFirma>2025-07-08T18:25:02</TmstFirma>
+                <FRMT algoritmo="SHA1withRSA">a0ZD4ZJcVsV9X5dJyfRGeKgaYjko60VvxEzgj1RJsUfwqlF297MOxC4/Urgm9wHXaVGgPTS6PRnnlb/tUyo9+w==</FRMT>
+            </TED><TmstFirma>2025-07-08T19:14:56</TmstFirma>
             </Exportaciones>
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F3T111"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>tXZMq9nFk/eUjZVuFtbIk5FwF8A=</DigestValue></Reference></SignedInfo><SignatureValue>O0Edt+KskyqYNH6LPeiIfHhvxdfKM1Y5NHCdsuUg5LGLU4mkZ8A2QrkRIoACUk5Mwn5hreioc+PkFFFSFXEpJI+bGyTxRnt/cjmWG53uIog2c2E538da9bfysVDb1/qer+omj23UbwCYVPZpVvfykhckBCc5Vredee0/gGL1kn+PyL3pL6H74MPocHahFWBxVPUK2oBSEpgkl0CYn3qnkDT1fsij8NBqfakS1p7bmtYz+B2OanpFa19xg8oYVPf0+uzuD9KpR0HdSOjuWfdzx/8aZrATC/8AQtjle4TCy5K+66HdB8kZQsWYO4gzGIWmNpmTffnw8dYhuMxzYNp/yQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/><Reference URI="#F16T110"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>bSB8ve0Yk83JozjmMeTlYxU43HI=</DigestValue></Reference></SignedInfo><SignatureValue>a8Eb9b9MnwlxS6bZU88IH5L+mZQ58DJkME0KgXWi72RqQWfNWVQLwn181lxZeASDG2OOVYHCDXlbAvWZWZkL+ixpdZKdzesBerAy/P10gDjmZrCI3w102wEelkdDwVSqxSOi5rRQXIL5RsmI2Pkjh2yqLJd8bPqPprrD+vVR8LKw/lobcAGd18Kir2yIOXu+L2exZpDFRBHq25TuvQusuT96WFvoz1puaZXvDZlggubkqesYCdWsKzbdiOi60X7yWUJykkK0qbAhcz3v3j+GcgFkIktCHxGTA8vVjaiPLOUi0H7itzeYmOkXocbQv6cfqSvckPvZimGK7ENJXhpPnw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs
@@ -522,7 +527,7 @@ V9m/QmBcAjnA5FXCanwng3E4JFIh8c426kwnZQqzv0j2Z8jc3BoCtd/09SB1wxGD
 GCwuPSPZ4Zc0ErJkmifFbVvUrPrIDg==</X509Certificate></X509Data></KeyInfo></Signature></DTE>
   </SetDTE>
 
-<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>kIw8Rxu4RrVC0AXrNmwt/Y9bVGs=</DigestValue></Reference></SignedInfo><SignatureValue>DtqRZBbx6JnCJkLTa5b0AAQKXxaVyLSiF8XhWJKH8xNq/swKLeojDPOkIocPo5UTYnuDinpPpRIRiQKRPCnlIlW1bg+Ved4LfEqDC3C7VBD1le0avEnKCYPvG8gZwyl2PLLwc+fL2bVQMCDx0J4Nl1vaWQo3efoZoE+jQLaftXIHAHASYy3J+h2vZBeC81gc6W0ygXnKK52rnH9iBy5+5OUgo3Jk8d4B5qpLSf+iCdWvGIsPlwjvpjKTnM1Pja4S5sTRodzLcwq/P8k7l03/KOENjzlGkbSmHG1r9Qo5k/Bad0GC+nX3KZtFJ4XqEVVwvSCWfzWy/HKqhFKNYv8JJQ==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo xmlns="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></CanonicalizationMethod><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"></SignatureMethod><Reference URI="#SetDoc"><Transforms><Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"></Transform></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"></DigestMethod><DigestValue>uVFFleh2Sn6mQ7jOjaNakP5XHNY=</DigestValue></Reference></SignedInfo><SignatureValue>Hc3jPDwTBat7mwrAZKaWvU8/dMsDYUoDQ0WeR1bRToFm56tXR+jtMeX4i4NjayIkxBLGyOSApASlD4yIttqndJ7X25qnvjyQk1w9lwYK/imuMXkJxLvg+sSCizd3Bq/ObQJh1UiZBefmxH03upzeeeIbbVkgGysneJ2MQggod4jXqrELGCQQC0u3zb7U82HaJeOVfdJWbyoOKV79Ow1LcC9E2rgbkdmLYC84G0C2ZOwgfvtWXervXIRw6vMdHbTQBTbl6zT14jIa3vEg1ECwpTduvHoxwpUJK+l/r30QnxB2h+YNno6a5OtQMegRLHwK5c/tivcF/rFqyFGYVUFPzg==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>wOF7d6hLI1Ualonyp98+lIrt+16+D2FqY/8VgMcTesbxmbCsaJ4/pG/u6CD/XxdC2QYsaHUi5P4EoLcWB1AqzsP5eOASi36dg+KyDnnEnDo6NGrNYut6V/9bvE9rYD5YwbcPJm4EQIPvLO/XbJjjH6stXREyx9Ic+Uc61nfhtfauetQ25rudwdDDjvPTg3DJfyjxt5uEQKr7Bj9OKXurron/bVPdVmSd1R2+hEI0IYzHdp4A1CjP+3Al/x/eGc6cPl05aBRf+6Q5teVmDYGXGtP+ntTnQnlNINuMIitfyBwskwbWM7a3cLq/f6Z0yePOHn/i81MBKrNYHj0oqMzumQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>
 MIIG0jCCBbqgAwIBAgIDBR6uMA0GCSqGSIb3DQEBCwUAMIGmMQswCQYDVQQGEwJD
 TDEYMBYGA1UEChMPQWNlcHRhLmNvbSBTLkEuMUgwRgYDVQQDEz9BY2VwdGEuY29t
 IEF1dG9yaWRhZCBDZXJ0aWZpY2Fkb3JhIENsYXNlIDMgUGVyc29uYSBOYXR1cmFs

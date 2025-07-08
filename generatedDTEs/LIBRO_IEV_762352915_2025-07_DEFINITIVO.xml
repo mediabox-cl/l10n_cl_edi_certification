@@ -22,19 +22,19 @@
       </TotalPeriodo>
       <TotalPeriodo>
         <TpoDoc>61</TpoDoc>
-        <TotDoc>3</TotDoc>
+        <TotDoc>4</TotDoc>
         <TotMntExe>35292</TotMntExe>
-        <TotMntNeto>4695274</TotMntNeto>
-        <TotMntIVA>885397</TotMntIVA>
-        <TotMntTotal>5580671</TotMntTotal>
+        <TotMntNeto>5334090</TotMntNeto>
+        <TotMntIVA>1006772</TotMntIVA>
+        <TotMntTotal>6340862</TotMntTotal>
       </TotalPeriodo>
       <TotalPeriodo>
         <TpoDoc>56</TpoDoc>
-        <TotDoc>1</TotDoc>
+        <TotDoc>2</TotDoc>
         <TotMntExe>0</TotMntExe>
-        <TotMntNeto>0</TotMntNeto>
-        <TotMntIVA>0</TotMntIVA>
-        <TotMntTotal>0</TotMntTotal>
+        <TotMntNeto>638816</TotMntNeto>
+        <TotMntIVA>121375</TotMntIVA>
+        <TotMntTotal>760191</TotMntTotal>
       </TotalPeriodo>
     </ResumenPeriodo>
     <Detalle>
@@ -125,6 +125,28 @@
       <MntTotal>0</MntTotal>
       <TasaImp>19.00</TasaImp>
     </Detalle>
-    <TmstFirma>2025-07-07T22:27:31</TmstFirma>
+    <Detalle>
+      <TpoDoc>61</TpoDoc>
+      <NroDoc>000015</NroDoc>
+      <FchDoc>2025-07-08</FchDoc>
+      <RUTDoc>60803000-K</RUTDoc>
+      <MntExe>0</MntExe>
+      <MntNeto>638816</MntNeto>
+      <MntIVA>121375</MntIVA>
+      <MntTotal>760191</MntTotal>
+      <TasaImp>19.00</TasaImp>
+    </Detalle>
+    <Detalle>
+      <TpoDoc>56</TpoDoc>
+      <NroDoc>000008</NroDoc>
+      <FchDoc>2025-07-08</FchDoc>
+      <RUTDoc>60803000-K</RUTDoc>
+      <MntExe>0</MntExe>
+      <MntNeto>638816</MntNeto>
+      <MntIVA>121375</MntIVA>
+      <MntTotal>760191</MntTotal>
+      <TasaImp>19.00</TasaImp>
+    </Detalle>
+    <TmstFirma>2025-07-08T23:40:54</TmstFirma>
   </EnvioLibro>
 </LibroCompraVenta>
