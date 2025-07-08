@@ -170,6 +170,7 @@ class CertificationParsedSet(models.Model):
                 'purchase_book': 'action_generate_batch_compras', 
                 'guides_book': 'action_generate_batch_libro_guias',
                 'export_documents': 'action_generate_batch_exportacion1',  # Default para export
+                'purchase_invoice': 'action_generate_batch_facturas_compra',  # Facturas de compra
             }
             
             method_name = set_type_methods.get(self.set_type_normalized)
@@ -225,6 +226,7 @@ class CertificationParsedSet(models.Model):
             'sales_book': 'ventas',
             'guides_book': 'libro_guias',
             'purchase_book': 'compras',
+            'purchase_invoice': 'facturas_compra',
         }
         
         batch_set_type = set_type_mapping.get(self.set_type_normalized)
@@ -267,6 +269,7 @@ class CertificationParsedSet(models.Model):
             'sales_book': 'ventas',
             'guides_book': 'libro_guias',
             'purchase_book': 'compras',
+            'purchase_invoice': 'facturas_compra',
         }
         
         batch_set_type = set_type_mapping.get(self.set_type_normalized)

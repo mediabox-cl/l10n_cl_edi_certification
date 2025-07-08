@@ -1464,6 +1464,11 @@ class CertificationProcess(models.Model):
         self.ensure_one()
         return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_exportacion2(self.id, parsed_set_id=parsed_set_id)
 
+    def action_generate_batch_facturas_compra(self, parsed_set_id=None):
+        """Generar CONSOLIDADO FACTURAS DE COMPRA"""
+        self.ensure_one()
+        return self.env['l10n_cl_edi.certification.batch_file'].generate_batch_facturas_compra(self.id, parsed_set_id=parsed_set_id)
+
     def action_recover_missing_batch_documents(self, set_type, parsed_set_id=None):
         """Recuperar documentos batch faltantes sin regenerar"""
         self.ensure_one()

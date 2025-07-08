@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<LibroGuia xmlns="http://www.sii.cl/SiiDte" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" xsi:schemaLocation="http://www.sii.cl/SiiDte LibroGuia_v10.xsd">
+  <EnvioLibro ID="LibroGuia">
+    <Caratula>
+      <RutEmisor>76235291-5</RutEmisor>
+      <RutEnvia>76235291-5</RutEnvia>
+      <PeriodoTributario>2025-07</PeriodoTributario>
+      <FchResol>2025-03-26</FchResol>
+      <NroResol>0</NroResol>
+      <TipoLibro>ESPECIAL</TipoLibro>
+      <TipoEnvio>TOTAL</TipoEnvio>
+      <FolioNotificacion>001</FolioNotificacion>
+    </Caratula>
+    <ResumenPeriodo>
+      <TotFoliosAnulados>1</TotFoliosAnulados>
+      <TotGuiasAnuladas>0</TotGuiasAnuladas>
+      <TotGuiasVenta>1</TotGuiasVenta>
+      <TotMntGuiasVenta>1621404</TotMntGuiasVenta>
+      <TotGuiasNoVenta>
+        <CodTraslado>5</CodTraslado>
+        <CantGuias>1</CantGuias>
+        <MntGuias>0</MntGuias>
+      </TotGuiasNoVenta>
+    </ResumenPeriodo>
+    <Detalle>
+      <Folio>000016</Folio>
+      <TipoOper>5</TipoOper>
+      <FchDoc>2025-07-07</FchDoc>
+      <RUTDoc>76235291-5</RUTDoc>
+      <RznSoc>Diseño y Entretenimientos Within Play Ltda.</RznSoc>
+    </Detalle>
+    <Detalle>
+      <Folio>000017</Folio>
+      <TipoOper>1</TipoOper>
+      <FchDoc>2025-07-07</FchDoc>
+      <RUTDoc>9039454-1</RUTDoc>
+      <RznSoc>Christian Gabriel Navarro Montero</RznSoc>
+      <MntNeto>1362524</MntNeto>
+      <TasaImp>19.00</TasaImp>
+      <IVA>258880</IVA>
+      <MntTotal>1621404</MntTotal>
+    </Detalle>
+    <Detalle>
+      <Folio>000018</Folio>
+      <TipoOper>1</TipoOper>
+      <FchDoc>2025-07-07</FchDoc>
+      <RUTDoc>77161834-0</RUTDoc>
+      <RznSoc>Comercial Salomón Israel Hernández Contreras</RznSoc>
+      <MntNeto>1034893</MntNeto>
+      <TasaImp>19.00</TasaImp>
+      <IVA>196630</IVA>
+      <MntTotal>1231523</MntTotal>
+      <Anulado>1</Anulado>
+    </Detalle>
+  </EnvioLibro>
+</LibroGuia>

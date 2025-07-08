@@ -177,6 +177,11 @@ class CertificationBatchFile(models.Model):
         """Generar SET EXPORTACIÓN 2"""
         return self._generate_batch_file(certification_process_id, 'exportacion2', 'SET EXPORTACIÓN 2', parsed_set_id=parsed_set_id)
 
+    @api.model
+    def generate_batch_facturas_compra(self, certification_process_id, parsed_set_id=None):
+        """Generar CONSOLIDADO FACTURAS DE COMPRA"""
+        return self._generate_batch_file(certification_process_id, 'facturas_compra', 'CONSOLIDADO FACTURAS DE COMPRA', parsed_set_id=parsed_set_id)
+
     def _generate_batch_file(self, certification_process_id, set_type, name, parsed_set_id=None):
         """Motor principal de generación de archivos consolidados"""
         _logger.info(f"=== INICIANDO GENERACIÓN BATCH {set_type.upper()} ===")
@@ -315,8 +320,8 @@ class CertificationBatchFile(models.Model):
                 'basico': ['basic', 'exempt_invoice'],
                 'guias': ['dispatch_guide'],
                 'facturas_compra': ['purchase_invoice'],  # Para consolidado SetDTE de facturas de compra
-                'exportacion1': ['export_documents'],  # Se filtrarán por tipo 110
-                'exportacion2': ['export_documents'],  # Se filtrarán por tipos 111, 112
+                'exportacion1': ['export_documents'],  # Todos los documentos del set de exportación 1
+                'exportacion2': ['export_documents'],  # Todos los documentos del set de exportación 2
                 'ventas': ['basic', 'exempt_invoice'],  # Para libro de ventas
                 'compras': ['basic', 'exempt_invoice'],  # Para libro de compras (independiente)
                 'libro_guias': ['dispatch_guide'],  # Para libro de guías
@@ -339,15 +344,9 @@ class CertificationBatchFile(models.Model):
             for parsed_set in parsed_sets:
                 all_relevant_cases |= parsed_set.dte_case_ids
         
-        # Para exportación, filtrar por tipos de documento específicos
-        if set_type == 'exportacion1':
-            # Solo facturas de exportación (110)
-            relevant_cases = all_relevant_cases.filtered(lambda c: c.document_type_code == '110')
-        elif set_type == 'exportacion2':
-            # Solo notas de exportación (111, 112)
-            relevant_cases = all_relevant_cases.filtered(lambda c: c.document_type_code in ['111', '112'])
-        else:
-            relevant_cases = all_relevant_cases
+        # CAMBIO: No filtrar por tipos de documento - incluir TODOS los documentos del set
+        # Los consolidados deben contener todos los documentos que correspondan al set completo
+        relevant_cases = all_relevant_cases
         
         _logger.info(f"Casos relevantes para {set_type}: {len(relevant_cases)}")
         for case in relevant_cases:
