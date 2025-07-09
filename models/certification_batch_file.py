@@ -586,17 +586,41 @@ class CertificationBatchFile(models.Model):
                 # Generar DTE fresco usando el template base de Odoo
                 fresh_dte_xml = self._generate_single_dte_for_consolidado(document)
                 
+                # DEBUG: Log del XML generado para entender la estructura
+                _logger.info(f"XML generado para {document.name} (primeros 500 chars): {fresh_dte_xml[:500]}")
+                
                 # Parsear el DTE generado
                 dte_root = etree.fromstring(fresh_dte_xml.encode('ISO-8859-1'))
                 
-                # Buscar el nodo DTE en el XML generado
+                # DEBUG: Log de la estructura del XML parseado
+                _logger.info(f"Root tag: {dte_root.tag}")
+                _logger.info(f"Root children: {[child.tag for child in dte_root]}")
+                
+                # Buscar el nodo DTE con múltiples estrategias
+                dte_node = None
+                
+                # 1. Con namespace SiiDte
                 dte_node = dte_root.find('.//{http://www.sii.cl/SiiDte}DTE')
+                if dte_node is None:
+                    # 2. Sin namespace específico
+                    dte_node = dte_root.find('.//DTE')
+                if dte_node is None:
+                    # 3. Buscar por tag local
+                    for elem in dte_root.iter():
+                        if elem.tag.endswith('DTE'):
+                            dte_node = elem
+                            break
+                if dte_node is None:
+                    # 4. Si el root es un DTE directamente
+                    if dte_root.tag.endswith('DTE'):
+                        dte_node = dte_root
                 
                 if dte_node is not None:
                     dte_nodes.append(dte_node)
                     _logger.info(f"✓ DTE fresco generado para documento {document.name}")
                 else:
                     _logger.warning(f"⚠️ No se pudo extraer nodo DTE del documento fresco {document.name}")
+                    _logger.warning(f"Estructura XML completa: {[elem.tag for elem in dte_root.iter()][:20]}")
                     
             except Exception as e:
                 _logger.error(f"Error generando DTE fresco para documento {document.name}: {str(e)}")
