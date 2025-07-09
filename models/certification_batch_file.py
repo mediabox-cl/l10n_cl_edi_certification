@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.tools.float_utils import float_repr
 import base64
 import logging
 from lxml import etree
@@ -198,8 +199,8 @@ class CertificationBatchFile(models.Model):
             # 2. Regenerar documentos del set con nuevos folios
             regenerated_documents = self._regenerate_test_documents(process, set_type, parsed_set_id=parsed_set_id)
             
-            # 3. Extraer nodos DTE de los XMLs individuales
-            dte_nodes = self._extract_dte_nodes(regenerated_documents)
+            # 3. Generar nodos DTE frescos para el consolidado
+            dte_nodes = self._generate_fresh_dte_nodes(regenerated_documents)
             
             # 4. Construir XML consolidado
             consolidated_xml = self._build_consolidated_setdte(process, dte_nodes, set_type)
@@ -572,76 +573,83 @@ class CertificationBatchFile(models.Model):
         
         return regenerated_documents
 
-    def _extract_dte_nodes(self, documents):
-        """Extraer nodos DTE de los XMLs individuales usando lxml"""
-        _logger.info(f"Extrayendo nodos DTE de {len(documents)} documentos")
+    def _generate_fresh_dte_nodes(self, documents):
+        """Generar nodos DTE frescos para consolidado usando templates de Odoo"""
+        _logger.info(f"Generando DTEs frescos para {len(documents)} documentos en consolidado")
         
         dte_nodes = []
         
         for document in documents:
             try:
-                if not document.l10n_cl_dte_file:
-                    _logger.warning(f"Documento {document.name} sin archivo DTE")
-                    continue
+                _logger.info(f"Generando DTE fresco para documento {document.name}")
                 
-                # Decodificar XML del attachment
-                xml_data = document.sudo().l10n_cl_dte_file.raw.decode('ISO-8859-1')
+                # Generar DTE fresco usando el template base de Odoo
+                fresh_dte_xml = self._generate_single_dte_for_consolidado(document)
                 
-                # Parsear con lxml
-                root = etree.fromstring(xml_data.encode('ISO-8859-1'))
+                # Parsear el DTE generado
+                dte_root = etree.fromstring(fresh_dte_xml.encode('ISO-8859-1'))
                 
-                # Intentar múltiples estrategias para encontrar DTE
-                dte_node = None
-                
-                # Buscar nodo DTE con múltiples estrategias
-                # 1. Con namespace SiiDte
-                namespaces = {'sii': 'http://www.sii.cl/SiiDte'}
-                dte_node = root.find('.//sii:DTE', namespaces)
-                
-                # 2. Sin namespace específico
-                if dte_node is None:
-                    dte_node = root.find('.//DTE')
-                
-                # 3. Buscar por tag local (funciona para archivos DTE directos)
-                if dte_node is None:
-                    for elem in root.iter():
-                        if elem.tag.endswith('DTE'):
-                            dte_node = elem
-                            break
-                
-                # 4. Si el root es un EnvioDTE, buscar SetDTE/DTE
-                if dte_node is None and root.tag.endswith('EnvioDTE'):
-                    for setdte in root.iter():
-                        if setdte.tag.endswith('SetDTE'):
-                            for dte in setdte.iter():
-                                if dte.tag.endswith('DTE'):
-                                    dte_node = dte
-                                    break
-                            if dte_node is not None:
-                                break
+                # Buscar el nodo DTE en el XML generado
+                dte_node = dte_root.find('.//{http://www.sii.cl/SiiDte}DTE')
                 
                 if dte_node is not None:
                     dte_nodes.append(dte_node)
-                    _logger.info(f"✓ DTE extraído de documento {document.name}")
+                    _logger.info(f"✓ DTE fresco generado para documento {document.name}")
                 else:
-                    _logger.warning(f"⚠️ No se encontró nodo DTE en documento {document.name}")
-                    # Log de estructura XML para debug
-                    _logger.warning(f"   Estructura XML disponible:")
-                    for i, elem in enumerate(root.iter()):
-                        if i < 10:  # Solo primeros 10 elementos
-                            _logger.warning(f"     {i}: {elem.tag}")
-                        else:
-                            _logger.warning(f"     ... (más elementos)")
-                            break
+                    _logger.warning(f"⚠️ No se pudo extraer nodo DTE del documento fresco {document.name}")
                     
             except Exception as e:
-                _logger.error(f"Error extrayendo DTE de documento {document.name}: {str(e)}")
+                _logger.error(f"Error generando DTE fresco para documento {document.name}: {str(e)}")
                 continue
         
         if not dte_nodes:
-            raise UserError(_('No se pudieron extraer nodos DTE de los documentos'))
+            raise UserError(_('No se pudieron generar DTEs frescos para el consolidado'))
         
         return dte_nodes
+    
+    def _generate_single_dte_for_consolidado(self, document):
+        """Generar un DTE individual fresco para uso en consolidado"""
+        # Usar el método estándar de Odoo para generar DTE
+        # pero en el contexto del consolidado
+        folio = int(document.l10n_latam_document_number)
+        doc_id_number = 'F{}T{}'.format(folio, document.l10n_latam_document_type_id.code)
+        
+        # Generar barcode XML necesario para el DTE
+        dte_barcode_xml = document._l10n_cl_get_dte_barcode_xml()
+        
+        # Renderizar DTE usando template base de Odoo
+        dte_xml = self.env['ir.qweb']._render('l10n_cl_edi.dte_template', {
+            'move': document,
+            'format_vat': document._l10n_cl_format_vat,
+            'get_cl_current_strftime': document._get_cl_current_strftime,
+            'format_length': document._format_length,
+            'format_uom': document._format_uom,
+            'float_repr': float_repr,
+            'float_rr': document._float_repr_float_round,
+            'doc_id': doc_id_number,
+            'caf': document.l10n_latam_document_type_id._get_caf_file(document.company_id.id, folio),
+            'amounts': document._l10n_cl_get_amounts(),
+            'withholdings': document._l10n_cl_get_withholdings(),
+            'dte': dte_barcode_xml['ted'],
+            '__keep_empty_lines': True,
+        })
+        
+        # Firmar el DTE individual
+        digital_signature = document.company_id.sudo()._get_digital_signature(user_id=self.env.user.id)
+        signed_dte = document._sign_full_xml(
+            dte_xml, 
+            digital_signature, 
+            doc_id_number,
+            'env',  # Tipo de envío
+            False   # No es voucher
+        )
+        
+        return signed_dte
+    
+    def _extract_dte_nodes(self, documents):
+        """OBSOLETO: Método anterior que extraía DTEs existentes"""
+        # Ahora usamos _generate_fresh_dte_nodes en su lugar
+        return self._generate_fresh_dte_nodes(documents)
 
     def _build_consolidated_setdte(self, process, dte_nodes, set_type):
         """Construir XML consolidado con carátula y múltiples DTEs"""
