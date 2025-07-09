@@ -687,18 +687,20 @@ class CertificationBatchFile(models.Model):
             _logger.error(f"Error generando XML consolidado: {str(e)}")
             raise UserError(_('Error al construir XML consolidado: %s') % str(e))
         
+        # Agregar declaración XML correctamente formateada ANTES de firmar
+        xml_declaration = '<?xml version="1.0" encoding="ISO-8859-1" ?>'
+        xml_with_declaration = xml_declaration + '\n' + xml_string
+        
         # Firmar usando el método estándar de Odoo
         signed_xml = self.env['account.move']._sign_full_xml(
-            xml_string, 
+            xml_with_declaration, 
             digital_signature_sudo, 
             'SetDoc',
             'env',  # Tipo de envío
             False   # No es voucher
         )
         
-        # IMPORTANTE: NO modificar el XML después de firmarlo para no invalidar la firma digital
-        # El problema de declaración XML pegada se debe resolver en el método _sign_full_xml de Odoo
-        _logger.info("XML consolidado firmado digitalmente - conservando integridad de firma")
+        _logger.info("XML consolidado firmado digitalmente con declaración XML correcta")
         
         return signed_xml
 
