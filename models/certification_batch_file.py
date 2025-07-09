@@ -749,7 +749,7 @@ class CertificationBatchFile(models.Model):
         for doc_type, count in doc_counts.items():
             subtot_dte = etree.SubElement(caratula, 'SubTotDTE')
             
-            tipo_dte_elem = etree.SubElement(subtot_dte, 'TipoDTE')
+            tipo_dte_elem = etree.SubElement(subtot_dte, 'TpoDTE')
             tipo_dte_elem.text = doc_type
             
             nro_doc_elem = etree.SubElement(subtot_dte, 'NroDTE')
