@@ -664,8 +664,8 @@ class CertificationBatchFile(models.Model):
             dte_xml, 
             digital_signature, 
             doc_id_number,
-            'env',  # Tipo de envío
-            False   # No es voucher
+            'doc',  # Tipo de documento (no envío)
+            document.l10n_latam_document_type_id._is_doc_type_voucher()  # Verificar si es voucher
         )
         
         return signed_dte
