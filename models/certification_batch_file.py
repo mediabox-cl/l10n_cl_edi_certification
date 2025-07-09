@@ -728,6 +728,17 @@ class CertificationBatchFile(models.Model):
             False   # No es voucher
         )
         
+        # Corrección MÍNIMA: Solo separar declaración XML del elemento raíz si están pegados
+        if signed_xml.startswith('<?xml') and '?><EnvioDTE' in signed_xml:
+            # Encontrar exactamente donde termina la declaración XML
+            decl_end = signed_xml.find('?>') + 2
+            xml_declaration = signed_xml[:decl_end]
+            xml_body = signed_xml[decl_end:]
+            
+            # Solo agregar salto de línea entre declaración y elemento raíz
+            signed_xml = xml_declaration + '\n' + xml_body
+            _logger.info("Schema fix: Declaración XML separada del elemento raíz")
+        
         _logger.info("XML consolidado firmado digitalmente")
         
         return signed_xml
