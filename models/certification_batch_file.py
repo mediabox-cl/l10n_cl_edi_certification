@@ -706,22 +706,22 @@ class CertificationBatchFile(models.Model):
         company = process.company_id
         digital_signature_sudo = company.sudo()._get_digital_signature(user_id=self.env.user.id)
         
-        # Convertir estructura lxml a bytes con declaración XML incluida
+        # Convertir estructura lxml a string SIN declaración XML
         try:
-            xml_bytes = etree.tostring(
+            xml_string = etree.tostring(
                 envio_root, 
                 encoding='ISO-8859-1', 
-                xml_declaration=True, 
+                xml_declaration=False, 
                 pretty_print=True
-            )
+            ).decode('ISO-8859-1')
             _logger.info(f"XML consolidado generado exitosamente con {len(dte_nodes)} DTEs")
         except Exception as e:
             _logger.error(f"Error generando XML consolidado: {str(e)}")
             raise UserError(_('Error al construir XML consolidado: %s') % str(e))
         
-        # Firmar usando el método estándar de Odoo con bytes
+        # Firmar usando el método estándar de Odoo (que agregará la declaración XML)
         signed_xml = self.env['account.move']._sign_full_xml(
-            xml_bytes.decode('ISO-8859-1'), 
+            xml_string, 
             digital_signature_sudo, 
             'SetDoc',
             'env',  # Tipo de envío
