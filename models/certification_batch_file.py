@@ -696,16 +696,9 @@ class CertificationBatchFile(models.Model):
             False   # No es voucher
         )
         
-        # Corregir formato XML: separar declaración XML del elemento raíz
-        if signed_xml.startswith('<?xml') and '<EnvioDTE' in signed_xml:
-            # Buscar dónde termina la declaración XML
-            xml_decl_end = signed_xml.find('?>') + 2
-            xml_declaration = signed_xml[:xml_decl_end]
-            xml_body = signed_xml[xml_decl_end:]
-            
-            # Reconstruir con salto de línea entre declaración y elemento raíz
-            signed_xml = xml_declaration + '\n' + xml_body
-            _logger.info("XML corregido: declaración XML separada del elemento raíz")
+        # IMPORTANTE: NO modificar el XML después de firmarlo para no invalidar la firma digital
+        # El problema de declaración XML pegada se debe resolver en el método _sign_full_xml de Odoo
+        _logger.info("XML consolidado firmado digitalmente - conservando integridad de firma")
         
         return signed_xml
 
