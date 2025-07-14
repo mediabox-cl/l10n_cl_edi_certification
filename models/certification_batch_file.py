@@ -6,6 +6,8 @@ import logging
 from lxml import etree
 from datetime import datetime
 import xml.etree.ElementTree as ET
+import re
+from xml.sax.saxutils import escape
 
 _logger = logging.getLogger(__name__)
 
@@ -634,7 +636,8 @@ class CertificationBatchFile(models.Model):
     def _generate_single_dte_for_consolidado(self, document):
         """Generar un DTE individual fresco para uso en consolidado"""
         # Usar el método estándar de Odoo para generar DTE
-        # pero en el contexto del consolidado
+        # pero en el contexto del consolidado y certificación
+        document = document.with_context(l10n_cl_edi_certification=True)
         folio = int(document.l10n_latam_document_number)
         doc_id_number = 'F{}T{}'.format(folio, document.l10n_latam_document_type_id.code)
         
@@ -658,6 +661,9 @@ class CertificationBatchFile(models.Model):
             '__keep_empty_lines': True,
         })
         
+        # DEBUG: Verificar que el XML generado sea correcto
+        _logger.info(f"DTE XML generado para folio {folio}: {dte_xml[:500]}...")
+        
         # Firmar el DTE individual
         digital_signature = document.company_id.sudo()._get_digital_signature(user_id=self.env.user.id)
         signed_dte = document._sign_full_xml(
@@ -668,7 +674,19 @@ class CertificationBatchFile(models.Model):
             document.l10n_latam_document_type_id._is_doc_type_voucher()  # Verificar si es voucher
         )
         
-        return signed_dte
+        # Validar firma individual antes de retornar
+        if not self._validate_individual_signature(signed_dte, doc_id_number):
+            _logger.error(f"Firma individual inválida para DTE {doc_id_number}")
+            raise UserError(_(f'La firma individual del DTE {doc_id_number} no es válida. Verifique el certificado digital.'))
+        
+        # Limpiar namespaces redundantes
+        cleaned_dte = self._clean_dte_namespaces(signed_dte)
+        
+        # Normalizar salida XML
+        normalized_dte = self._normalize_xml_output(cleaned_dte)
+        
+        _logger.info(f"DTE {doc_id_number} firmado y validado exitosamente")
+        return normalized_dte
     
     def _extract_dte_nodes(self, documents):
         """OBSOLETO: Método anterior que extraía DTEs existentes"""
@@ -728,20 +746,231 @@ class CertificationBatchFile(models.Model):
             False   # No es voucher
         )
         
-        # Corrección MÍNIMA: Solo separar declaración XML del elemento raíz si están pegados
-        if signed_xml.startswith('<?xml') and '?><EnvioDTE' in signed_xml:
-            # Encontrar exactamente donde termina la declaración XML
-            decl_end = signed_xml.find('?>') + 2
-            xml_declaration = signed_xml[:decl_end]
-            xml_body = signed_xml[decl_end:]
-            
-            # Solo agregar salto de línea entre declaración y elemento raíz
-            signed_xml = xml_declaration + '\n' + xml_body
-            _logger.info("Schema fix: Declaración XML separada del elemento raíz")
+        # Normalizar salida XML usando método unificado
+        signed_xml = self._normalize_xml_output(signed_xml)
         
-        _logger.info("XML consolidado firmado digitalmente")
+        # Validar estructura final del SetDTE
+        if not self._validate_setdte_structure(signed_xml):
+            _logger.error("Estructura final del SetDTE inválida")
+            raise UserError(_('La estructura final del SetDTE no es válida.'))
+        
+        _logger.info(f"XML consolidado firmado digitalmente con {len(dte_nodes)} DTEs validados")
         
         return signed_xml
+        
+    def _validate_setdte_structure(self, setdte_xml):
+        """Validar estructura básica del SetDTE firmado"""
+        try:
+            # Parsear XML
+            root = etree.fromstring(setdte_xml.encode('ISO-8859-1'))
+            
+            # Verificar elemento raíz
+            if root.tag != '{http://www.sii.cl/SiiDte}EnvioDTE':
+                _logger.error(f"Elemento raíz incorrecto: {root.tag}")
+                return False
+            
+            # Verificar SetDTE
+            setdte_elem = root.find('.//{http://www.sii.cl/SiiDte}SetDTE')
+            if setdte_elem is None:
+                _logger.error("No se encontró elemento SetDTE")
+                return False
+            
+            # Verificar ID del SetDTE
+            if setdte_elem.get('ID') != 'SetDoc':
+                _logger.error(f"ID del SetDTE incorrecto: {setdte_elem.get('ID')}")
+                return False
+            
+            # Verificar Carátula
+            caratula = setdte_elem.find('.//{http://www.sii.cl/SiiDte}Caratula')
+            if caratula is None:
+                _logger.error("No se encontró Carátula en SetDTE")
+                return False
+            
+            # Verificar que hay DTEs
+            dtes = setdte_elem.findall('.//{http://www.sii.cl/SiiDte}DTE')
+            if not dtes:
+                _logger.error("No se encontraron DTEs en SetDTE")
+                return False
+            
+            # Verificar firma del SetDTE
+            setdte_signature = setdte_elem.find('.//{http://www.w3.org/2000/09/xmldsig#}Signature')
+            if setdte_signature is None:
+                _logger.error("No se encontró firma en SetDTE")
+                return False
+            
+            # Verificar que cada DTE tenga su firma individual
+            for i, dte in enumerate(dtes):
+                dte_signature = dte.find('.//{http://www.w3.org/2000/09/xmldsig#}Signature')
+                if dte_signature is None:
+                    _logger.error(f"DTE {i+1} no tiene firma individual")
+                    return False
+            
+            _logger.info(f"Estructura SetDTE válida con {len(dtes)} DTEs firmados")
+            return True
+            
+        except Exception as e:
+            _logger.error(f"Error validando estructura SetDTE: {str(e)}")
+            return False
+
+    def _validate_individual_signature(self, signed_dte_xml, doc_id):
+        """Validar que la firma individual del DTE sea válida"""
+        try:
+            # Parsear XML firmado
+            root = etree.fromstring(signed_dte_xml.encode('ISO-8859-1'))
+            
+            # Buscar elemento Signature
+            signature_elem = root.find('.//{http://www.w3.org/2000/09/xmldsig#}Signature')
+            if signature_elem is None:
+                _logger.error(f"No se encontró elemento Signature en DTE {doc_id}")
+                return False
+            
+            # Verificar Reference URI
+            reference_elem = signature_elem.find('.//{http://www.w3.org/2000/09/xmldsig#}Reference')
+            if reference_elem is None:
+                _logger.error(f"No se encontró elemento Reference en DTE {doc_id}")
+                return False
+            
+            reference_uri = reference_elem.get('URI')
+            expected_uri = f"#{doc_id}"
+            
+            if reference_uri != expected_uri:
+                _logger.error(f"Reference URI no coincide en DTE {doc_id}: esperado {expected_uri}, encontrado {reference_uri}")
+                return False
+            
+            # Verificar que existe el elemento con ID correspondiente
+            id_elem = root.find(f".//*[@ID='{doc_id}']")
+            if id_elem is None:
+                _logger.error(f"No se encontró elemento con ID {doc_id} en el DTE")
+                return False
+            
+            # Verificar estructura básica de la firma
+            signed_info = signature_elem.find('.//{http://www.w3.org/2000/09/xmldsig#}SignedInfo')
+            signature_value = signature_elem.find('.//{http://www.w3.org/2000/09/xmldsig#}SignatureValue')
+            key_info = signature_elem.find('.//{http://www.w3.org/2000/09/xmldsig#}KeyInfo')
+            
+            if not all([signed_info, signature_value, key_info]):
+                _logger.error(f"Estructura de firma incompleta en DTE {doc_id}")
+                return False
+            
+            # Verificar que SignatureValue no esté vacío
+            if not signature_value.text or not signature_value.text.strip():
+                _logger.error(f"SignatureValue vacío en DTE {doc_id}")
+                return False
+            
+            _logger.info(f"Validación de firma individual exitosa para DTE {doc_id}")
+            return True
+            
+        except Exception as e:
+            _logger.error(f"Error validando firma individual de DTE {doc_id}: {str(e)}")
+            return False
+
+    def _clean_dte_namespaces(self, dte_xml):
+        """Limpiar namespaces redundantes en DTEs individuales"""
+        try:
+            # Parsear XML
+            root = etree.fromstring(dte_xml.encode('ISO-8859-1'))
+            
+            # Definir namespaces correctos
+            sii_ns = 'http://www.sii.cl/SiiDte'
+            xmldsig_ns = 'http://www.w3.org/2000/09/xmldsig#'
+            
+            # Función recursiva para limpiar namespaces redundantes
+            def clean_element(elem, parent_ns=None):
+                # Si el elemento ya tiene el namespace del padre, no es necesario redeclararlo
+                if elem.tag.startswith('{' + sii_ns + '}') and parent_ns == sii_ns:
+                    # Remover declaración redundante si existe
+                    if elem.get('xmlns') == sii_ns:
+                        elem.attrib.pop('xmlns', None)
+                elif elem.tag.startswith('{' + xmldsig_ns + '}'):
+                    # Para elementos de signature, mantener namespace si es necesario
+                    if parent_ns != xmldsig_ns and 'xmlns' not in elem.attrib:
+                        elem.set('xmlns', xmldsig_ns)
+                
+                # Determinar namespace actual
+                current_ns = sii_ns if elem.tag.startswith('{' + sii_ns + '}') else xmldsig_ns if elem.tag.startswith('{' + xmldsig_ns + '}') else parent_ns
+                
+                # Limpiar elementos hijos
+                for child in elem:
+                    clean_element(child, current_ns)
+            
+            # Limpiar desde la raíz
+            clean_element(root)
+            
+            # Convertir de vuelta a string
+            cleaned_xml = etree.tostring(
+                root,
+                encoding='ISO-8859-1',
+                xml_declaration=False
+            ).decode('ISO-8859-1')
+            
+            _logger.info("Limpieza de namespaces completada")
+            return cleaned_xml
+            
+        except Exception as e:
+            _logger.warning(f"Error limpiando namespaces: {str(e)}. Retornando XML original")
+            return dte_xml
+
+    def _normalize_xml_output(self, xml_string):
+        """Método unificado para normalizar salida XML"""
+        try:
+            # Corrección 1: Separar declaración XML del elemento raíz si están pegados
+            if xml_string.startswith('<?xml') and ('?><' in xml_string):
+                # Buscar el final de la declaración XML
+                decl_match = re.search(r'<\?xml[^>]+\?>', xml_string)
+                if decl_match:
+                    decl_end = decl_match.end()
+                    xml_declaration = xml_string[:decl_end]
+                    xml_body = xml_string[decl_end:].lstrip()
+                    
+                    # Solo agregar salto de línea si no existe
+                    if not xml_declaration.endswith('\n') and not xml_body.startswith('\n'):
+                        xml_string = xml_declaration + '\n' + xml_body
+                        _logger.debug("Declaración XML separada del elemento raíz")
+            
+            # Corrección 2: Escapar caracteres especiales en contenido de texto
+            # Esto es importante para la canonicalización
+            xml_string = self._escape_xml_content(xml_string)
+            
+            # Corrección 3: Normalizar espacios en blanco entre elementos
+            xml_string = re.sub(r'>\s*<', '><', xml_string)
+            xml_string = re.sub(r'>\s+', '>', xml_string)
+            xml_string = re.sub(r'\s+<', '<', xml_string)
+            
+            return xml_string
+            
+        except Exception as e:
+            _logger.warning(f"Error normalizando XML: {str(e)}. Retornando XML original")
+            return xml_string
+
+    def _escape_xml_content(self, xml_string):
+        """Escapar caracteres especiales en contenido XML"""
+        try:
+            # Parsear y re-serializar para asegurar escape correcto
+            root = etree.fromstring(xml_string.encode('ISO-8859-1'))
+            
+            # Función recursiva para escapar contenido de texto
+            def escape_text_content(elem):
+                if elem.text:
+                    elem.text = escape(elem.text)
+                if elem.tail:
+                    elem.tail = escape(elem.tail)
+                for child in elem:
+                    escape_text_content(child)
+            
+            escape_text_content(root)
+            
+            # Convertir de vuelta a string
+            escaped_xml = etree.tostring(
+                root,
+                encoding='ISO-8859-1',
+                xml_declaration=False
+            ).decode('ISO-8859-1')
+            
+            return escaped_xml
+            
+        except Exception as e:
+            _logger.warning(f"Error escapando contenido XML: {str(e)}. Retornando XML original")
+            return xml_string
 
     def _build_consolidated_caratula(self, process, dte_nodes, set_type):
         """Generar carátula consolidada con SubTotDTE"""
