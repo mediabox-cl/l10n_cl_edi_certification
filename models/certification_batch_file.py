@@ -707,13 +707,12 @@ class CertificationBatchFile(models.Model):
         else:
             _logger.warning(f"DTE {doc_id_number} tiene problemas de firma, pero continuando con procesamiento")
         
-        # Limpiar namespaces redundantes
-        cleaned_dte = self._clean_dte_namespaces(signed_dte)
+        # TEMPORAL: Deshabilitar limpieza y normalización que causan problemas de encoding
+        # cleaned_dte = self._clean_dte_namespaces(signed_dte)
+        # normalized_dte = self._normalize_xml_output(cleaned_dte)
         
-        # Normalizar salida XML
-        normalized_dte = self._normalize_xml_output(cleaned_dte)
-        
-        return normalized_dte
+        # Retornar el DTE firmado tal como viene del módulo base
+        return signed_dte
     
     def _extract_dte_nodes(self, documents):
         """OBSOLETO: Método anterior que extraía DTEs existentes"""
@@ -773,8 +772,16 @@ class CertificationBatchFile(models.Model):
             False   # No es voucher
         )
         
-        # Normalizar salida XML usando método unificado
-        signed_xml = self._normalize_xml_output(signed_xml)
+        # TEMPORAL: Deshabilitar normalización que causa problemas de encoding
+        # signed_xml = self._normalize_xml_output(signed_xml)
+        
+        # Aplicar solo la corrección mínima necesaria para schema
+        if signed_xml.startswith('<?xml') and '?><EnvioDTE' in signed_xml:
+            decl_end = signed_xml.find('?>') + 2
+            xml_declaration = signed_xml[:decl_end]
+            xml_body = signed_xml[decl_end:]
+            signed_xml = xml_declaration + '\n' + xml_body
+            _logger.debug("Aplicada corrección mínima de schema - separación XML")
         
         # Validar estructura final del SetDTE
         if not self._validate_setdte_structure(signed_xml):
