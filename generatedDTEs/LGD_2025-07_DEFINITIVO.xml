@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='ISO-8859-1'?>
 <LibroGuia xmlns="http://www.sii.cl/SiiDte" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" xsi:schemaLocation="http://www.sii.cl/SiiDte LibroGuia_v10.xsd">
   <EnvioLibro ID="LibroGuia">
     <Caratula>
@@ -27,7 +27,7 @@
       <TipoOper>5</TipoOper>
       <FchDoc>2025-07-07</FchDoc>
       <RUTDoc>76235291-5</RUTDoc>
-      <RznSoc>Dise√±o y Entretenimientos Within Play Ltda.</RznSoc>
+      <RznSoc>DiseÒo y Entretenimientos Within Play Ltda.</RznSoc>
     </Detalle>
     <Detalle>
       <Folio>000017</Folio>
@@ -45,12 +45,13 @@
       <TipoOper>1</TipoOper>
       <FchDoc>2025-07-07</FchDoc>
       <RUTDoc>77161834-0</RUTDoc>
-      <RznSoc>Comercial Salom√≥n Israel Hern√°ndez Contreras</RznSoc>
+      <RznSoc>Comercial SalomÛn Israel Hern·ndez Contreras</RznSoc>
       <MntNeto>1034893</MntNeto>
       <TasaImp>19.00</TasaImp>
       <IVA>196630</IVA>
       <MntTotal>1231523</MntTotal>
       <Anulado>1</Anulado>
     </Detalle>
+    <TmstFirma>2025-08-06T21:18:09</TmstFirma>
   </EnvioLibro>
 </LibroGuia>

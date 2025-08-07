@@ -1,7 +1,6 @@
 @"
 # Python
 reference_modules/
-odoo-test/
 addons/
 __pycache__/
 *.py[cod]
